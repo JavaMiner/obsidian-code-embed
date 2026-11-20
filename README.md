@@ -6,6 +6,12 @@ Assemble prompts from reusable note fragments instead of copying the same instru
 
 > Compatibility: examples use the planned Code Embed syntax `![x]`. The 0.1.0 parser currently recognizes only Obsidian’s native embed notation `![[x]]`. To run these examples in 0.1.0, replace the single bracket pair around an embed with a double pair. Some embeds outside code fences are still handled by Obsidian itself.
 
+## Local `$[...]` embeds
+
+`$[<tag>]` inserts the lines containing the tag, `$[<<tag>>]` its inner content, `$[#Heading]` the section including the heading, and `$[##Heading]` the section body. `$[.:<tag>]` remains available. The shorthand refers to the current note: the current code block is checked before the file.
+
+For example, with `<lh>localhost:$1</lh>` in the code block, `$[<<lh>>(8000)]` produces `localhost:8000`. `\$[<tag>]` leaves the notation literal in the expanded output.
+
 ## Installation
 
 Download `main.js`, `manifest.json`, and `styles.css` from a release. Copy them to `.obsidian/plugins/code-embed/` inside your vault and enable Code Embed in Community plugins. To build locally, run `npm run build` and `npm test`, then use the files in `dist/`.

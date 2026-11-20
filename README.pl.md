@@ -6,6 +6,12 @@ Zamiast kopiować instrukcje do wielu promptów, trzymaj je w notatkach i skład
 
 > Zgodność: przykłady pokazują docelową składnię Code Embed `![x]`. Bieżący parser wersji 0.1.0 rozpoznaje wyłącznie natywną składnię osadzeń Obsidiana `![[x]]`. Aby uruchomić przykład w tej wersji, zamień pojedynczą parę nawiasów osadzenia na podwójną. Poza blokami kodu część osadzeń nadal obsługuje sam Obsidian.
 
+## Lokalne osadzenia `$[...]`
+
+`$[<tag>]` wstawia linie z tagiem, `$[<<tag>>]` tylko jego wnętrze, `$[#Sekcja]` sekcję z nagłówkiem, a `$[##Sekcja]` samą treść. Pełny zapis `$[.:<tag>]` nadal działa. Skrót wskazuje bieżącą notatkę: najpierw przeszukiwany jest bieżący blok kodu, potem plik.
+
+Przykład: jeśli w bloku masz `<lh>localhost:$1</lh>`, `$[<<lh>>(8000)]` wstawi `localhost:8000`. `\$[<tag>]` pozostawia zapis dosłowny w rozwinięciu.
+
 ## Instalacja
 
 Pobierz `main.js`, `manifest.json` i `styles.css` jako osobne załączniki wydania. Włóż je do `.obsidian/plugins/code-embed/` w swoim skarbcu i włącz Code Embed w Community plugins. Do lokalnego buildu uruchom `npm run build`, `npm test` i użyj plików z `dist/`.

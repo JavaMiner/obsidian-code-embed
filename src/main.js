@@ -9,7 +9,8 @@ const { RangeSetBuilder, StateEffect, StateField } = require("@codemirror/state"
 const PANES = ["outgoing-link", "backlink"];
 const VIEW_TYPE = "code-embed-panel";
 const refresh = StateEffect.define();
-const REF_RE = () => /(?<esc>\\)?(?<all>!\[\[(?<ref>[^\]]+)\]\])/g;
+const REF_RE = () => /(?<esc>\\)?(?<all>(?=[!$]\[\[?(?<ref>[^\[\]\r\n]+)\])(?:!\[\[[^\[\]\r\n]+\]\]|\$\[[^\[\]\r\n]+\]))/g;
+const hasEmbed = (text) => text.includes('![[') || text.includes('$[');
 
 const DEFAULTS = {
   maxDepth: 5,
@@ -134,6 +135,7 @@ function fenceAware(lines) {
 
 // Parser odwołania: "x:<tag>", "x:<<tag>>", "x:10-20", "x#sekcja", "x##sekcja", "x#H1#H2", z opcjonalnym "(args)".
 function parseRef(ref) {
+  if (/^\s*[:<#]/.test(ref)) ref = '.:' + ref.trimStart().replace(/^:/, '');
   const hashAt = ref.indexOf("#"), colAt = ref.indexOf(":");
   let name, range = "", heading = false;
   if (hashAt >= 0 && (colAt < 0 || hashAt < colAt)) {
@@ -365,7 +367,7 @@ function makeEditorExt(plugin) {
           inF = !inF;
           continue;
         }
-        if (!inF || !line.text.includes("![[")) continue;
+        if (!inF || !hasEmbed(line.text)) continue;
         if (sel.some((r) => r.from <= line.to && r.to >= line.from)) continue;
         const re = REF_RE(); let m;
         while ((m = re.exec(line.text)) !== null) {
@@ -781,7 +783,7 @@ class CodeEmbedPlugin extends Plugin {
         inF = !inF;
         continue;
       }
-      if (!line.includes("![[")) continue;
+      if (!hasEmbed(line)) continue;
       const re = REF_RE(); let m;
       while ((m = re.exec(line)) !== null) {
         if (m.groups.esc) continue;
@@ -932,7 +934,12 @@ class CodeEmbedPlugin extends Plugin {
     const lines = text.split("\n"), fence = fenceAware(lines), out = [];
     const re = /(!?)\[\[([^\]]+)\]\]/g;
     lines.forEach((line, idx) => {
-      if (!line.includes("[[")) return;
+      for (const m of line.matchAll(REF_RE())) {
+        if (!m.groups.esc && m.groups.all.startsWith('$[')) {
+          out.push({ ref: m.groups.ref, embed: true, line: off + idx, ch: m.index, fence: fence[idx] });
+        }
+      }
+      if (!line.includes('[[')) return;
       re.lastIndex = 0;
       let m;
       while ((m = re.exec(line)) !== null) {
@@ -1385,7 +1392,7 @@ class CodeEmbedPlugin extends Plugin {
       if (!code || pre.dataset.ce) continue;
       const raw = code.textContent;
       const lang = (pre.className + " " + code.className).match(/language-(\w+)/)?.[1] ?? "";
-      const has = raw.includes("![[");
+      const has = hasEmbed(raw);
       const isMd = lang === "markdown" || lang === "md";
       const isXml = lang === "xml";
       const autoView = lang === "ce" || lang === "codeembed";
@@ -1487,7 +1494,7 @@ class CodeEmbedPlugin extends Plugin {
     // Obsidian nie zawsze tworzy .internal-embed dla niestandardowej składni.
     // Obsłuż także odwołania, które pozostały zwykłym tekstem DOM.
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-      acceptNode: (node) => node.nodeValue.includes("![[") &&
+      acceptNode: (node) => hasEmbed(node.nodeValue) &&
         !node.parentElement?.closest("pre, code, a, .internal-embed, [data-ce-rendered]")
         ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
     });
@@ -1568,13 +1575,16 @@ function rewriteText(text, fn) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (FENCE_RE.test(line)) { inF = !inF; continue; }
-    if (!line.includes("![[")) continue;
+    if (!hasEmbed(line)) continue;
     lines[i] = line.replace(REF_RE(), (all, esc, _all, ref) => {
       if (esc) return all;
-      const nr = fn(ref, inF);
-      if (nr == null || nr === ref) return all;
+      const shorthand = _all.startsWith('$[') && /^\s*[:<#]/.test(ref);
+      const canonical = shorthand ? '.:' + ref.trimStart().replace(/^:/, '') : ref;
+      const nr = fn(canonical, inF);
+      if (nr == null || nr === canonical) return all;
       count++;
-      return "![[" + nr + "]]";
+      if (_all.startsWith('$[')) return '$[' + (shorthand ? nr.replace(/^\.\s*:/, '') : nr) + ']';
+      return '![[' + nr + ']]';
     });
   }
   return { text: lines.join("\n"), count };
@@ -1857,7 +1867,7 @@ const renameMethods = {
     let files = 0, refs = 0;
     for (const f of this.app.vault.getMarkdownFiles()) {
       const raw = await this.app.vault.cachedRead(f);
-      if (!raw.includes("![[")) continue;
+      if (!hasEmbed(raw)) continue;
       if (rewriteText(raw, (r, inF) => mapper(r, inF, f)).count === 0) continue;
       let n = 0;
       await this.app.vault.process(f, (cur) => {
@@ -1926,7 +1936,8 @@ const renameMethods = {
   // ---------- tag ----------
   async renameTagRefs(file, oldTag, newTag) {
     await this.withRenameMute(async () => {
-      const re = new RegExp("^(\\s*:\\s*<)" + rnEsc(oldTag) + "(>>?)");
+
+      const re = new RegExp("^(\\s*:\\s*<<?)" + rnEsc(oldTag) + "(>>?)");
       const res = await this.rewriteAll((ref, inF, src) => {
         const p = parseRef(ref);
         if (!p.range || p.range.startsWith("#")) return null;
