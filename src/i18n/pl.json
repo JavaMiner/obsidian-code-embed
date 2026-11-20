@@ -1,0 +1,14 @@
+{
+  "view": "Podgląd",
+  "code": "Kod",
+  "copy": "Copy+",
+  "copied": "Skopiowano",
+  "panel": "Code Embed: błędy i powiązania",
+  "openPanel": "Otwórz panel Code Embed",
+  "empty": "Brak.",
+  "copyBlock": "Kopiuj rozwinięty blok kodu pod kursorem",
+  "notInBlock": "Kursor nie jest w bloku kodu.",
+  "blockCopied": "Skopiowano rozwinięty blok.",
+  "backlinks": "Zwrotne",
+  "support": "Wesprzyj Code Embed"
+}

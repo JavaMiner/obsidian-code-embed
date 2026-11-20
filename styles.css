@@ -1,0 +1,9 @@
+.ce-pre { position: relative; }
+.ce-bar { position: absolute; top: .35em; inset-inline-end: 2.5em; z-index: 1; display: flex; gap: .3em; }
+.ce-rendered { padding-block-start: 2em; white-space: normal; }
+.ce-plain { white-space: pre-wrap; }
+.ce-inline-import { display: inline; white-space: nowrap; }
+.ce-inline-val { margin-inline-start: .35em; }
+.ce-children { padding-inline-start: 1em; }
+.ce-err { color: var(--ce-err-text, var(--text-error)); }
+.ce-native-section { max-height: var(--ce-panel-max, 55vh); overflow: auto; }

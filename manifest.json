@@ -1,0 +1,9 @@
+{
+  "id": "code-embed",
+  "name": "Code Embed",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Expand reusable note fragments and preview structured prompts.",
+  "author": "Jakub Wajda",
+  "isDesktopOnly": false
+}

@@ -1,0 +1,10 @@
+const fs=require('node:fs');
+const dict=Object.fromEntries(['en','pl'].map(l=>[l,JSON.parse(fs.readFileSync(`src/i18n/${l}.json`,'utf8'))]));
+if(JSON.stringify(Object.keys(dict.en).sort())!==JSON.stringify(Object.keys(dict.pl).sort())) throw Error('Missing translation keys');
+const prelude=`'use strict';
+const CE_LOCALES=${JSON.stringify(dict)};
+const t=(key)=>CE_LOCALES[(globalThis.moment?.locale?.() || globalThis.navigator?.language || 'en').split('-')[0]]?.[key] ?? CE_LOCALES.en[key] ?? key;
+`;
+fs.mkdirSync('dist',{recursive:true});
+fs.writeFileSync('dist/main.js',prelude+fs.readFileSync('src/main.js','utf8'));
+for(const f of ['manifest.json','styles.css']) fs.copyFileSync(f,`dist/${f}`);
