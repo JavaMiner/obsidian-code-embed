@@ -3,17 +3,31 @@ on:
   push:
     tags: ['[0-9]*.[0-9]*.[0-9]*']
 permissions:
-  contents: write
+  contents: read
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm ci
       - run: npm run build && npm test && node --check dist/main.js
       - run: test "$GITHUB_REF_NAME" = "$(node -p 'require("./manifest.json").version')"
+      - uses: actions/attest@v4
+        with:
+          subject-path: |
+            dist/main.js
+            dist/manifest.json
+            dist/styles.css
       - run: gh release create "$GITHUB_REF_NAME" dist/main.js dist/manifest.json dist/styles.css --verify-tag --generate-notes --draft
         env:
           GH_TOKEN: ${{ github.token }}
