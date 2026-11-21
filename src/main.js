@@ -9,8 +9,8 @@ const { RangeSetBuilder, StateEffect, StateField } = require("@codemirror/state"
 const PANES = ["outgoing-link", "backlink"];
 const VIEW_TYPE = "code-embed-panel";
 const refresh = StateEffect.define();
-const REF_RE = () => /(?<esc>\\)?(?<all>(?=[!$]\[\[?(?<ref>[^\[\]\r\n]+)\])(?:!\[\[[^\[\]\r\n]+\]\]|\$\[[^\[\]\r\n]+\]))/g;
-const hasEmbed = (text) => text.includes('![[') || text.includes('$[');
+const REF_RE = () => /(?<esc>\\)?(?<all>(?=[!$]\[\[?(?<ref>[^\[\]\r\n]+)\])(?:!\[\[[^\[\]\r\n]+\]\]|!(?!\[\[)\[[^\[\]\r\n]+\](?![\[(\]])|\$\[[^\[\]\r\n]+\]))/g;
+const hasEmbed = (text) => text.includes('![') || text.includes('$[');
 
 const DEFAULTS = {
   maxDepth: 5,
@@ -322,19 +322,31 @@ const countNl = (s) => { let n = 0; for (let i = 0; i < s.length; i++) if (s.cha
 // =====================================================================
 
 class EmbedWidget extends WidgetType {
-  constructor(plugin, ref, ver, local) { super(); this.plugin = plugin; this.ref = ref; this.ver = ver; this.local = local; }
-  eq(o) { return o.ref === this.ref && o.ver === this.ver && o.local === this.local; }
+  constructor(plugin, ref, ver, local, lang, path) { super(); Object.assign(this, {plugin, ref, ver, local, lang, path}); }
+  eq(o) { return o.ref === this.ref && o.ver === this.ver && o.local === this.local && o.lang === this.lang && o.path === this.path; }
   toDOM() {
     const s = document.createElement("span");
     s.className = "ce-widget";
     s.textContent = "…";
-    const path = this.plugin.app.workspace.getActiveFile()?.path ?? "";
-    this.plugin.resolve(this.ref, path, [], false, this.local).then((t) => {
+    const path = this.path;
+    const owner = this.plugin.addChild(new Component());
+    s.ceOwner = owner;
+    this.plugin.resolve(this.ref, path, [], false, this.local).then(async (t) => {
+      if (!s.ceOwner) return;
+      if (this.lang && !/^(?:ce|codeembed|md|markdown|xml)$/.test(this.lang) && !hasErrors(t)) {
+        const holder = document.createElement('div'); holder.dataset.ceRendered = '1';
+        const fence = '`'.repeat(t.split(/[^`]+/).reduce((n,x)=>Math.max(n,x.length+1),3));
+        await this.plugin.renderMd(fence + this.lang + '\n' + t + '\n' + fence, holder, path, owner);
+        if (!s.ceOwner) return;
+        const code = holder.querySelector('pre code');
+        if (code) { s.replaceChildren(...code.childNodes); return; }
+      }
       const bad = fillErr(s, t);
       s.classList.toggle("ce-widget-error", bad);
-    });
+    }).catch(() => { if (s.ceOwner) s.textContent = this.ref; });
     return s;
   }
+  destroy(s) { if (s.ceOwner) this.plugin.removeChild(s.ceOwner); s.ceOwner = null; }
   ignoreEvent() { return false; }
 }
 
@@ -351,11 +363,13 @@ function makeEditorExt(plugin) {
       const b = new RangeSetBuilder();
       if (!plugin.settings.livePreview) return b.finish();
       const doc = view.state.doc, sel = view.state.selection.ranges;
-      let inF = false, block = "";
+      let inF = false, block = "", lang = "";
+      const path = view.state.field(editorInfoField, false)?.file?.path ?? "";
       for (let n = 1; n <= doc.lines; n++) {
         const line = doc.line(n);
         if (FENCE_RE.test(line.text)) {
           if (!inF) {
+            lang = /^\s*(?:`{3,}|~{3,})\s*([\w+-]+)/.exec(line.text)?.[1] ?? "";
             const out = [];
             for (let k = n + 1; k <= doc.lines; k++) {
               const t = doc.line(k).text;
@@ -373,7 +387,7 @@ function makeEditorExt(plugin) {
         while ((m = re.exec(line.text)) !== null) {
           if (m.groups.esc) continue;
           const from = line.from + m.index, to = from + m[0].length;
-          b.add(from, to, Decoration.replace({ widget: new EmbedWidget(plugin, m.groups.ref, plugin.ver, block) }));
+          b.add(from, to, Decoration.replace({ widget: new EmbedWidget(plugin, m.groups.ref, plugin.ver, block, lang, path) }));
         }
       }
       return b.finish();
@@ -875,7 +889,15 @@ class CodeEmbedPlugin extends Plugin {
       const f = this.app.vault.getAbstractFileByPath(sourcePath);
       return f && f.extension ? f : null;
     }
-    return this.app.metadataCache.getFirstLinkpathDest(name, sourcePath);
+    const linked = this.app.metadataCache.getFirstLinkpathDest(name, sourcePath);
+    if (linked) return linked;
+    if (!/\.(?:[cm]?js|jsx|tsx?|json|css|html|xml|ya?ml|toml|py|java|sh|sql|txt)$/i.test(name)) return null;
+    const folder = sourcePath.slice(0, Math.max(0, sourcePath.lastIndexOf('/') + 1));
+    for (const path of new Set([folder + name, name])) {
+      const file = this.app.vault.getAbstractFileByPath(path);
+      if (file && typeof file.extension === 'string') return file;
+    }
+    return null;
   }
 
   async expand(text, sourcePath, stack = [], mark = false, local = null) {
@@ -1403,7 +1425,7 @@ class CodeEmbedPlugin extends Plugin {
       const expandedRaw = has ? await this.expand(raw, path, [], false, raw) : raw;
       const expanded = applyArgs(expandedRaw, [], false);
 
-      if (!autoView && (isXml || isMd) && expanded !== raw) {
+      if (!autoView && expanded !== raw) {
         const holder = document.createElement("div"); holder.dataset.ceRendered = "1";
         const ticks = "`".repeat(expanded.split(/[^`]+/).reduce((n, x) => Math.max(n, x.length + 1), 3));
         const owner = new MarkdownRenderChild(pre); ctx.addChild(owner);
@@ -1429,7 +1451,10 @@ class CodeEmbedPlugin extends Plugin {
         box.className = "ce-rendered markdown-rendered";
         if (hasErrors(expanded)) box.classList.add("ce-has-error");
         pre.appendChild(box);
-        if (autoView || ((isXml || isMd) && this.settings.viewTree)) {
+        if (!autoView && lang && !isXml && !isMd) {
+          const display = code.cloneNode(true); display.style.display = "";
+          const frame = document.createElement("pre"); frame.append(display); box.append(frame);
+        } else if (autoView || ((isXml || isMd) && this.settings.viewTree)) {
           const marked = applyArgs(unescapeRefs(await this.expand(raw, path, [], true, raw)), [], false);
           const tree = parseTree(marked);
           if (hasStructure(tree)) await this.renderTree(tree.children, box, path, isXml && this.settings.xmlPlain, 0);
