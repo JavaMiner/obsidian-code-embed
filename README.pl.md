@@ -1,16 +1,12 @@
 # Code Embed do Obsidiana
 
+Nowa składnia na gałęzi `main`: `![x]` osadza całą notatkę, `![<tag>]` cały lokalny tag, `![<<tag>>]` jego wnętrze, `![#Sekcja]` sekcję z nagłówkiem, a `![##Sekcja]` samą treść. `$#Sekcja` nie jest składnią osadzenia. `![[x]]` to natywny zapis Obsidiana.
+
+[Deutsch](README.de.md) · [Français](README.fr.md) · [Español](README.es.md) · [Nederlands](README.nl.md) · [Italiano](README.it.md) · [Revolut](https://revolut.me/jakubwt6)
+
 [English](README.md) · [Wydania](../../releases) · [Postaw mi kawę (Wise)](https://wise.com/pay/me/jakubw238)
 
 Zamiast kopiować instrukcje do wielu promptów, trzymaj je w notatkach i składaj z fragmentów. Copy+ kopiuje rozwiniętą treść bloku, a View pozwala obejrzeć strukturę bez zmiany źródła.
-
-> Zgodność: przykłady pokazują docelową składnię Code Embed `![x]`. Bieżący parser wersji 0.1.0 rozpoznaje wyłącznie natywną składnię osadzeń Obsidiana `![[x]]`. Aby uruchomić przykład w tej wersji, zamień pojedynczą parę nawiasów osadzenia na podwójną. Poza blokami kodu część osadzeń nadal obsługuje sam Obsidian.
-
-## Lokalne osadzenia `$[...]`
-
-`$[<tag>]` wstawia linie z tagiem, `$[<<tag>>]` tylko jego wnętrze, `$[#Sekcja]` sekcję z nagłówkiem, a `$[##Sekcja]` samą treść. Pełny zapis `$[.:<tag>]` nadal działa. Skrót wskazuje bieżącą notatkę: najpierw przeszukiwany jest bieżący blok kodu, potem plik.
-
-Przykład: jeśli w bloku masz `<lh>localhost:$1</lh>`, `$[<<lh>>(8000)]` wstawi `localhost:8000`. `\$[<tag>]` pozostawia zapis dosłowny w rozwinięciu.
 
 ## Instalacja
 
@@ -53,7 +49,7 @@ Zdefiniuj w `Fragmenty.md`: `<ocena>temat: $1; ocena: ${2:dobra}</ocena>`. Wywo�
 
 ## Przykład: prompt do pisania promptów
 
-Zapisz reguły ogólne w notatce `Fragmenty`, pod nagłówkiem `Styl`. Przykład poniżej jest skróconą adaptacją promptu i używa składni docelowej; do wersji 0.1.0 zastosuj uwagę o zgodności powyżej.
+Zapisz reguły ogólne w notatce `Fragmenty`, pod nagłówkiem `Styl`. Przykład poniżej jest skróconą adaptacją promptu i używa pojedynczych nawiasów.
 
 ~~~markdown
 ```ce

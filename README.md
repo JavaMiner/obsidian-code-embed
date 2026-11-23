@@ -1,16 +1,12 @@
 # Code Embed for Obsidian
 
+New syntax on `main`: `![x]` embeds a note, `![<tag>]` the local tag, `![<<tag>>]` its contents, `![#Heading]` a local section with its heading, and `![##Heading]` its body. `$#Heading` is not embed syntax. `![[x]]` is native Obsidian notation.
+
+[Deutsch](README.de.md) · [Français](README.fr.md) · [Español](README.es.md) · [Nederlands](README.nl.md) · [Italiano](README.it.md) · [Revolut](https://revolut.me/jakubwt6)
+
 [Polski](README.pl.md) · [Releases](../../releases) · [Buy me a coffee (Wise)](https://wise.com/pay/me/jakubw238)
 
 Assemble prompts from reusable note fragments instead of copying the same instructions into several notes. Copy+ copies the expanded block; View lets you inspect its structure without changing the source.
-
-> Compatibility: examples use the planned Code Embed syntax `![x]`. The 0.1.0 parser currently recognizes only Obsidian’s native embed notation `![[x]]`. To run these examples in 0.1.0, replace the single bracket pair around an embed with a double pair. Some embeds outside code fences are still handled by Obsidian itself.
-
-## Local `$[...]` embeds
-
-`$[<tag>]` inserts the lines containing the tag, `$[<<tag>>]` its inner content, `$[#Heading]` the section including the heading, and `$[##Heading]` the section body. `$[.:<tag>]` remains available. The shorthand refers to the current note: the current code block is checked before the file.
-
-For example, with `<lh>localhost:$1</lh>` in the code block, `$[<<lh>>(8000)]` produces `localhost:8000`. `\$[<tag>]` leaves the notation literal in the expanded output.
 
 ## Installation
 
@@ -53,7 +49,7 @@ In `Snippets.md`, define `<rating>topic: $1; rating: ${2:good}</rating>`. `![Sni
 
 ## Example: a prompt for writing prompts
 
-Keep shared instructions under `Style` in `Snippets.md`. The example uses planned single-bracket notation; see compatibility above for 0.1.0.
+Keep shared instructions under `Style` in `Snippets.md`. The example uses single-bracket notation.
 
 ~~~markdown
 ```ce

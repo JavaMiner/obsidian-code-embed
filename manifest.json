@@ -6,5 +6,8 @@
   "description": "Expand reusable note fragments and preview structured prompts.",
   "author": "Jakub Wajda",
   "isDesktopOnly": false,
-  "fundingUrl": "https://wise.com/pay/me/jakubw238"
+  "fundingUrl": {
+    "Wise": "https://wise.com/pay/me/jakubw238",
+    "Revolut": "https://revolut.me/jakubwt6"
+  }
 }

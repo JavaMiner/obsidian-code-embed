@@ -9,7 +9,7 @@ const { RangeSetBuilder, StateEffect, StateField } = require("@codemirror/state"
 const PANES = ["outgoing-link", "backlink"];
 const VIEW_TYPE = "code-embed-panel";
 const refresh = StateEffect.define();
-const REF_RE = () => /(?<esc>\\)?(?<all>(?=[!$]\[\[?(?<ref>[^\[\]\r\n]+)\])(?:!\[\[[^\[\]\r\n]+\]\]|!(?!\[\[)\[[^\[\]\r\n]+\](?![\[(\]])|\$\[[^\[\]\r\n]+\]))/g;
+const REF_RE = () => /(?<esc>\\)?(?<all>(?=[!$]\[\[?(?<ref>[^\[\]\r\n]+)\])(?:!\[\[[^\[\]\r\n]+\]\]|[!$](?!\[\[)\[[^\[\]\r\n]+\](?![\[(\]])))/g;
 const hasEmbed = (text) => text.includes('![') || text.includes('$[');
 
 const DEFAULTS = {
@@ -451,7 +451,7 @@ function makeMarkdownEditorExt(plugin) {
       if (/^(?: {4}|\t)/.test(text)) continue;
       const re = REF_RE(); let m;
       while ((m = re.exec(text)) !== null) {
-        if (m.groups.esc || !plugin.handlesMarkdownRef(m.groups.ref, path)) continue;
+        if (m.groups.esc || (!m.groups.all.startsWith("![[") ? false : !plugin.handlesMarkdownRef(m.groups.ref, path))) continue;
         // Nie interpretuj odwołań wewnątrz `inline code`.
         const prefix = text.slice(0, m.index);
         let tick = null;
@@ -1529,7 +1529,7 @@ class CodeEmbedPlugin extends Plugin {
       const text = textNode.nodeValue, re = REF_RE(), frag = document.createDocumentFragment();
       const pending = []; let last = 0, m;
       while ((m = re.exec(text)) !== null) {
-        if (m.groups.esc || !this.handlesMarkdownRef(m.groups.ref, path)) continue;
+        if (m.groups.esc || (!m.groups.all.startsWith("![[") ? false : !this.handlesMarkdownRef(m.groups.ref, path))) continue;
         frag.append(document.createTextNode(text.slice(last, m.index)));
         const host = document.createElement("span");
         frag.append(host);
