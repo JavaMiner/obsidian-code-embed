@@ -17,7 +17,7 @@ test("release metadata, funding and build output", () => {
   assert.equal(manifest.fundingUrl["Buy me a coffee"], "https://buymeacoffee.com/javaminer");
   for (const url of Object.values(manifest.fundingUrl)) assert.ok(read(".github/FUNDING.yml").includes(url));
   for (const path of ["styles.css", "manifest.json"]) assert.equal(read("dist/" + path), read(path));
-  assert.ok(read("dist/main.js").endsWith(read("src/main.js")));
+  assert.equal(read("dist/main.js"), read("src/main.js"));
 });
 
 test("seven guides share examples, with legacy syntax confined to migration", () => {

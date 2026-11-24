@@ -6,6 +6,55 @@ const { Plugin, PluginSettingTab, Setting, Modal, ItemView, MarkdownRenderer, Ma
 const { ViewPlugin, EditorView, Decoration, WidgetType } = require("@codemirror/view");
 const { RangeSetBuilder, StateEffect, StateField } = require("@codemirror/state");
 
+const CE_LOCALES = {
+  "en": {
+    "view": "View",
+    "code": "Code",
+    "copy": "Copy+",
+    "copied": "Copied",
+    "panel": "Code Embed: links and errors",
+    "openPanel": "Open Code Embed panel",
+    "empty": "None.",
+    "copyBlock": "Copy expanded code block at cursor",
+    "notInBlock": "The cursor is not in a code block.",
+    "blockCopied": "Expanded block copied.",
+    "backlinks": "Backlinks",
+    "support": "Support Code Embed",
+    "insertXml": "Insert XML tag",
+    "insertMarkdown": "Insert Markdown section",
+    "expandShortcut": "Expand shortcut",
+    "chooseFolder": "Choose package folder",
+    "markFolder": "Set folder as Code Embed root",
+    "unmarkFolder": "Remove Code Embed root marker"
+  },
+  "pl": {
+    "view": "Podgląd",
+    "code": "Kod",
+    "copy": "Copy+",
+    "copied": "Skopiowano",
+    "panel": "Code Embed: błędy i powiązania",
+    "openPanel": "Otwórz panel Code Embed",
+    "empty": "Brak.",
+    "copyBlock": "Kopiuj rozwinięty blok kodu pod kursorem",
+    "notInBlock": "Kursor nie jest w bloku kodu.",
+    "blockCopied": "Skopiowano rozwinięty blok.",
+    "backlinks": "Zwrotne",
+    "support": "Wesprzyj Code Embed",
+    "insertXml": "Wstaw tag XML",
+    "insertMarkdown": "Wstaw sekcję Markdown",
+    "expandShortcut": "Rozwiń skrót",
+    "chooseFolder": "Wybierz katalog pakietu",
+    "markFolder": "Ustaw katalog jako korzeń Code Embed",
+    "unmarkFolder": "Usuń oznaczenie korzenia Code Embed"
+  }
+};
+
+function t(key) {
+  const locale = globalThis.moment?.locale?.() || globalThis.navigator?.language || "en";
+  const language = locale.toLowerCase().split(/[-_]/)[0];
+  return CE_LOCALES[language]?.[key] ?? CE_LOCALES.en[key] ?? key;
+}
+
 const PANES = ["outgoing-link", "backlink"];
 const VIEW_TYPE = "code-embed-panel";
 const refresh = StateEffect.define();

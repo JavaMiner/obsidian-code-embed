@@ -1,4 +1,4 @@
-# Test Code Embed · 0.2.0
+# Test Code Embed · 0.2.1
 
 > [!tip] Start
 > Skopiuj cały katalog `smoke-vault` do skarbca testowego albo otwórz go jako skarbiec. Włącz testową wersję Code Embed. Ta notatka jest ekranem testowym. W trybie czytania porównaj wynik z opisem. Do prób edycji przejdź do Live Preview.

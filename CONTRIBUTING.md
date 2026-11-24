@@ -1,6 +1,6 @@
 # Development
 
-Run `npm run build`, `npm test`, and `node --check dist/main.js`. Keep shared UI translations in `src/i18n/en.json` and `src/i18n/pl.json`. Not all legacy strings have been migrated yet.
+Run `npm run build`, `npm test`, and `node --check dist/main.js`. Keep shared UI translations in `CE_LOCALES` in `src/main.js`. Not all legacy strings have been migrated yet.
 
 ## Release checklist
 

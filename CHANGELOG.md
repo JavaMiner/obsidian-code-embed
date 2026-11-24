@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 — startup fix
+
+- Include translations in the plugin entry point so it can load directly in Obsidian.
+- Exercise command registration during startup from both source and packaged entry points.
+
 ## 0.2.0 — release preparation
 
 - Canonical embeds in suggestions and Rename, with legacy input compatibility.
