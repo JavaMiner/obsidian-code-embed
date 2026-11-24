@@ -6,6 +6,21 @@
 
 ## Definire un frammento
 
+Salva in `Szablony` l’istruzione finale comune a più prompt. Modificala una volta e la prossima copia di ogni prompt includerà la modifica.
+
+1. Su una riga vuota digita esattamente `_xvar`. Lascia il cursore dopo la `r`, senza spazi o selezioni. `_xvarZMIENNA` non si espande.
+2. Scegli **Espandi abbreviazione** nella tavolozza dei comandi. Inserisci `ZMIENNA` nel campo del nome, tocca OK e scrivi l’istruzione tra i tag.
+
+```xml
+<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+```
+
+Inserisci il blocco seguente in un’altra nota. Tocca **Copy+** e incolla il risultato: `Podaj trzy przykłady.` (Fornisci tre esempi.)
+
+```ce
+![Szablony:<<ZMIENNA>>]
+```
+
 Nella tavolozza scegli **Inserisci tag XML** o **Inserisci sezione Markdown**. Inserisci un nome e tocca OK. Un nome vuoto crea una coppia `var` oppure seleziona `Nome del frammento` da sostituire. Il testo selezionato diventa il contenuto. Conferma `_xvar` o `_mvar` con **Espandi abbreviazione**.
 
 Inserisci queste definizioni equivalenti in note separate oppure termina la sezione con un’altra intestazione dello stesso livello.
@@ -92,4 +107,4 @@ npm test
 
 `dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
 
-[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363)
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)

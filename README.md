@@ -6,6 +6,21 @@
 
 ## Define a fragment
 
+Keep the closing instruction for several prompts in one note, `Szablony`. Edit it once and the next Copy+ in each prompt picks up the change.
+
+1. On an empty line in `Szablony`, type exactly `_xvar`. Leave the cursor after `r`, with no trailing space or selection. `_xvarZMIENNA` does not trigger expansion.
+2. Choose **Expand shortcut** from the command palette. Enter `ZMIENNA` in the name dialog, tap OK and type the instruction between the generated tags.
+
+```xml
+<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+```
+
+In another note insert the block below. Tap **Copy+** and paste the result: `Podaj trzy przykłady.` (Give three examples.)
+
+```ce
+![Szablony:<<ZMIENNA>>]
+```
+
 In the command palette choose **Insert XML tag** or **Insert Markdown section**. Enter a name and tap OK. A blank name gives you a `var` pair or selects `Fragment name` for editing. Selected text becomes the body. Confirm `_xvar` or `_mvar` with **Expand shortcut**.
 
 Put these equivalent definitions in separate notes or end the section with another heading of the same level.
@@ -92,4 +107,4 @@ npm test
 
 `dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
 
-[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363)
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)

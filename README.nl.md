@@ -6,6 +6,21 @@
 
 ## Een fragment definiëren
 
+Bewaar de gedeelde slotinstructie van meerdere prompts in `Szablony`. Wijzig die één keer en elke prompt gebruikt de nieuwe tekst bij de volgende Copy+.
+
+1. Typ op een lege regel precies `_xvar`. Laat de cursor direct na de `r` staan, zonder spatie of selectie. `_xvarZMIENNA` wordt niet uitgewerkt.
+2. Kies **Afkorting uitwerken** in het opdrachtenpalet. Vul in het naamveld `ZMIENNA` in, tik op OK en schrijf de instructie tussen de tags.
+
+```xml
+<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+```
+
+Plaats het volgende blok in een andere notitie. Tik op **Copy+** en plak de tekst: `Podaj trzy przykłady.` (Geef drie voorbeelden.)
+
+```ce
+![Szablony:<<ZMIENNA>>]
+```
+
 Kies **XML-tag invoegen** of **Markdown-sectie invoegen** in het opdrachtenpalet. Vul een naam in en tik op OK. Zonder naam krijg je een `var`-tagpaar of wordt `Fragmentnaam` geselecteerd om te vervangen. Geselecteerde tekst vormt de inhoud. Bevestig `_xvar` of `_mvar` met **Afkorting uitwerken**.
 
 Zet deze gelijkwaardige definities in aparte notities of sluit de sectie af met een volgende kop van hetzelfde niveau.
@@ -92,4 +107,4 @@ npm test
 
 `dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
 
-[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363)
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)

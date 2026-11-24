@@ -6,6 +6,21 @@
 
 ## Définir un fragment
 
+Conservez la consigne finale de plusieurs prompts dans `Szablony`. Une modification sera prise en compte à la prochaine copie de chaque prompt.
+
+1. Sur une ligne vide, tapez exactement `_xvar`. Laissez le curseur après le `r`, sans espace ni sélection. `_xvarZMIENNA` ne déclenche rien.
+2. Choisissez **Développer le raccourci** dans la palette. Saisissez `ZMIENNA` dans le champ du nom, touchez OK et écrivez la consigne entre les balises.
+
+```xml
+<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+```
+
+Insérez le bloc suivant dans une autre note. Touchez **Copy+** et collez le résultat : `Podaj trzy przykłady.` (Donne trois exemples.)
+
+```ce
+![Szablony:<<ZMIENNA>>]
+```
+
 Dans la palette, choisir **Insérer une balise XML** ou **Insérer une section Markdown**. Saisir un nom et toucher OK. Un nom vide crée une paire `var` ou sélectionne `Nom du fragment` pour le remplacer. Le texte sélectionné devient le contenu. Confirmer `_xvar` ou `_mvar` avec **Développer le raccourci**.
 
 Placer ces définitions équivalentes dans deux notes, ou terminer la section par un autre titre de même niveau.
@@ -92,4 +107,4 @@ npm test
 
 `dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
 
-[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363)
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)

@@ -6,6 +6,21 @@
 
 ## Zdefiniuj fragment
 
+Piszesz kilka promptów, które mają kończyć się takim samym poleceniem. Zapisz je raz w notatce `Szablony`. Gdy zmienisz tekst w tej notatce, kolejne użycie Copy+ w każdym z promptów uwzględni poprawkę.
+
+1. W `Szablony` wpisz w pustym wierszu dokładnie `_xvar`. Zostaw kursor tuż za `r`, bez spacji i zaznaczenia. `_xvarZMIENNA` nie uruchamia skrótu.
+2. Otwórz paletę i wybierz **Rozwiń skrót**. Dopiero w oknie nazwy wpisz `ZMIENNA` i stuknij OK. Między utworzonymi tagami wpisz treść, jak poniżej.
+
+```xml
+<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+```
+
+W innej notatce wstaw poniższy blok. Stuknij **Copy+** i wklej wynik. Otrzymasz `Podaj trzy przykłady.`
+
+```ce
+![Szablony:<<ZMIENNA>>]
+```
+
 W palecie poleceń wybierz **Wstaw tag XML** lub **Wstaw sekcję Markdown**. Wpisz nazwę i stuknij OK. Pusta nazwa daje parę `var` albo zaznaczony tytuł `Nazwa fragmentu`. Zaznaczony wcześniej tekst trafia do środka. Skróty `_xvar` i `_mvar` zatwierdza polecenie **Rozwiń skrót**.
 
 Umieść te równoważne definicje w oddzielnych notatkach lub zakończ sekcję kolejnym nagłówkiem tego samego poziomu.
@@ -92,4 +107,4 @@ npm test
 
 `dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
 
-[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363)
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)

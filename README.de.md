@@ -6,6 +6,21 @@
 
 ## Fragment definieren
 
+Speichere die gemeinsame Schlussanweisung mehrerer Prompts in `Szablony`. Eine Änderung gilt beim nächsten Kopieren mit Copy+ für alle.
+
+1. Tippe in einer leeren Zeile genau `_xvar`. Lass den Cursor hinter dem `r`, ohne Leerzeichen oder Auswahl. `_xvarZMIENNA` löst nichts aus.
+2. Wähle **Kürzel erweitern** in der Befehlspalette. Gib erst im Namensfeld `ZMIENNA` ein, tippe auf OK und schreibe die Anweisung zwischen die Tags.
+
+```xml
+<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+```
+
+Füge den folgenden Block in eine andere Notiz ein. Mit **Copy+** erhältst du `Podaj trzy przykłady.` (Nenne drei Beispiele.)
+
+```ce
+![Szablony:<<ZMIENNA>>]
+```
+
 Über die Befehlspalette **XML-Tag einfügen** oder **Markdown-Abschnitt einfügen** wählen. Namen eingeben und auf OK tippen. Ein leerer Name erzeugt ein `var`-Paar oder markiert `Fragmentname` zum Ersetzen. Markierter Text wird zum Inhalt. `_xvar` und `_mvar` mit **Kürzel erweitern** bestätigen.
 
 Diese gleichwertigen Definitionen in getrennten Notizen anlegen oder den Abschnitt mit einer weiteren Überschrift derselben Ebene abschließen.
@@ -92,4 +107,4 @@ npm test
 
 `dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
 
-[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363)
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
