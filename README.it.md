@@ -58,6 +58,8 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 Tocca **+ Radice** o **◆ Radice** accanto alla cartella, tieni premuto per il menu o scegli la cartella dalla tavolozza. Tocca il nome per espanderla. Il contrassegno crea il file indicato sotto. Conferma il percorso per rimuoverlo.
 
+Code Embed usa la lingua dell’interfaccia di Obsidian. Le impostazioni mostrano la versione installata, il collegamento alla guida italiana e **Scegli la cartella del pacchetto**. Per contrassegnare una cartella manualmente, crea al suo interno una nota `_code-embed-root` (file `_code-embed-root.md`).
+
 ```text
 Prompts/
   _code-embed-root.md

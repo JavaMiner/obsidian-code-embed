@@ -58,6 +58,8 @@ W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuk
 
 Stuknij przycisk **+ Korzeń** lub **◆ Korzeń** przy katalogu, użyj menu po przytrzymaniu albo wybierz katalog z palety poleceń. Stuknięcie nazwy rozwija drzewo. Oznaczenie tworzy plik poniżej. Zdjęcie oznaczenia wymaga potwierdzenia ścieżki znacznika.
 
+Wtyczka używa języka interfejsu Obsidiana. W ustawieniach Code Embed znajdziesz numer wersji, odnośnik do polskiego przewodnika i przycisk **Wybierz katalog pakietu**. Aby ręcznie oznaczyć katalog, utwórz w nim notatkę `_code-embed-root` (pełna nazwa pliku to `_code-embed-root.md`).
+
 ```text
 Prompts/
   _code-embed-root.md

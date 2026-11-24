@@ -34,7 +34,136 @@ const CE_LOCALES = {
     "cancel": "Cancel",
     "fragmentName": "Fragment name",
     "invalidTag": "Enter a valid tag name.",
-    "invalidTitle": "The title contains an invalid character."
+    "invalidTitle": "The title contains an invalid character.",
+    "maxDepth": "Maximum nesting depth",
+    "maxDepthHelp": "Limit levels in expansions, panels and validation.",
+    "livePreview": "Editor widgets",
+    "livePreviewHelp": "Preview embeds outside the line being edited.",
+    "viewTree": "Tag tree",
+    "viewTreeHelp": "Display XML and Markdown imports as a collapsible tree.",
+    "xmlPlain": "Plain text in XML",
+    "xmlPlainHelp": "Use monospace for text between tags.",
+    "treeOpenDepth": "Initial tree depth",
+    "treeOpenDepthHelp": "Levels expanded on opening. Use 0 to collapse all.",
+    "inlineMax": "Compact imports (characters)",
+    "inlineMaxHelp": "Maximum length for compact single-line imports. Use 0 to disable.",
+    "buttonsOnPlain": "Controls on plain blocks",
+    "buttonsOnPlainHelp": "Show preview and Copy+ on Markdown and XML blocks without imports.",
+    "showPanels": "Native sidebar panels",
+    "showPanelsHelp": "Include Code Embed in outgoing links and backlinks.",
+    "panelOnTop": "Place section first",
+    "panelOnTopHelp": "Place Code Embed above the native list.",
+    "panelNested": "Nested references",
+    "panelNestedHelp": "Follow references through imported fragments.",
+    "panelMaxVh": "Maximum list height (vh)",
+    "panelMaxVhHelp": "Limit the scrollable area of each list.",
+    "panelLinks": "Links in the error panel",
+    "panelLinksHelp": "Show incoming and outgoing references below errors.",
+    "autoRenameFile": "Update references to renamed notes",
+    "autoRenameFileHelp": "Rewrite embeds after a note is renamed.",
+    "autoRenameTag": "Update references to renamed tags",
+    "autoRenameTagHelp": "Detect changes to paired XML tags.",
+    "autoRenameSection": "Update references to renamed sections",
+    "autoRenameSectionHelp": "Detect changes to Markdown headings.",
+    "renameNotice": "Show rename summary",
+    "renameNoticeHelp": "Report how many references changed.",
+    "warnBroken": "Warn about broken references",
+    "warnBrokenHelp": "List unresolved embeds after a rename.",
+    "validateDelay": "Validation delay (ms)",
+    "validateDelayHelp": "Wait after the last edit before checking references.",
+    "cWidgetBorder": "Widget border",
+    "cWidgetBorderHelp": "Expanded references in the editor.",
+    "cWidgetBg": "Widget background",
+    "cWidgetBgHelp": "Expanded references in the editor.",
+    "cWidgetBgAlpha": "Widget background opacity (%)",
+    "cWidgetBgAlphaHelp": "Applies to the custom background color.",
+    "cErrBorder": "Error border",
+    "cErrBorderHelp": "Invalid embeds in the editor and preview.",
+    "cErrBg": "Error highlight",
+    "cErrBgHelp": "Invalid embeds in the editor and preview.",
+    "cErrBgAlpha": "Error highlight opacity (%)",
+    "cErrBgAlphaHelp": "Applies to the custom background color.",
+    "cErrText": "Error text",
+    "cErrTextHelp": "Error messages in expanded fragments.",
+    "cTreeTag": "Tree tags",
+    "cTreeTagHelp": "Headings in the tree preview.",
+    "cTreeImport": "Tree imports",
+    "cTreeImportHelp": "Imported nodes in the tree preview.",
+    "cChip": "Sidebar badges",
+    "cChipHelp": "Line-number badges in the sidebar.",
+    "expansion": "Reference expansion",
+    "previewMode": "Preview",
+    "sidebars": "Side panels",
+    "rename": "Renaming",
+    "warnings": "Warnings",
+    "colors": "Colors",
+    "resetAll": "Restore defaults",
+    "resetHelp": "Reset all settings to their initial values.",
+    "reset": "Restore",
+    "dismiss": "Dismiss",
+    "disableWarnings": "Disable warnings",
+    "errors": "Errors",
+    "noErrors": "No errors.",
+    "newNoteName": "New note name",
+    "emptyName": "Enter a name.",
+    "noTags": "No paired XML tags in this note.",
+    "pickTag": "Choose a tag",
+    "renameTagAction": "Rename tag",
+    "toHeading": "Convert to Markdown heading (H1–H5)",
+    "tagCharacters": "Use ASCII letters, digits or _ : . -",
+    "headingLevel": "Heading level",
+    "headingTitle": "Heading title",
+    "pickSection": "Choose a section",
+    "renameSectionAction": "Rename section",
+    "toTag": "Convert to XML tag",
+    "newSection": "New section name",
+    "headingChanged": "Heading changed. Try again.",
+    "missingHeading": "Heading missing. Try again.",
+    "chooseTarget": "Choose a target",
+    "missingCursor": "Place the cursor on an embed.",
+    "missingTarget": "Target note not found.",
+    "duplicateHeading": "References still point to the earlier section with this name.",
+    "convertFirst": "Convert the earlier section with this name first.",
+    "helpGuide": "Code Embed guide",
+    "cmdRenameNote": "Rename note and update embeds",
+    "cmdRenameTag": "Rename or convert a tag in this note",
+    "cmdRenameSection": "Rename or convert a section in this note",
+    "cmdRenameTarget": "Rename the embed target at the cursor",
+    "errorLabel": "error",
+    "broken": "Broken references",
+    "incoming": "Incoming",
+    "outgoing": "Outgoing",
+    "currentNote": "Current note",
+    "file": "File",
+    "tag": "Tag",
+    "section": "Section",
+    "via": "via",
+    "package": "package",
+    "outsidePackage": "outside a package",
+    "ambiguous": "ambiguous name in package",
+    "notInPackage": "not found in package",
+    "lostTarget": "Reference lost its target after a move",
+    "missingNote": "Note not found",
+    "missingSection": "Section not found",
+    "sourceHeadings": "Headings in source",
+    "emptySourceHeadings": "No headings in source",
+    "emptySection": "Empty section name",
+    "blockUnsupported": "Block references (^) are unsupported",
+    "invalidRange": "Range {range} outside file (1–{last})",
+    "missingTag": "Missing tag {tag}",
+    "unknownSelector": "Unknown selector",
+    "depthExceeded": "Nesting limit exceeded",
+    "cycle": "Cycle",
+    "searchedBlock": "Searched the block and file {path}",
+    "updated": "References updated: {refs}. Files: {files}.",
+    "badChars": "Invalid characters",
+    "exists": "File already exists",
+    "actionFor": "Choose an action for {name}",
+    "newTag": "New tag name",
+    "sectionToTag": "Tag name for section {name}",
+    "skippedNested": "Skipped nested paths: {count}. Update them manually.",
+    "rootCreated": "Code Embed root set: {path}",
+    "rootRemoved": "Root marker removed: {path}"
   },
   "pl": {
     "view": "Podgląd",
@@ -66,7 +195,136 @@ const CE_LOCALES = {
     "cancel": "Anuluj",
     "fragmentName": "Nazwa fragmentu",
     "invalidTag": "Podaj poprawną nazwę tagu.",
-    "invalidTitle": "Tytuł zawiera niedozwolony znak."
+    "invalidTitle": "Tytuł zawiera niedozwolony znak.",
+    "maxDepth": "Maksymalna głębokość zagnieżdżeń",
+    "maxDepthHelp": "Limit zagnieżdżonych ![…]. Wpływa na rozwijanie, panele i sprawdzanie odwołań.",
+    "livePreview": "Widżety w edytorze",
+    "livePreviewHelp": "Podmienia ![... …] w blokach kodu na rozwiniętą treść, gdy kursor nie jest w danej linii.",
+    "viewTree": "Drzewo znaczników",
+    "viewTreeHelp": "Dla bloków xml i md pokazuje rozwijane drzewo znaczników i importów. Wyłączone: zwykły render Markdown.",
+    "xmlPlain": "Tekst w xml jako zwykły",
+    "xmlPlainHelp": "Tekst między znacznikami w blokach xml jest pokazywany jako monospace. Wyłączone: renderowany jako Markdown.",
+    "treeOpenDepth": "Domyślne rozwinięcie drzewa",
+    "treeOpenDepthHelp": "Do jakiej głębokości węzły są domyślnie otwarte (0 = wszystko zwinięte).",
+    "inlineMax": "Zwijanie krótkich importów (znaki)",
+    "inlineMaxHelp": "Import ![…], którego rozwinięcie jest jedną krótką linią (jak zmienna), jest domyślnie zwinięty do chipa z wartością. 0 = zawsze rozwinięte.",
+    "buttonsOnPlain": "Przyciski na blokach bez importów",
+    "buttonsOnPlainHelp": "Pokazuje View i Copy+ także na blokach md i xml, które nie zawierają ![…].",
+    "showPanels": "Sekcja Code Embed w panelach natywnych",
+    "showPanelsHelp": "Dodatkowe wpisy w Łączach wychodzących i Linkach zwrotnych.",
+    "panelOnTop": "Sekcja na górze panelu",
+    "panelOnTopHelp": "Wstawia sekcję przed natywną listą. Wyłączone: na dole.",
+    "panelNested": "Odwołania zagnieżdżone",
+    "panelNestedHelp": "Wyłączone: panele pokazują tylko bezpośrednie odwołania, bez łańcuchów przez inne fragmenty.",
+    "panelMaxVh": "Maksymalna wysokość listy (vh)",
+    "panelMaxVhHelp": "Wysokość przewijanego obszaru sekcji.",
+    "panelLinks": "Wychodzące i przychodzące w panelu błędów",
+    "panelLinksHelp": "W panelu Code Embed pod listą błędów pokazuje też odwołania wychodzące i przychodzące.",
+    "autoRenameFile": "Aktualizuj odwołania po zmianie nazwy pliku",
+    "autoRenameFileHelp": "Po zmianie nazwy notatki przepisuje osadzenia ![…] (w blokach kodu i z zakresem). Ręczne polecenia Rename działają zawsze.",
+    "autoRenameTag": "Aktualizuj odwołania po zmianie nazwy tagu",
+    "autoRenameTagHelp": "Wykrywa zmianę nazwy pary <tag>…</tag> w notatce i przepisuje ![x:<tag>] / ![x:<<tag>>].",
+    "autoRenameSection": "Aktualizuj odwołania po zmianie nazwy sekcji",
+    "autoRenameSectionHelp": "Wykrywa zmianę tekstu nagłówka i przepisuje ![x:#Sekcja], ![x:##Sekcja].",
+    "renameNotice": "Pokazuj podsumowanie zmian",
+    "renameNoticeHelp": "Po automatycznej lub ręcznej zmianie nazwy wyświetla liczbę poprawionych odwołań.",
+    "warnBroken": "Ostrzegaj o zerwanych odwołaniach",
+    "warnBrokenHelp": "Po zmianie nazwy pliku, tagu lub sekcji pokazuje okno z listą odwołań ![…], które przestały działać. Wyciszane automatycznie podczas operacji Rename.",
+    "validateDelay": "Opóźnienie sprawdzania (ms)",
+    "validateDelayHelp": "Czas od ostatniej zmiany, po którym wtyczka sprawdza odwołania.",
+    "cWidgetBorder": "Ramka widżetu",
+    "cWidgetBorderHelp": "Ramka rozwiniętego odwołania w edytorze.",
+    "cWidgetBg": "Tło widżetu",
+    "cWidgetBgHelp": "Podświetlenie rozwiniętego odwołania w edytorze.",
+    "cWidgetBgAlpha": "Przezroczystość tła widżetu (%)",
+    "cWidgetBgAlphaHelp": "Działa po wybraniu własnego koloru tła.",
+    "cErrBorder": "Ramka błędu",
+    "cErrBorderHelp": "Ramka widżetu i podglądu View, gdy odwołanie jest błędne.",
+    "cErrBg": "Podświetlenie błędu",
+    "cErrBgHelp": "Tło widżetu i fragmentów [błąd: …].",
+    "cErrBgAlpha": "Przezroczystość podświetlenia błędu (%)",
+    "cErrBgAlphaHelp": "Działa po wybraniu własnego koloru podświetlenia.",
+    "cErrText": "Tekst błędu",
+    "cErrTextHelp": "Kolor komunikatów błędów.",
+    "cTreeTag": "Znaczniki w drzewie",
+    "cTreeTagHelp": "Kolor nagłówków w trybie View.",
+    "cTreeImport": "Importy w drzewie",
+    "cTreeImportHelp": "Kolor węzłów ⤵ z importów w trybie View.",
+    "cChip": "Chipy w panelach",
+    "cChipHelp": "Kolor znaczników L12 w panelach bocznych.",
+    "expansion": "Rozwijanie odwołań",
+    "previewMode": "Tryb View",
+    "sidebars": "Panele boczne",
+    "rename": "Zmiana nazw",
+    "warnings": "Ostrzeżenia",
+    "colors": "Kolory",
+    "resetAll": "Przywróć domyślne",
+    "resetHelp": "Ustawia wszystkie opcje na wartości początkowe.",
+    "reset": "Przywróć",
+    "dismiss": "Rozumiem",
+    "disableWarnings": "Wyłącz ostrzeżenia",
+    "errors": "Błędy",
+    "noErrors": "Brak błędów.",
+    "newNoteName": "Nowa nazwa notatki",
+    "emptyName": "Nazwa nie może być pusta.",
+    "noTags": "Brak tagów (par <tag>…</tag>) w tej notatce.",
+    "pickTag": "Który tag zmienić?",
+    "renameTagAction": "✏️ Zmień nazwę tagu",
+    "toHeading": "⇄ Zamień na nagłówek Markdown (H1–H5)",
+    "tagCharacters": "Dozwolone: litery ASCII, cyfry oraz _ : . -",
+    "headingLevel": "Poziom nagłówka docelowego",
+    "headingTitle": "Tytuł nagłówka docelowego",
+    "pickSection": "Którą sekcję zmienić?",
+    "renameSectionAction": "✏️ Zmień nazwę sekcji",
+    "toTag": "⇄ Zamień na tag XML <tag>…</tag>",
+    "newSection": "Nowa nazwa sekcji",
+    "headingChanged": "Nagłówek się zmienił – spróbuj ponownie.",
+    "missingHeading": "Nie znaleziono nagłówka – spróbuj ponownie.",
+    "chooseTarget": "Co zmienić?",
+    "missingCursor": "Kursor nie jest na odwołaniu ![…].",
+    "missingTarget": "Nie znaleziono notatki docelowej.",
+    "duplicateHeading": "Istnieje wcześniejsza sekcja o tej samej nazwie – odwołania wskazują na nią, więc ich nie zmieniono.",
+    "convertFirst": "Istnieje wcześniejsza sekcja o tej samej nazwie – odwołania wskazują na nią. Konwertuj najpierw ją.",
+    "helpGuide": "Dokumentacja Code Embed",
+    "cmdRenameNote": "Zmień nazwę notatki i zaktualizuj osadzenia",
+    "cmdRenameTag": "Zmień nazwę lub typ tagu w notatce",
+    "cmdRenameSection": "Zmień nazwę lub typ sekcji w notatce",
+    "cmdRenameTarget": "Zmień cel osadzenia pod kursorem",
+    "errorLabel": "błąd",
+    "broken": "Zerwane odwołania",
+    "incoming": "Przychodzące",
+    "outgoing": "Wychodzące",
+    "currentNote": "Ta notatka",
+    "file": "Plik",
+    "tag": "Tag",
+    "section": "Sekcja",
+    "via": "przez",
+    "package": "pakiet",
+    "outsidePackage": "poza pakietem",
+    "ambiguous": "nazwa niejednoznaczna w pakiecie",
+    "notInPackage": "nie znaleziono w pakiecie",
+    "lostTarget": "Odwołanie utraciło cel po przeniesieniu",
+    "missingNote": "Brak notatki",
+    "missingSection": "Brak sekcji",
+    "sourceHeadings": "Nagłówki w źródle",
+    "emptySourceHeadings": "Brak nagłówków w źródle",
+    "emptySection": "Pusta nazwa sekcji",
+    "blockUnsupported": "Odwołania do bloków (^) nie są obsługiwane",
+    "invalidRange": "Zakres {range} poza zakresem pliku (1–{last})",
+    "missingTag": "Brak znacznika {tag}",
+    "unknownSelector": "Nieznany selektor",
+    "depthExceeded": "Przekroczono limit zagnieżdżenia",
+    "cycle": "Cykl",
+    "searchedBlock": "Sprawdzono blok i plik {path}",
+    "updated": "Zmodyfikowane odwołania: {refs}. Pliki: {files}.",
+    "badChars": "Niedozwolone znaki",
+    "exists": "Plik już istnieje",
+    "actionFor": "Wybierz działanie dla {name}",
+    "newTag": "Nowa nazwa tagu",
+    "sectionToTag": "Nazwa tagu dla sekcji {name}",
+    "skippedNested": "Pominięte ścieżki zagnieżdżone: {count}. Zaktualizuj je ręcznie.",
+    "rootCreated": "Ustawiono korzeń Code Embed: {path}",
+    "rootRemoved": "Usunięto oznaczenie korzenia: {path}"
   },
   "de": {
     "view": "Ansicht",
@@ -98,7 +356,136 @@ const CE_LOCALES = {
     "cancel": "Abbrechen",
     "fragmentName": "Fragmentname",
     "invalidTag": "Gib einen gültigen Tag-Namen ein.",
-    "invalidTitle": "Der Titel enthält ein unzulässiges Zeichen."
+    "invalidTitle": "Der Titel enthält ein unzulässiges Zeichen.",
+    "maxDepth": "Maximale Verschachtelungstiefe",
+    "maxDepthHelp": "Begrenzt Ebenen bei Auflösung, Anzeige und Prüfung.",
+    "livePreview": "Editor-Widgets",
+    "livePreviewHelp": "Einbettungen außerhalb der bearbeiteten Zeile anzeigen.",
+    "viewTree": "Tag-Baum",
+    "viewTreeHelp": "XML- und Markdown-Importe als aufklappbaren Baum anzeigen.",
+    "xmlPlain": "Klartext in XML",
+    "xmlPlainHelp": "Text zwischen Tags in Festbreitenschrift anzeigen.",
+    "treeOpenDepth": "Anfängliche Baumtiefe",
+    "treeOpenDepthHelp": "Anzahl anfangs geöffneter Ebenen. 0 klappt alle zu.",
+    "inlineMax": "Kompakte Importe (Zeichen)",
+    "inlineMaxHelp": "Höchstlänge für kompakte einzeilige Importe. 0 deaktiviert sie.",
+    "buttonsOnPlain": "Schaltflächen bei einfachen Blöcken",
+    "buttonsOnPlainHelp": "Vorschau und Copy+ für Markdown- und XML-Blöcke ohne Importe anzeigen.",
+    "showPanels": "Native Seitenleisten",
+    "showPanelsHelp": "Code Embed bei ausgehenden Links und Rückverweisen anzeigen.",
+    "panelOnTop": "Abschnitt oben anzeigen",
+    "panelOnTopHelp": "Code Embed über der nativen Liste platzieren.",
+    "panelNested": "Verschachtelte Verweise",
+    "panelNestedHelp": "Verweise durch importierte Fragmente verfolgen.",
+    "panelMaxVh": "Maximale Listenhöhe (vh)",
+    "panelMaxVhHelp": "Begrenzt den Bildlaufbereich jeder Liste.",
+    "panelLinks": "Verweise im Fehlerbereich",
+    "panelLinksHelp": "Ein- und ausgehende Verweise unter den Fehlern anzeigen.",
+    "autoRenameFile": "Verweise auf umbenannte Notizen aktualisieren",
+    "autoRenameFileHelp": "Einbettungen nach dem Umbenennen einer Notiz aktualisieren.",
+    "autoRenameTag": "Verweise auf umbenannte Tags aktualisieren",
+    "autoRenameTagHelp": "Namensänderungen bei XML-Tag-Paaren erkennen.",
+    "autoRenameSection": "Verweise auf umbenannte Abschnitte aktualisieren",
+    "autoRenameSectionHelp": "Änderungen an Markdown-Überschriften erkennen.",
+    "renameNotice": "Zusammenfassung anzeigen",
+    "renameNoticeHelp": "Anzahl geänderter Verweise anzeigen.",
+    "warnBroken": "Vor defekten Verweisen warnen",
+    "warnBrokenHelp": "Nach dem Umbenennen unaufgelöste Einbettungen auflisten.",
+    "validateDelay": "Prüfverzögerung (ms)",
+    "validateDelayHelp": "Wartezeit nach der letzten Änderung bis zur Prüfung.",
+    "cWidgetBorder": "Widget-Rahmen",
+    "cWidgetBorderHelp": "Aufgelöste Verweise im Editor.",
+    "cWidgetBg": "Widget-Hintergrund",
+    "cWidgetBgHelp": "Aufgelöste Verweise im Editor.",
+    "cWidgetBgAlpha": "Deckkraft des Widget-Hintergrunds (%)",
+    "cWidgetBgAlphaHelp": "Gilt für die eigene Hintergrundfarbe.",
+    "cErrBorder": "Fehlerrahmen",
+    "cErrBorderHelp": "Ungültige Einbettungen in Editor und Vorschau.",
+    "cErrBg": "Fehlerhervorhebung",
+    "cErrBgHelp": "Ungültige Einbettungen in Editor und Vorschau.",
+    "cErrBgAlpha": "Deckkraft der Fehlerhervorhebung (%)",
+    "cErrBgAlphaHelp": "Gilt für die eigene Hintergrundfarbe.",
+    "cErrText": "Fehlertext",
+    "cErrTextHelp": "Fehlermeldungen in aufgelösten Fragmenten.",
+    "cTreeTag": "Tags im Baum",
+    "cTreeTagHelp": "Überschriften in der Baumansicht.",
+    "cTreeImport": "Importe im Baum",
+    "cTreeImportHelp": "Importierte Knoten in der Baumansicht.",
+    "cChip": "Markierungen in der Seitenleiste",
+    "cChipHelp": "Zeilennummern in der Seitenleiste.",
+    "expansion": "Auflösen von Verweisen",
+    "previewMode": "Vorschau",
+    "sidebars": "Seitenleisten",
+    "rename": "Umbenennen",
+    "warnings": "Warnungen",
+    "colors": "Farben",
+    "resetAll": "Standardwerte wiederherstellen",
+    "resetHelp": "Alle Einstellungen auf ihre Anfangswerte zurücksetzen.",
+    "reset": "Zurücksetzen",
+    "dismiss": "Schließen",
+    "disableWarnings": "Warnungen deaktivieren",
+    "errors": "Fehler",
+    "noErrors": "Keine Fehler.",
+    "newNoteName": "Neuer Notizname",
+    "emptyName": "Namen eingeben.",
+    "noTags": "Keine XML-Tag-Paare in dieser Notiz.",
+    "pickTag": "Tag auswählen",
+    "renameTagAction": "Tag umbenennen",
+    "toHeading": "In Markdown-Überschrift umwandeln (H1–H5)",
+    "tagCharacters": "ASCII-Buchstaben, Ziffern oder _ : . - verwenden",
+    "headingLevel": "Überschriftenebene",
+    "headingTitle": "Überschriftentext",
+    "pickSection": "Abschnitt auswählen",
+    "renameSectionAction": "Abschnitt umbenennen",
+    "toTag": "In XML-Tag umwandeln",
+    "newSection": "Neuer Abschnittsname",
+    "headingChanged": "Überschrift geändert. Erneut versuchen.",
+    "missingHeading": "Überschrift fehlt. Erneut versuchen.",
+    "chooseTarget": "Ziel auswählen",
+    "missingCursor": "Cursor auf eine Einbettung setzen.",
+    "missingTarget": "Zielnotiz fehlt.",
+    "duplicateHeading": "Verweise zeigen weiterhin auf den ersten gleichnamigen Abschnitt.",
+    "convertFirst": "Zuerst den früheren gleichnamigen Abschnitt umwandeln.",
+    "helpGuide": "Code-Embed-Anleitung",
+    "cmdRenameNote": "Notiz umbenennen und Einbettungen aktualisieren",
+    "cmdRenameTag": "Tag in dieser Notiz umbenennen oder umwandeln",
+    "cmdRenameSection": "Abschnitt in dieser Notiz umbenennen oder umwandeln",
+    "cmdRenameTarget": "Einbettungsziel am Cursor umbenennen",
+    "errorLabel": "Fehler",
+    "broken": "Defekte Verweise",
+    "incoming": "Eingehend",
+    "outgoing": "Ausgehend",
+    "currentNote": "Aktuelle Notiz",
+    "file": "Datei",
+    "tag": "Tag",
+    "section": "Abschnitt",
+    "via": "über",
+    "package": "Paket",
+    "outsidePackage": "außerhalb eines Pakets",
+    "ambiguous": "mehrdeutiger Name im Paket",
+    "notInPackage": "im Paket nicht gefunden",
+    "lostTarget": "Verweisziel nach dem Verschieben verloren",
+    "missingNote": "Notiz nicht gefunden",
+    "missingSection": "Abschnitt nicht gefunden",
+    "sourceHeadings": "Überschriften in der Quelle",
+    "emptySourceHeadings": "Keine Überschriften in der Quelle",
+    "emptySection": "Leerer Abschnittsname",
+    "blockUnsupported": "Blockverweise (^) werden nicht unterstützt",
+    "invalidRange": "Bereich {range} außerhalb der Datei (1–{last})",
+    "missingTag": "Tag {tag} fehlt",
+    "unknownSelector": "Unbekannter Selektor",
+    "depthExceeded": "Verschachtelungsgrenze überschritten",
+    "cycle": "Zyklus",
+    "searchedBlock": "Block und Datei {path} durchsucht",
+    "updated": "Aktualisierte Verweise: {refs}. Dateien: {files}.",
+    "badChars": "Ungültige Zeichen",
+    "exists": "Datei existiert bereits",
+    "actionFor": "Aktion für {name} wählen",
+    "newTag": "Neuer Tag-Name",
+    "sectionToTag": "Tag-Name für Abschnitt {name}",
+    "skippedNested": "Übersprungene verschachtelte Pfade: {count}. Bitte manuell aktualisieren.",
+    "rootCreated": "Code-Embed-Paketwurzel festgelegt: {path}",
+    "rootRemoved": "Wurzelmarkierung entfernt: {path}"
   },
   "fr": {
     "view": "Aperçu",
@@ -130,7 +517,136 @@ const CE_LOCALES = {
     "cancel": "Annuler",
     "fragmentName": "Nom du fragment",
     "invalidTag": "Saisissez un nom de balise valide.",
-    "invalidTitle": "Le titre contient un caractère non autorisé."
+    "invalidTitle": "Le titre contient un caractère non autorisé.",
+    "maxDepth": "Profondeur maximale",
+    "maxDepthHelp": "Limite les niveaux de résolution, d’affichage et de validation.",
+    "livePreview": "Widgets de l’éditeur",
+    "livePreviewHelp": "Afficher les inclusions hors de la ligne en cours de modification.",
+    "viewTree": "Arbre des balises",
+    "viewTreeHelp": "Présenter les imports XML et Markdown sous forme d’arbre repliable.",
+    "xmlPlain": "Texte brut dans le XML",
+    "xmlPlainHelp": "Afficher le texte entre les balises en chasse fixe.",
+    "treeOpenDepth": "Profondeur initiale de l’arbre",
+    "treeOpenDepthHelp": "Niveaux ouverts au départ. 0 replie tout.",
+    "inlineMax": "Imports compacts (caractères)",
+    "inlineMaxHelp": "Longueur maximale des imports compacts sur une ligne. 0 les désactive.",
+    "buttonsOnPlain": "Boutons sur les blocs sans import",
+    "buttonsOnPlainHelp": "Afficher l’aperçu et Copy+ sur les blocs Markdown et XML sans import.",
+    "showPanels": "Panneaux latéraux natifs",
+    "showPanelsHelp": "Inclure Code Embed dans les liens sortants et entrants.",
+    "panelOnTop": "Placer la section en premier",
+    "panelOnTopHelp": "Placer Code Embed au-dessus de la liste native.",
+    "panelNested": "Références imbriquées",
+    "panelNestedHelp": "Suivre les références à travers les fragments importés.",
+    "panelMaxVh": "Hauteur maximale de la liste (vh)",
+    "panelMaxVhHelp": "Limiter la zone de défilement de chaque liste.",
+    "panelLinks": "Liens dans le panneau des erreurs",
+    "panelLinksHelp": "Afficher les références entrantes et sortantes sous les erreurs.",
+    "autoRenameFile": "Actualiser les références aux notes renommées",
+    "autoRenameFileHelp": "Réécrire les inclusions après le renommage d’une note.",
+    "autoRenameTag": "Actualiser les références aux balises renommées",
+    "autoRenameTagHelp": "Détecter les changements de nom des paires de balises XML.",
+    "autoRenameSection": "Actualiser les références aux sections renommées",
+    "autoRenameSectionHelp": "Détecter les modifications des titres Markdown.",
+    "renameNotice": "Afficher le bilan du renommage",
+    "renameNoticeHelp": "Indiquer le nombre de références modifiées.",
+    "warnBroken": "Signaler les références rompues",
+    "warnBrokenHelp": "Lister les inclusions non résolues après un renommage.",
+    "validateDelay": "Délai de validation (ms)",
+    "validateDelayHelp": "Délai après la dernière modification avant la vérification.",
+    "cWidgetBorder": "Bordure du widget",
+    "cWidgetBorderHelp": "Références développées dans l’éditeur.",
+    "cWidgetBg": "Fond du widget",
+    "cWidgetBgHelp": "Références développées dans l’éditeur.",
+    "cWidgetBgAlpha": "Opacité du fond du widget (%)",
+    "cWidgetBgAlphaHelp": "S’applique à la couleur de fond personnalisée.",
+    "cErrBorder": "Bordure des erreurs",
+    "cErrBorderHelp": "Inclusions invalides dans l’éditeur et l’aperçu.",
+    "cErrBg": "Surlignage des erreurs",
+    "cErrBgHelp": "Inclusions invalides dans l’éditeur et l’aperçu.",
+    "cErrBgAlpha": "Opacité du surlignage des erreurs (%)",
+    "cErrBgAlphaHelp": "S’applique à la couleur de fond personnalisée.",
+    "cErrText": "Texte des erreurs",
+    "cErrTextHelp": "Messages d’erreur des fragments développés.",
+    "cTreeTag": "Balises dans l’arbre",
+    "cTreeTagHelp": "Titres de l’aperçu arborescent.",
+    "cTreeImport": "Imports dans l’arbre",
+    "cTreeImportHelp": "Nœuds importés dans l’aperçu arborescent.",
+    "cChip": "Badges des panneaux",
+    "cChipHelp": "Numéros de ligne dans les panneaux.",
+    "expansion": "Développement des références",
+    "previewMode": "Aperçu",
+    "sidebars": "Panneaux latéraux",
+    "rename": "Renommage",
+    "warnings": "Avertissements",
+    "colors": "Couleurs",
+    "resetAll": "Rétablir les valeurs par défaut",
+    "resetHelp": "Rétablir la valeur initiale de tous les réglages.",
+    "reset": "Rétablir",
+    "dismiss": "Fermer",
+    "disableWarnings": "Désactiver les avertissements",
+    "errors": "Erreurs",
+    "noErrors": "Aucune erreur.",
+    "newNoteName": "Nouveau nom de la note",
+    "emptyName": "Saisissez un nom.",
+    "noTags": "Aucune paire de balises XML dans cette note.",
+    "pickTag": "Choisir une balise",
+    "renameTagAction": "Renommer la balise",
+    "toHeading": "Convertir en titre Markdown (H1–H5)",
+    "tagCharacters": "Utilisez des lettres ASCII, des chiffres ou _ : . -",
+    "headingLevel": "Niveau du titre",
+    "headingTitle": "Texte du titre",
+    "pickSection": "Choisir une section",
+    "renameSectionAction": "Renommer la section",
+    "toTag": "Convertir en balise XML",
+    "newSection": "Nouveau nom de section",
+    "headingChanged": "Le titre a changé. Réessayez.",
+    "missingHeading": "Titre introuvable. Réessayez.",
+    "chooseTarget": "Choisir la cible",
+    "missingCursor": "Placez le curseur sur une inclusion.",
+    "missingTarget": "Note cible introuvable.",
+    "duplicateHeading": "Les références pointent toujours vers la première section de ce nom.",
+    "convertFirst": "Convertissez d’abord la première section portant ce nom.",
+    "helpGuide": "Guide de Code Embed",
+    "cmdRenameNote": "Renommer la note et actualiser les inclusions",
+    "cmdRenameTag": "Renommer ou convertir une balise de cette note",
+    "cmdRenameSection": "Renommer ou convertir une section de cette note",
+    "cmdRenameTarget": "Renommer la cible de l’inclusion sous le curseur",
+    "errorLabel": "erreur",
+    "broken": "Références rompues",
+    "incoming": "Entrants",
+    "outgoing": "Sortants",
+    "currentNote": "Note actuelle",
+    "file": "Fichier",
+    "tag": "Balise",
+    "section": "Section",
+    "via": "via",
+    "package": "paquet",
+    "outsidePackage": "hors paquet",
+    "ambiguous": "nom ambigu dans le paquet",
+    "notInPackage": "introuvable dans le paquet",
+    "lostTarget": "Cible perdue après le déplacement",
+    "missingNote": "Note introuvable",
+    "missingSection": "Section introuvable",
+    "sourceHeadings": "Titres dans la source",
+    "emptySourceHeadings": "Aucun titre dans la source",
+    "emptySection": "Nom de section vide",
+    "blockUnsupported": "Les références de bloc (^) ne sont pas prises en charge",
+    "invalidRange": "Plage {range} hors du fichier (1–{last})",
+    "missingTag": "Balise {tag} manquante",
+    "unknownSelector": "Sélecteur inconnu",
+    "depthExceeded": "Profondeur maximale dépassée",
+    "cycle": "Cycle",
+    "searchedBlock": "Recherche dans le bloc et le fichier {path}",
+    "updated": "Références modifiées : {refs}. Fichiers : {files}.",
+    "badChars": "Caractères non autorisés",
+    "exists": "Le fichier existe déjà",
+    "actionFor": "Choisir une action pour {name}",
+    "newTag": "Nouveau nom de balise",
+    "sectionToTag": "Nom de balise pour la section {name}",
+    "skippedNested": "Chemins imbriqués ignorés : {count}. Actualisez-les manuellement.",
+    "rootCreated": "Racine Code Embed définie : {path}",
+    "rootRemoved": "Marqueur de racine retiré : {path}"
   },
   "es": {
     "view": "Vista previa",
@@ -162,7 +678,136 @@ const CE_LOCALES = {
     "cancel": "Cancelar",
     "fragmentName": "Nombre del fragmento",
     "invalidTag": "Introduce un nombre de etiqueta válido.",
-    "invalidTitle": "El título contiene un carácter no válido."
+    "invalidTitle": "El título contiene un carácter no válido.",
+    "maxDepth": "Profundidad máxima",
+    "maxDepthHelp": "Limita los niveles de expansión, visualización y validación.",
+    "livePreview": "Widgets del editor",
+    "livePreviewHelp": "Muestra las inclusiones fuera de la línea en edición.",
+    "viewTree": "Árbol de etiquetas",
+    "viewTreeHelp": "Muestra las importaciones XML y Markdown como árbol plegable.",
+    "xmlPlain": "Texto sin formato en XML",
+    "xmlPlainHelp": "Usa una fuente monoespaciada entre etiquetas.",
+    "treeOpenDepth": "Profundidad inicial del árbol",
+    "treeOpenDepthHelp": "Niveles abiertos al inicio. 0 pliega todo.",
+    "inlineMax": "Importaciones compactas (caracteres)",
+    "inlineMaxHelp": "Longitud máxima de importaciones compactas de una línea. 0 las desactiva.",
+    "buttonsOnPlain": "Botones en bloques sin importaciones",
+    "buttonsOnPlainHelp": "Muestra la vista previa y Copy+ en bloques Markdown y XML sin importaciones.",
+    "showPanels": "Paneles laterales nativos",
+    "showPanelsHelp": "Incluye Code Embed en enlaces salientes y entrantes.",
+    "panelOnTop": "Mostrar primero la sección",
+    "panelOnTopHelp": "Sitúa Code Embed encima de la lista nativa.",
+    "panelNested": "Referencias anidadas",
+    "panelNestedHelp": "Sigue referencias a través de fragmentos importados.",
+    "panelMaxVh": "Altura máxima de la lista (vh)",
+    "panelMaxVhHelp": "Limita el área desplazable de cada lista.",
+    "panelLinks": "Enlaces en el panel de errores",
+    "panelLinksHelp": "Muestra referencias entrantes y salientes bajo los errores.",
+    "autoRenameFile": "Actualizar referencias al renombrar notas",
+    "autoRenameFileHelp": "Reescribe las inclusiones al renombrar una nota.",
+    "autoRenameTag": "Actualizar referencias al renombrar etiquetas",
+    "autoRenameTagHelp": "Detecta cambios de nombre de pares de etiquetas XML.",
+    "autoRenameSection": "Actualizar referencias al renombrar secciones",
+    "autoRenameSectionHelp": "Detecta cambios en los encabezados Markdown.",
+    "renameNotice": "Mostrar resumen del cambio de nombre",
+    "renameNoticeHelp": "Indica cuántas referencias cambiaron.",
+    "warnBroken": "Avisar de referencias rotas",
+    "warnBrokenHelp": "Enumera inclusiones sin resolver tras un cambio de nombre.",
+    "validateDelay": "Espera de validación (ms)",
+    "validateDelayHelp": "Espera después de la última edición antes de comprobar referencias.",
+    "cWidgetBorder": "Borde del widget",
+    "cWidgetBorderHelp": "Referencias expandidas en el editor.",
+    "cWidgetBg": "Fondo del widget",
+    "cWidgetBgHelp": "Referencias expandidas en el editor.",
+    "cWidgetBgAlpha": "Opacidad del fondo del widget (%)",
+    "cWidgetBgAlphaHelp": "Se aplica al color de fondo personalizado.",
+    "cErrBorder": "Borde de errores",
+    "cErrBorderHelp": "Inclusiones no válidas en el editor y la vista previa.",
+    "cErrBg": "Resaltado de errores",
+    "cErrBgHelp": "Inclusiones no válidas en el editor y la vista previa.",
+    "cErrBgAlpha": "Opacidad del resaltado de errores (%)",
+    "cErrBgAlphaHelp": "Se aplica al color de fondo personalizado.",
+    "cErrText": "Texto de errores",
+    "cErrTextHelp": "Mensajes de error en fragmentos expandidos.",
+    "cTreeTag": "Etiquetas del árbol",
+    "cTreeTagHelp": "Encabezados de la vista de árbol.",
+    "cTreeImport": "Importaciones del árbol",
+    "cTreeImportHelp": "Nodos importados en la vista de árbol.",
+    "cChip": "Insignias de los paneles",
+    "cChipHelp": "Números de línea en los paneles.",
+    "expansion": "Expansión de referencias",
+    "previewMode": "Vista previa",
+    "sidebars": "Paneles laterales",
+    "rename": "Cambios de nombre",
+    "warnings": "Avisos",
+    "colors": "Colores",
+    "resetAll": "Restablecer valores predeterminados",
+    "resetHelp": "Restablece los valores iniciales de todos los ajustes.",
+    "reset": "Restablecer",
+    "dismiss": "Cerrar",
+    "disableWarnings": "Desactivar avisos",
+    "errors": "Errores",
+    "noErrors": "Sin errores.",
+    "newNoteName": "Nuevo nombre de la nota",
+    "emptyName": "Introduce un nombre.",
+    "noTags": "Esta nota no tiene pares de etiquetas XML.",
+    "pickTag": "Elegir etiqueta",
+    "renameTagAction": "Renombrar etiqueta",
+    "toHeading": "Convertir en encabezado Markdown (H1–H5)",
+    "tagCharacters": "Usa letras ASCII, dígitos o _ : . -",
+    "headingLevel": "Nivel de encabezado",
+    "headingTitle": "Texto del encabezado",
+    "pickSection": "Elegir sección",
+    "renameSectionAction": "Renombrar sección",
+    "toTag": "Convertir en etiqueta XML",
+    "newSection": "Nuevo nombre de sección",
+    "headingChanged": "El encabezado cambió. Inténtalo otra vez.",
+    "missingHeading": "No se encuentra el encabezado. Inténtalo otra vez.",
+    "chooseTarget": "Elegir destino",
+    "missingCursor": "Sitúa el cursor en una inclusión.",
+    "missingTarget": "No se encontró la nota de destino.",
+    "duplicateHeading": "Las referencias apuntan a la primera sección con ese nombre.",
+    "convertFirst": "Convierte primero la sección anterior con ese nombre.",
+    "helpGuide": "Guía de Code Embed",
+    "cmdRenameNote": "Renombrar nota y actualizar inclusiones",
+    "cmdRenameTag": "Renombrar o convertir una etiqueta de esta nota",
+    "cmdRenameSection": "Renombrar o convertir una sección de esta nota",
+    "cmdRenameTarget": "Renombrar el destino de la inclusión en el cursor",
+    "errorLabel": "error",
+    "broken": "Referencias rotas",
+    "incoming": "Entrantes",
+    "outgoing": "Salientes",
+    "currentNote": "Nota actual",
+    "file": "Archivo",
+    "tag": "Etiqueta",
+    "section": "Sección",
+    "via": "por",
+    "package": "paquete",
+    "outsidePackage": "fuera del paquete",
+    "ambiguous": "nombre ambiguo en el paquete",
+    "notInPackage": "no se encontró en el paquete",
+    "lostTarget": "Referencia sin destino tras el traslado",
+    "missingNote": "Nota no encontrada",
+    "missingSection": "Sección no encontrada",
+    "sourceHeadings": "Encabezados en el origen",
+    "emptySourceHeadings": "Sin encabezados en el origen",
+    "emptySection": "Nombre de sección vacío",
+    "blockUnsupported": "Las referencias a bloques (^) no son compatibles",
+    "invalidRange": "Intervalo {range} fuera del archivo (1–{last})",
+    "missingTag": "Falta la etiqueta {tag}",
+    "unknownSelector": "Selector desconocido",
+    "depthExceeded": "Se superó la profundidad máxima",
+    "cycle": "Ciclo",
+    "searchedBlock": "Se buscó en el bloque y en el archivo {path}",
+    "updated": "Referencias actualizadas: {refs}. Archivos: {files}.",
+    "badChars": "Caracteres no permitidos",
+    "exists": "El archivo ya existe",
+    "actionFor": "Elige una acción para {name}",
+    "newTag": "Nuevo nombre de etiqueta",
+    "sectionToTag": "Nombre de etiqueta para la sección {name}",
+    "skippedNested": "Rutas anidadas omitidas: {count}. Actualízalas manualmente.",
+    "rootCreated": "Raíz de Code Embed establecida: {path}",
+    "rootRemoved": "Marcador de raíz eliminado: {path}"
   },
   "nl": {
     "view": "Voorbeeld",
@@ -194,7 +839,136 @@ const CE_LOCALES = {
     "cancel": "Annuleren",
     "fragmentName": "Fragmentnaam",
     "invalidTag": "Voer een geldige tagnaam in.",
-    "invalidTitle": "De titel bevat een ongeldig teken."
+    "invalidTitle": "De titel bevat een ongeldig teken.",
+    "maxDepth": "Maximale nestdiepte",
+    "maxDepthHelp": "Beperkt de diepte bij uitwerken, weergeven en controleren.",
+    "livePreview": "Editorwidgets",
+    "livePreviewHelp": "Toon insluitingen buiten de regel die je bewerkt.",
+    "viewTree": "Tagstructuur",
+    "viewTreeHelp": "Toon XML- en Markdown-imports als inklapbare boom.",
+    "xmlPlain": "Platte tekst in XML",
+    "xmlPlainHelp": "Gebruik een vaste tekenbreedte tussen tags.",
+    "treeOpenDepth": "Begindiepte van de boom",
+    "treeOpenDepthHelp": "Aanvankelijk geopende niveaus. 0 klapt alles in.",
+    "inlineMax": "Compacte imports (tekens)",
+    "inlineMaxHelp": "Maximumlengte voor compacte eenregelige imports. 0 schakelt dit uit.",
+    "buttonsOnPlain": "Knoppen op blokken zonder imports",
+    "buttonsOnPlainHelp": "Toon voorbeeld en Copy+ op Markdown- en XML-blokken zonder imports.",
+    "showPanels": "Ingebouwde zijpanelen",
+    "showPanelsHelp": "Toon Code Embed bij uitgaande links en terugverwijzingen.",
+    "panelOnTop": "Sectie bovenaan",
+    "panelOnTopHelp": "Plaats Code Embed boven de ingebouwde lijst.",
+    "panelNested": "Geneste verwijzingen",
+    "panelNestedHelp": "Volg verwijzingen door geïmporteerde fragmenten.",
+    "panelMaxVh": "Maximale lijsthoogte (vh)",
+    "panelMaxVhHelp": "Beperkt het schuifbare gebied van elke lijst.",
+    "panelLinks": "Links in het foutenpaneel",
+    "panelLinksHelp": "Toon inkomende en uitgaande verwijzingen onder fouten.",
+    "autoRenameFile": "Verwijzingen naar hernoemde notities bijwerken",
+    "autoRenameFileHelp": "Werk insluitingen bij na het hernoemen van een notitie.",
+    "autoRenameTag": "Verwijzingen naar hernoemde tags bijwerken",
+    "autoRenameTagHelp": "Herken naamswijzigingen van XML-tagparen.",
+    "autoRenameSection": "Verwijzingen naar hernoemde secties bijwerken",
+    "autoRenameSectionHelp": "Herken wijzigingen aan Markdown-koppen.",
+    "renameNotice": "Samenvatting van hernoemen tonen",
+    "renameNoticeHelp": "Meld hoeveel verwijzingen zijn gewijzigd.",
+    "warnBroken": "Waarschuwen voor verbroken verwijzingen",
+    "warnBrokenHelp": "Toon onopgeloste insluitingen na het hernoemen.",
+    "validateDelay": "Wachttijd voor validatie (ms)",
+    "validateDelayHelp": "Wachttijd na de laatste wijziging voor de controle.",
+    "cWidgetBorder": "Widgetrand",
+    "cWidgetBorderHelp": "Uitgewerkte verwijzingen in de editor.",
+    "cWidgetBg": "Widgetachtergrond",
+    "cWidgetBgHelp": "Uitgewerkte verwijzingen in de editor.",
+    "cWidgetBgAlpha": "Dekking van de widgetachtergrond (%)",
+    "cWidgetBgAlphaHelp": "Geldt voor de aangepaste achtergrondkleur.",
+    "cErrBorder": "Foutrand",
+    "cErrBorderHelp": "Ongeldige insluitingen in de editor en het voorbeeld.",
+    "cErrBg": "Foutmarkering",
+    "cErrBgHelp": "Ongeldige insluitingen in de editor en het voorbeeld.",
+    "cErrBgAlpha": "Dekking van de foutmarkering (%)",
+    "cErrBgAlphaHelp": "Geldt voor de aangepaste achtergrondkleur.",
+    "cErrText": "Fouttekst",
+    "cErrTextHelp": "Foutmeldingen in uitgewerkte fragmenten.",
+    "cTreeTag": "Tags in de boom",
+    "cTreeTagHelp": "Koppen in de boomweergave.",
+    "cTreeImport": "Imports in de boom",
+    "cTreeImportHelp": "Geïmporteerde knopen in de boomweergave.",
+    "cChip": "Labels in zijpanelen",
+    "cChipHelp": "Regelnummers in de zijbalk.",
+    "expansion": "Verwijzingen uitwerken",
+    "previewMode": "Voorbeeld",
+    "sidebars": "Zijpanelen",
+    "rename": "Hernoemen",
+    "warnings": "Waarschuwingen",
+    "colors": "Kleuren",
+    "resetAll": "Standaardwaarden herstellen",
+    "resetHelp": "Herstel de beginwaarden van alle instellingen.",
+    "reset": "Herstellen",
+    "dismiss": "Sluiten",
+    "disableWarnings": "Waarschuwingen uitschakelen",
+    "errors": "Fouten",
+    "noErrors": "Geen fouten.",
+    "newNoteName": "Nieuwe notitienaam",
+    "emptyName": "Vul een naam in.",
+    "noTags": "Deze notitie bevat geen XML-tagparen.",
+    "pickTag": "Kies een tag",
+    "renameTagAction": "Tag hernoemen",
+    "toHeading": "Omzetten naar Markdown-kop (H1–H5)",
+    "tagCharacters": "Gebruik ASCII-letters, cijfers of _ : . -",
+    "headingLevel": "Kopniveau",
+    "headingTitle": "Tekst van de kop",
+    "pickSection": "Kies een sectie",
+    "renameSectionAction": "Sectie hernoemen",
+    "toTag": "Omzetten naar XML-tag",
+    "newSection": "Nieuwe sectienaam",
+    "headingChanged": "De kop is gewijzigd. Probeer het opnieuw.",
+    "missingHeading": "Kop ontbreekt. Probeer het opnieuw.",
+    "chooseTarget": "Kies een doel",
+    "missingCursor": "Plaats de cursor op een insluiting.",
+    "missingTarget": "Doelnotitie ontbreekt.",
+    "duplicateHeading": "Verwijzingen wijzen nog naar de eerste sectie met deze naam.",
+    "convertFirst": "Zet eerst de eerdere gelijknamige sectie om.",
+    "helpGuide": "Code Embed-handleiding",
+    "cmdRenameNote": "Notitie hernoemen en insluitingen bijwerken",
+    "cmdRenameTag": "Een tag in deze notitie hernoemen of omzetten",
+    "cmdRenameSection": "Een sectie in deze notitie hernoemen of omzetten",
+    "cmdRenameTarget": "Doel van de insluiting bij de cursor hernoemen",
+    "errorLabel": "fout",
+    "broken": "Verbroken verwijzingen",
+    "incoming": "Inkomend",
+    "outgoing": "Uitgaand",
+    "currentNote": "Huidige notitie",
+    "file": "Bestand",
+    "tag": "Tag",
+    "section": "Sectie",
+    "via": "via",
+    "package": "pakket",
+    "outsidePackage": "buiten een pakket",
+    "ambiguous": "dubbelzinnige naam in pakket",
+    "notInPackage": "niet gevonden in pakket",
+    "lostTarget": "Doel verloren na verplaatsen",
+    "missingNote": "Notitie niet gevonden",
+    "missingSection": "Sectie niet gevonden",
+    "sourceHeadings": "Koppen in de bron",
+    "emptySourceHeadings": "Geen koppen in de bron",
+    "emptySection": "Lege sectienaam",
+    "blockUnsupported": "Blokverwijzingen (^) worden niet ondersteund",
+    "invalidRange": "Bereik {range} buiten bestand (1–{last})",
+    "missingTag": "Tag {tag} ontbreekt",
+    "unknownSelector": "Onbekende selector",
+    "depthExceeded": "Nestlimiet overschreden",
+    "cycle": "Cyclus",
+    "searchedBlock": "Blok en bestand {path} doorzocht",
+    "updated": "Bijgewerkte verwijzingen: {refs}. Bestanden: {files}.",
+    "badChars": "Ongeldige tekens",
+    "exists": "Bestand bestaat al",
+    "actionFor": "Kies een actie voor {name}",
+    "newTag": "Nieuwe tagnaam",
+    "sectionToTag": "Tagnaam voor sectie {name}",
+    "skippedNested": "Overgeslagen geneste paden: {count}. Werk ze handmatig bij.",
+    "rootCreated": "Code Embed-hoofdmap ingesteld: {path}",
+    "rootRemoved": "Hoofdmapmarkering verwijderd: {path}"
   },
   "it": {
     "view": "Anteprima",
@@ -226,14 +1000,153 @@ const CE_LOCALES = {
     "cancel": "Annulla",
     "fragmentName": "Nome del frammento",
     "invalidTag": "Inserisci un nome di tag valido.",
-    "invalidTitle": "Il titolo contiene un carattere non valido."
+    "invalidTitle": "Il titolo contiene un carattere non valido.",
+    "maxDepth": "Profondità massima",
+    "maxDepthHelp": "Limita i livelli di espansione, visualizzazione e verifica.",
+    "livePreview": "Widget dell’editor",
+    "livePreviewHelp": "Mostra le inclusioni fuori dalla riga in modifica.",
+    "viewTree": "Albero dei tag",
+    "viewTreeHelp": "Mostra le importazioni XML e Markdown in un albero comprimibile.",
+    "xmlPlain": "Testo semplice in XML",
+    "xmlPlainHelp": "Usa caratteri a larghezza fissa tra i tag.",
+    "treeOpenDepth": "Profondità iniziale dell’albero",
+    "treeOpenDepthHelp": "Livelli aperti inizialmente. 0 comprime tutto.",
+    "inlineMax": "Importazioni compatte (caratteri)",
+    "inlineMaxHelp": "Lunghezza massima per importazioni compatte su una riga. 0 le disattiva.",
+    "buttonsOnPlain": "Pulsanti nei blocchi senza importazioni",
+    "buttonsOnPlainHelp": "Mostra anteprima e Copy+ nei blocchi Markdown e XML senza importazioni.",
+    "showPanels": "Pannelli laterali nativi",
+    "showPanelsHelp": "Includi Code Embed nei collegamenti in uscita e in entrata.",
+    "panelOnTop": "Mostra prima la sezione",
+    "panelOnTopHelp": "Posiziona Code Embed sopra l’elenco nativo.",
+    "panelNested": "Riferimenti annidati",
+    "panelNestedHelp": "Segui i riferimenti attraverso i frammenti importati.",
+    "panelMaxVh": "Altezza massima dell’elenco (vh)",
+    "panelMaxVhHelp": "Limita l’area scorrevole di ogni elenco.",
+    "panelLinks": "Collegamenti nel pannello errori",
+    "panelLinksHelp": "Mostra i riferimenti in entrata e in uscita sotto gli errori.",
+    "autoRenameFile": "Aggiorna i riferimenti alle note rinominate",
+    "autoRenameFileHelp": "Riscrivi le inclusioni dopo la ridenominazione di una nota.",
+    "autoRenameTag": "Aggiorna i riferimenti ai tag rinominati",
+    "autoRenameTagHelp": "Rileva le modifiche ai nomi delle coppie di tag XML.",
+    "autoRenameSection": "Aggiorna i riferimenti alle sezioni rinominate",
+    "autoRenameSectionHelp": "Rileva le modifiche alle intestazioni Markdown.",
+    "renameNotice": "Mostra il riepilogo della ridenominazione",
+    "renameNoticeHelp": "Indica quanti riferimenti sono cambiati.",
+    "warnBroken": "Segnala i riferimenti interrotti",
+    "warnBrokenHelp": "Elenca le inclusioni irrisolte dopo una ridenominazione.",
+    "validateDelay": "Ritardo della verifica (ms)",
+    "validateDelayHelp": "Attesa dopo l’ultima modifica prima della verifica.",
+    "cWidgetBorder": "Bordo del widget",
+    "cWidgetBorderHelp": "Riferimenti espansi nell’editor.",
+    "cWidgetBg": "Sfondo del widget",
+    "cWidgetBgHelp": "Riferimenti espansi nell’editor.",
+    "cWidgetBgAlpha": "Opacità dello sfondo del widget (%)",
+    "cWidgetBgAlphaHelp": "Si applica al colore di sfondo personalizzato.",
+    "cErrBorder": "Bordo degli errori",
+    "cErrBorderHelp": "Inclusioni non valide nell’editor e nell’anteprima.",
+    "cErrBg": "Evidenziazione degli errori",
+    "cErrBgHelp": "Inclusioni non valide nell’editor e nell’anteprima.",
+    "cErrBgAlpha": "Opacità dell’evidenziazione degli errori (%)",
+    "cErrBgAlphaHelp": "Si applica al colore di sfondo personalizzato.",
+    "cErrText": "Testo degli errori",
+    "cErrTextHelp": "Messaggi di errore nei frammenti espansi.",
+    "cTreeTag": "Tag nell’albero",
+    "cTreeTagHelp": "Intestazioni nell’anteprima ad albero.",
+    "cTreeImport": "Importazioni nell’albero",
+    "cTreeImportHelp": "Nodi importati nell’anteprima ad albero.",
+    "cChip": "Etichette dei pannelli",
+    "cChipHelp": "Numeri di riga nei pannelli.",
+    "expansion": "Espansione dei riferimenti",
+    "previewMode": "Anteprima",
+    "sidebars": "Pannelli laterali",
+    "rename": "Ridenominazione",
+    "warnings": "Avvisi",
+    "colors": "Colori",
+    "resetAll": "Ripristina valori predefiniti",
+    "resetHelp": "Ripristina i valori iniziali di tutte le impostazioni.",
+    "reset": "Ripristina",
+    "dismiss": "Chiudi",
+    "disableWarnings": "Disattiva avvisi",
+    "errors": "Errori",
+    "noErrors": "Nessun errore.",
+    "newNoteName": "Nuovo nome della nota",
+    "emptyName": "Inserisci un nome.",
+    "noTags": "La nota non contiene coppie di tag XML.",
+    "pickTag": "Scegli un tag",
+    "renameTagAction": "Rinomina tag",
+    "toHeading": "Converti in intestazione Markdown (H1–H5)",
+    "tagCharacters": "Usa lettere ASCII, cifre o _ : . -",
+    "headingLevel": "Livello di intestazione",
+    "headingTitle": "Testo dell’intestazione",
+    "pickSection": "Scegli una sezione",
+    "renameSectionAction": "Rinomina sezione",
+    "toTag": "Converti in tag XML",
+    "newSection": "Nuovo nome della sezione",
+    "headingChanged": "L’intestazione è cambiata. Riprova.",
+    "missingHeading": "Intestazione assente. Riprova.",
+    "chooseTarget": "Scegli la destinazione",
+    "missingCursor": "Posiziona il cursore su un’inclusione.",
+    "missingTarget": "Nota di destinazione non trovata.",
+    "duplicateHeading": "I riferimenti puntano ancora alla prima sezione con questo nome.",
+    "convertFirst": "Converti prima la sezione precedente con lo stesso nome.",
+    "helpGuide": "Guida di Code Embed",
+    "cmdRenameNote": "Rinomina nota e aggiorna inclusioni",
+    "cmdRenameTag": "Rinomina o converti un tag della nota",
+    "cmdRenameSection": "Rinomina o converti una sezione della nota",
+    "cmdRenameTarget": "Rinomina la destinazione dell’inclusione al cursore",
+    "errorLabel": "errore",
+    "broken": "Riferimenti interrotti",
+    "incoming": "In entrata",
+    "outgoing": "In uscita",
+    "currentNote": "Nota corrente",
+    "file": "File",
+    "tag": "Tag",
+    "section": "Sezione",
+    "via": "tramite",
+    "package": "pacchetto",
+    "outsidePackage": "fuori dal pacchetto",
+    "ambiguous": "nome ambiguo nel pacchetto",
+    "notInPackage": "non trovato nel pacchetto",
+    "lostTarget": "Destinazione persa dopo lo spostamento",
+    "missingNote": "Nota non trovata",
+    "missingSection": "Sezione non trovata",
+    "sourceHeadings": "Intestazioni nella sorgente",
+    "emptySourceHeadings": "Nessuna intestazione nella sorgente",
+    "emptySection": "Nome della sezione vuoto",
+    "blockUnsupported": "I riferimenti ai blocchi (^) non sono supportati",
+    "invalidRange": "Intervallo {range} fuori dal file (1–{last})",
+    "missingTag": "Tag {tag} mancante",
+    "unknownSelector": "Selettore sconosciuto",
+    "depthExceeded": "Superato il limite di annidamento",
+    "cycle": "Ciclo",
+    "searchedBlock": "Ricerca nel blocco e nel file {path}",
+    "updated": "Riferimenti aggiornati: {refs}. File: {files}.",
+    "badChars": "Caratteri non consentiti",
+    "exists": "Il file esiste già",
+    "actionFor": "Scegli un’azione per {name}",
+    "newTag": "Nuovo nome del tag",
+    "sectionToTag": "Nome del tag per la sezione {name}",
+    "skippedNested": "Percorsi annidati ignorati: {count}. Aggiornali manualmente.",
+    "rootCreated": "Radice di Code Embed impostata: {path}",
+    "rootRemoved": "Marcatore di radice rimosso: {path}"
   }
 };
 
-function t(key, values = {}) {
+function activeLanguage() {
   const locale = getLanguage?.() || globalThis.moment?.locale?.() || globalThis.navigator?.language || "en";
   const language = locale.toLowerCase().split(/[-_]/)[0];
-  const message = CE_LOCALES[language]?.[key] ?? CE_LOCALES.en[key] ?? key;
+  return Object.prototype.hasOwnProperty.call(CE_LOCALES, language) ? language : "en";
+}
+
+function guideUrl() {
+  const language = activeLanguage();
+  const filename = language === "en" ? "README.md" : "README." + language + ".md";
+  return "https://github.com/JavaMiner/obsidian-code-embed/blob/feature/canonical-embeds-packages/" + filename;
+}
+
+function t(key, values = {}) {
+  const message = CE_LOCALES[activeLanguage()][key] ?? CE_LOCALES.en[key] ?? key;
   return message.replace(/\{(\w+)\}/g, (token, name) => values[name] ?? token);
 }
 
@@ -287,10 +1200,13 @@ const COLOR_FALLBACK = {
   cChip: "#8b7cf6",
 };
 
-const ERR_RE = /\[błąd: [^\]]*\]/g;
+const errorLabels = [...new Set(Object.values(CE_LOCALES).map(labels => labels.errorLabel))];
+const ERR_RE = new RegExp("\\[(?:" + errorLabels.join("|") + "): ([^\\]]*)\\]", "g");
+const firstError = text => new RegExp(ERR_RE.source).exec(text)?.[1];
+const formatError = message => "[" + t("errorLabel") + ": " + message + "]";
 const escHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const markErrors = (md) => md.replace(ERR_RE, (m) => '<span class="ce-err">' + escHtml(m) + "</span>");
-const hasErrors = (s) => /\[błąd: [^\]]*\]/.test(s);
+const hasErrors = (s) => firstError(s) !== undefined;
 
 function fillErr(el, text) {
   el.textContent = "";
@@ -425,8 +1341,8 @@ function headingsOf(text, includeFencedHeadings) {
 
 function sectionError(text, title) {
   const all = headingsOf(text, true).slice(0, 8).map((h) => h.replace(/\]/g, ")"));
-  const hint = all.length ? " (nagłówki w źródle: " + all.join(" | ") + ")" : " (brak jakichkolwiek nagłówków w źródle)";
-  return new Error('brak sekcji "' + title + '"' + hint);
+  const hint = all.length ? " (" + t("sourceHeadings") + ": " + all.join(" | ") + ")" : " (" + t("emptySourceHeadings") + ")";
+  return new Error(t("missingSection") + ": " + title + hint);
 }
 
 // When matching headings inside fenced examples, the closing fence also ends the section.
@@ -458,11 +1374,11 @@ function findSection(text, title, withHeading, includeFencedHeadings) {
 function sliceSection(text, spec) {
   const withHeading = !spec.startsWith("##");
   const titles = spec.replace(/^#+\s*/, "").split("#").map(normTitle).filter(Boolean);
-  if (!titles.length) throw new Error("pusta nazwa sekcji");
+  if (!titles.length) throw new Error(t("emptySection"));
   function selectHeadingPath(includeFencedHeadings) {
     let section = stripFrontmatter(text);
     for (const [index, title] of titles.entries()) {
-      if (title.startsWith("^")) throw new Error("odwołania do bloków (^) nie są obsługiwane");
+      if (title.startsWith("^")) throw new Error(t("blockUnsupported"));
       const includeHeading = withHeading && index === titles.length - 1;
       section = findSection(section, title, includeHeading, includeFencedHeadings);
     }
@@ -488,7 +1404,7 @@ function sliceLines(text, a, b) {
   else if (b.startsWith("-")) to = lines.length + Number(b);
   else to = Number(b);
   if (from < 1 || from > lines.length || to < from || to > lines.length) {
-    throw new Error("zakres linii " + a + "-" + (b ?? "") + " poza zakresem pliku (1-" + lines.length + ")");
+    throw new Error(t("invalidRange", { range: a + "-" + (b ?? ""), last: lines.length }));
   }
   return lines.slice(from - 1, to).join("\n");
 }
@@ -500,9 +1416,9 @@ function sliceTag(text, tag, inner) {
     if (i > 0 && text[i - 1] === "<") { from = i + 1; continue; }
     break;
   }
-  if (i < 0) throw new Error("brak <" + tag + ">");
+  if (i < 0) throw new Error(t("missingTag", { tag: "<" + tag + ">" }));
   const j = text.indexOf(close, i + open.length);
-  if (j < 0) throw new Error("brak </" + tag + ">");
+  if (j < 0) throw new Error(t("missingTag", { tag: "</" + tag + ">" }));
   if (inner) {
     let s = text.slice(i + open.length, j);
     s = s.replace(/^\r?\n/, "").replace(/\r?\n$/, "");
@@ -520,7 +1436,7 @@ function slice(text, range) {
   if ((m = /^(<<?)([\w:.\-]+)>>?$/.exec(range))) return sliceTag(text, m[2], m[1] === "<<");
   if (range.startsWith("#")) return sliceSection(text, range);
   if ((m = /^(\d+)-(-\d+|\d*)$/.exec(range))) return sliceLines(text, m[1], m[2]);
-  throw new Error('nieznany zakres "' + range + '"');
+  throw new Error(t("unknownSelector") + ": " + range);
 }
 
 const VOID_TAGS = new Set(["br", "hr", "img", "input", "meta", "link", "wbr"]);
@@ -664,7 +1580,7 @@ class MarkdownEmbedWidget extends WidgetType {
       await this.plugin.renderMd(markErrors(md), el, this.path, owner);
       if (el.ceToken === token) view.requestMeasure();
     }).catch((error) => {
-      if (el.ceToken === token) fillErr(el, "[błąd: " + error.message + "]");
+      if (el.ceToken === token) fillErr(el, formatError(error.message));
     });
     return el;
   }
@@ -796,67 +1712,53 @@ class CodeEmbedSettings extends PluginSettingTab {
     const { containerEl: el } = this;
     el.empty();
 
+    new Setting(el).setName("Code Embed · " + this.plugin.manifest.version).setHeading();
+    el.createEl("a", { text: t("helpGuide"), href: guideUrl(), attr: { target: "_blank", rel: "noopener noreferrer" } });
+    new Setting(el).setName(t("chooseFolder"))
+      .addButton(button => button.setButtonText(t("chooseFolder")).onClick(() => this.plugin.choosePackageFolder()));
     this.color(el, "packageColor", t("rootColor"), t("rootColorHelp"));
-    new Setting(el).setName("Rozwijanie odwołań").setHeading();
-    this.slider(el, "maxDepth", "Maksymalna głębokość zagnieżdżeń",
-      "Limit zagnieżdżonych ![…]. Wpływa na rozwijanie, panele i sprawdzanie odwołań.", 1, 10, 1);
-    this.toggle(el, "livePreview", "Widżety w edytorze",
-      "Podmienia ![... …] w blokach kodu na rozwiniętą treść, gdy kursor nie jest w danej linii.");
+    new Setting(el).setName(t("expansion")).setHeading();
+    this.slider(el, "maxDepth", t("maxDepth"), t("maxDepthHelp"), 1, 10, 1);
+    this.toggle(el, "livePreview", t("livePreview"), t("livePreviewHelp"));
 
-    new Setting(el).setName("Tryb View").setHeading();
-    this.toggle(el, "viewTree", "Drzewo znaczników",
-      "Dla bloków xml i md pokazuje rozwijane drzewo znaczników i importów. Wyłączone: zwykły render Markdown.");
-    this.toggle(el, "xmlPlain", "Tekst w xml jako zwykły",
-      "Tekst między znacznikami w blokach xml jest pokazywany jako monospace. Wyłączone: renderowany jako Markdown.");
-    this.slider(el, "treeOpenDepth", "Domyślne rozwinięcie drzewa",
-      "Do jakiej głębokości węzły są domyślnie otwarte (0 = wszystko zwinięte).", 0, 10, 1);
-    this.slider(el, "inlineMax", "Zwijanie krótkich importów (znaki)",
-      "Import ![…], którego rozwinięcie jest jedną krótką linią (jak zmienna), jest domyślnie zwinięty do chipa z wartością. 0 = zawsze rozwinięte.", 0, 200, 10);
-    this.toggle(el, "buttonsOnPlain", "Przyciski na blokach bez importów",
-      "Pokazuje View i Copy+ także na blokach md i xml, które nie zawierają ![…].");
+    new Setting(el).setName(t("previewMode")).setHeading();
+    this.toggle(el, "viewTree", t("viewTree"), t("viewTreeHelp"));
+    this.toggle(el, "xmlPlain", t("xmlPlain"), t("xmlPlainHelp"));
+    this.slider(el, "treeOpenDepth", t("treeOpenDepth"), t("treeOpenDepthHelp"), 0, 10, 1);
+    this.slider(el, "inlineMax", t("inlineMax"), t("inlineMaxHelp"), 0, 200, 10);
+    this.toggle(el, "buttonsOnPlain", t("buttonsOnPlain"), t("buttonsOnPlainHelp"));
 
-    new Setting(el).setName("Panele boczne").setHeading();
-    this.toggle(el, "showPanels", "Sekcja Code Embed w panelach natywnych",
-      "Dodatkowe wpisy w Łączach wychodzących i Linkach zwrotnych.");
-    this.toggle(el, "panelOnTop", "Sekcja na górze panelu",
-      "Wstawia sekcję przed natywną listą. Wyłączone: na dole.");
-    this.toggle(el, "panelNested", "Odwołania zagnieżdżone",
-      "Wyłączone: panele pokazują tylko bezpośrednie odwołania, bez łańcuchów przez inne fragmenty.");
-    this.slider(el, "panelMaxVh", "Maksymalna wysokość listy (vh)",
-      "Wysokość przewijanego obszaru sekcji.", 20, 90, 5);
-    this.toggle(el, "panelLinks", "Wychodzące i przychodzące w panelu błędów",
-      "W panelu Code Embed pod listą błędów pokazuje też odwołania wychodzące i przychodzące.");
+    new Setting(el).setName(t("sidebars")).setHeading();
+    this.toggle(el, "showPanels", t("showPanels"), t("showPanelsHelp"));
+    this.toggle(el, "panelOnTop", t("panelOnTop"), t("panelOnTopHelp"));
+    this.toggle(el, "panelNested", t("panelNested"), t("panelNestedHelp"));
+    this.slider(el, "panelMaxVh", t("panelMaxVh"), t("panelMaxVhHelp"), 20, 90, 5);
+    this.toggle(el, "panelLinks", t("panelLinks"), t("panelLinksHelp"));
 
-    new Setting(el).setName("Zmiana nazw").setHeading();
-    this.toggle(el, "autoRenameFile", "Aktualizuj odwołania po zmianie nazwy pliku",
-      "Po zmianie nazwy notatki przepisuje osadzenia ![…] (w blokach kodu i z zakresem). Ręczne polecenia Rename działają zawsze.");
-    this.toggle(el, "autoRenameTag", "Aktualizuj odwołania po zmianie nazwy tagu",
-      "Wykrywa zmianę nazwy pary <tag>…</tag> w notatce i przepisuje ![x:<tag>] / ![x:<<tag>>].");
-    this.toggle(el, "autoRenameSection", "Aktualizuj odwołania po zmianie nazwy sekcji",
-      "Wykrywa zmianę tekstu nagłówka i przepisuje ![x:#Sekcja], ![x:##Sekcja].");
-    this.toggle(el, "renameNotice", "Pokazuj podsumowanie zmian",
-      "Po automatycznej lub ręcznej zmianie nazwy wyświetla liczbę poprawionych odwołań.");
+    new Setting(el).setName(t("rename")).setHeading();
+    this.toggle(el, "autoRenameFile", t("autoRenameFile"), t("autoRenameFileHelp"));
+    this.toggle(el, "autoRenameTag", t("autoRenameTag"), t("autoRenameTagHelp"));
+    this.toggle(el, "autoRenameSection", t("autoRenameSection"), t("autoRenameSectionHelp"));
+    this.toggle(el, "renameNotice", t("renameNotice"), t("renameNoticeHelp"));
 
-    new Setting(el).setName("Ostrzeżenia").setHeading();
-    this.toggle(el, "warnBroken", "Ostrzegaj o zerwanych odwołaniach",
-      "Po zmianie nazwy pliku, tagu lub sekcji pokazuje okno z listą odwołań ![…], które przestały działać. Wyciszane automatycznie podczas operacji Rename.");
-    this.slider(el, "validateDelay", "Opóźnienie sprawdzania (ms)",
-      "Czas od ostatniej zmiany, po którym wtyczka sprawdza odwołania.", 500, 10000, 500);
+    new Setting(el).setName(t("warnings")).setHeading();
+    this.toggle(el, "warnBroken", t("warnBroken"), t("warnBrokenHelp"));
+    this.slider(el, "validateDelay", t("validateDelay"), t("validateDelayHelp"), 500, 10000, 500);
 
-    new Setting(el).setName("Kolory").setHeading();
-    this.color(el, "cWidgetBorder", "Ramka widżetu", "Ramka rozwiniętego odwołania w edytorze.");
-    this.color(el, "cWidgetBg", "Tło widżetu", "Podświetlenie rozwiniętego odwołania w edytorze.");
-    this.slider(el, "cWidgetBgAlpha", "Przezroczystość tła widżetu (%)", "Działa po wybraniu własnego koloru tła.", 0, 100, 5);
-    this.color(el, "cErrBorder", "Ramka błędu", "Ramka widżetu i podglądu View, gdy odwołanie jest błędne.");
-    this.color(el, "cErrBg", "Podświetlenie błędu", "Tło widżetu i fragmentów [błąd: …].");
-    this.slider(el, "cErrBgAlpha", "Przezroczystość podświetlenia błędu (%)", "Działa po wybraniu własnego koloru podświetlenia.", 0, 100, 5);
-    this.color(el, "cErrText", "Tekst błędu", "Kolor komunikatów błędów.");
-    this.color(el, "cTreeTag", "Znaczniki w drzewie", "Kolor nagłówków w trybie View.");
-    this.color(el, "cTreeImport", "Importy w drzewie", "Kolor węzłów ⤵ z importów w trybie View.");
-    this.color(el, "cChip", "Chipy w panelach", "Kolor znaczników L12 w panelach bocznych.");
+    new Setting(el).setName(t("colors")).setHeading();
+    this.color(el, "cWidgetBorder", t("cWidgetBorder"), t("cWidgetBorderHelp"));
+    this.color(el, "cWidgetBg", t("cWidgetBg"), t("cWidgetBgHelp"));
+    this.slider(el, "cWidgetBgAlpha", t("cWidgetBgAlpha"), t("cWidgetBgAlphaHelp"), 0, 100, 5);
+    this.color(el, "cErrBorder", t("cErrBorder"), t("cErrBorderHelp"));
+    this.color(el, "cErrBg", t("cErrBg"), t("cErrBgHelp"));
+    this.slider(el, "cErrBgAlpha", t("cErrBgAlpha"), t("cErrBgAlphaHelp"), 0, 100, 5);
+    this.color(el, "cErrText", t("cErrText"), t("cErrTextHelp"));
+    this.color(el, "cTreeTag", t("cTreeTag"), t("cTreeTagHelp"));
+    this.color(el, "cTreeImport", t("cTreeImport"), t("cTreeImportHelp"));
+    this.color(el, "cChip", t("cChip"), t("cChipHelp"));
 
-    new Setting(el).setName("Przywróć domyślne").setDesc("Ustawia wszystkie opcje na wartości początkowe.")
-      .addButton((b) => b.setButtonText("Przywróć").onClick(async () => {
+    new Setting(el).setName(t("resetAll")).setDesc(t("resetHelp"))
+      .addButton((b) => b.setButtonText(t("reset")).onClick(async () => {
         this.plugin.settings = Object.assign({}, DEFAULTS);
         await this.plugin.saveData(this.plugin.settings);
         this.plugin.applySettings("all");
@@ -870,7 +1772,7 @@ class BrokenModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    this.titleEl.setText("⚠ Code Embed: zerwane odwołania (" + this.list.length + ")");
+    this.titleEl.setText("⚠ Code Embed: " + t("broken") + " (" + this.list.length + ")");
     const box = contentEl.createDiv({ cls: "ce-broken-box" });
     for (const b of this.list) {
       const row = box.createDiv({ cls: "ce-broken-row" });
@@ -880,8 +1782,8 @@ class BrokenModal extends Modal {
       row.onclick = () => { this.close(); this.plugin.goTo(b.file, b.line, b.ch); };
     }
     new Setting(contentEl)
-      .addButton((btn) => btn.setButtonText("Rozumiem").setCta().onClick(() => this.close()))
-      .addButton((btn) => btn.setButtonText("Wyłącz ostrzeżenia").onClick(async () => {
+      .addButton((btn) => btn.setButtonText(t("dismiss")).setCta().onClick(() => this.close()))
+      .addButton((btn) => btn.setButtonText(t("disableWarnings")).onClick(async () => {
         this.plugin.settings.warnBroken = false;
         await this.plugin.saveData(this.plugin.settings);
         this.plugin.brokenPrev = null;
@@ -934,6 +1836,10 @@ class EmbedSuggest extends EditorSuggest {
   }
 }
 
+function isVaultFolder(file) {
+  return Boolean(file && (file instanceof TFolder || Array.isArray(file.children)));
+}
+
 const MARKER = "_code-embed-root.md";
 const folderOf = path => path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "";
 const relativeTo = (root, path) => root ? path.slice(root.length + 1) : path;
@@ -979,9 +1885,9 @@ class PackageIndex {
       }
     }
     if (hits.length === 1 && this.root(hits[0].path) === root) return { file: hits[0] };
-    const where = " (pakiet: " + (root || "/") + ")";
-    return { error: hits.length > 1 ? "nazwa niejednoznaczna w pakiecie: " + name + where + " — " +
-      hits.map(f => relativeTo(root, f.path)).sort().join(", ") : "nie znaleziono w pakiecie: " + name + where };
+    const where = " (" + t("package") + ": " + (root || "/") + ")";
+    return { error: hits.length > 1 ? t("ambiguous") + ": " + name + where + " — " +
+      hits.map(f => relativeTo(root, f.path)).sort().join(", ") : t("notInPackage") + ": " + name + where };
   }
 }
 
@@ -1179,7 +2085,7 @@ class CodeEmbedPlugin extends Plugin {
 
   async checkItem(it, file) {
     const expanded = await this.resolve(it.ref, file.path, [], false, it.local);
-    return /\[błąd: ([^\]]*)\]/.exec(expanded)?.[1] || null;
+    return firstError(expanded) || null;
   }
 
   async collectErrors() {
@@ -1268,20 +2174,34 @@ class CodeEmbedPlugin extends Plugin {
     if (changed) { await this.saveData(this.settings); this.invalidate(); this.scheduleValidate(); }
   }
 
+  folderActionLabel(folder) {
+    const marker = this.app.vault.getAbstractFileByPath(markerPath(folder.path));
+    return marker && !isVaultFolder(marker) ? t("unmarkFolder") : t("markFolder");
+  }
+
+  async choosePackageFolder() {
+    const vault = this.app.vault;
+    const root = vault.getRoot();
+    const folders = [root, ...vault.getAllLoadedFiles().filter(file => isVaultFolder(file) && file !== root)];
+    const choice = await pickOne(this.app, t("chooseFolder"), folders.map(folder =>
+      ({ folder, label: folder.path + " — " + this.folderActionLabel(folder) })));
+    if (choice) await this.toggleFolder(choice.folder);
+  }
+
   setupFolders() {
-    const action = folder => this.app.vault.getAbstractFileByPath(markerPath(folder.path))
-      ? t("unmarkFolder") : t("markFolder");
-    this.registerEvent(this.app.workspace.on("file-menu", (menu, file) => {
-      if (file instanceof TFolder) menu.addItem(i => i.setTitle(action(file)).setIcon("package")
-        .onClick(() => this.toggleFolder(file)));
-    }));
-    const chooseFolder = async () => {
-      const folders = [this.app.vault.getRoot(), ...this.app.vault.getAllLoadedFiles().filter(f =>
-        f instanceof TFolder && f !== this.app.vault.getRoot())];
-      const choice = await pickOne(this.app, t("chooseFolder"), folders.map(folder =>
-        ({ folder, label: folder.path + " — " + action(folder) })));
-      if (choice) await this.toggleFolder(choice.folder);
+    const populatedMenus = new WeakSet();
+    const addFolderAction = (menu, folder) => {
+      if (!isVaultFolder(folder) || populatedMenus.has(menu)) return;
+      populatedMenus.add(menu);
+      menu.addItem(item => item.setTitle(this.folderActionLabel(folder)).setIcon("folder-cog")
+        .onClick(() => this.toggleFolder(folder)));
     };
+    const workspace = this.app.workspace;
+    this.registerEvent(workspace.on("file-menu", addFolderAction));
+    this.registerEvent(workspace.on("files-menu", (menu, files) => {
+      if (files.length === 1) addFolderAction(menu, files[0]);
+    }));
+    const chooseFolder = () => this.choosePackageFolder();
     this.addCommand({ id: "choose-package-folder", name: t("chooseFolder"), callback: chooseFolder });
     this.addRibbonIcon("folder-cog", t("chooseFolder"), chooseFolder);
     this.app.workspace.onLayoutReady(() => this.scheduleFolders());
@@ -1311,7 +2231,7 @@ class CodeEmbedPlugin extends Plugin {
         const rows = new Map();
         const items = view.fileItems instanceof Map ? view.fileItems.values() : Object.values(view.fileItems || {});
         for (const item of items) {
-          if (!(item.file instanceof TFolder)) continue;
+          if (!isVaultFolder(item.file)) continue;
           const row = item.selfEl || item.el?.querySelector(".nav-folder-title");
           if (row?.isConnected) rows.set(row, item.file);
         }
@@ -1320,7 +2240,7 @@ class CodeEmbedPlugin extends Plugin {
           const path = row.dataset.path ?? row.closest(".nav-folder")?.dataset.path
             ?? row.querySelector("[data-path]")?.dataset.path;
           const folder = path && this.app.vault.getAbstractFileByPath(path);
-          if (folder instanceof TFolder) rows.set(row, folder);
+          if (isVaultFolder(folder)) rows.set(row, folder);
         }
         for (const [row, folder] of rows) this.decorateFolder(row, folder);
       }
@@ -1329,7 +2249,7 @@ class CodeEmbedPlugin extends Plugin {
 
   decorateFolder(row, folder) {
     const marker = this.app.vault.getAbstractFileByPath(markerPath(folder.path));
-    const marked = Boolean(marker && !(marker instanceof TFolder));
+    const marked = Boolean(marker && !isVaultFolder(marker));
     row.classList.toggle("ce-package-folder", marked);
     let button = row.querySelector(".ce-folder-action");
     if (!button) {
@@ -1341,7 +2261,7 @@ class CodeEmbedPlugin extends Plugin {
         event.preventDefault();
         event.stopPropagation();
         const current = this.app.vault.getAbstractFileByPath(button.dataset.folderPath);
-        if (current instanceof TFolder) this.toggleFolder(current);
+        if (isVaultFolder(current)) this.toggleFolder(current);
       });
     }
     button.dataset.folderPath = folder.path;
@@ -1354,12 +2274,20 @@ class CodeEmbedPlugin extends Plugin {
   async toggleFolder(folder) {
     const path = markerPath(folder.path), existing = this.app.vault.getAbstractFileByPath(path);
     try {
-      if (!existing) { await this.app.vault.create(path, ""); return; }
-      if (existing instanceof TFolder) { new Notice(t("markerIsFolder", { path })); return; }
+      if (!existing) {
+        await this.app.vault.create(path, "");
+        this.scheduleFolders();
+        new Notice(t("rootCreated", { path: folder.path }));
+        return;
+      }
+      if (isVaultFolder(existing)) { new Notice(t("markerIsFolder", { path })); return; }
       const choice = await pickOne(this.app, t("confirmUnmark", { path }),
         [{ label: t("cancel") }, { label: t("removeMarker", { path }), remove: true }]);
-      if (choice?.remove && existing.path === path && this.app.vault.getAbstractFileByPath(path) === existing)
+      if (choice?.remove && existing.path === path && this.app.vault.getAbstractFileByPath(path) === existing) {
         await this.app.vault.trash(existing, true);
+        this.scheduleFolders();
+        new Notice(t("rootRemoved", { path: folder.path }));
+      }
     } catch (error) { new Notice(error.message); }
   }
 
@@ -1371,7 +2299,7 @@ class CodeEmbedPlugin extends Plugin {
     const result = this.lookupWithin(name, sourcePath, root);
     const bindings = this.settings.movedReferences?.[sourcePath];
     if (bindings && Object.prototype.hasOwnProperty.call(bindings, name) && result.file?.path !== bindings[name])
-      return { error: "Odwołanie utraciło cel po przeniesieniu: " + name + " (pakiet: " + (root ?? "poza pakietem") + ")" };
+      return { error: t("lostTarget") + ": " + name + " (" + t("package") + ": " + (root ?? t("outsidePackage")) + ")" };
     return result;
   }
 
@@ -1379,7 +2307,7 @@ class CodeEmbedPlugin extends Plugin {
     if (name !== "." && name && root !== null) return this.packages().lookup(name, root);
     const file = this.unscopedFile(name, sourcePath);
     if (!file || file.name === MARKER || root !== null && this.packages().root(file.path) !== root)
-      return { error: 'brak notatki "' + name + '"' + (root === null ? "" : " (pakiet: " + (root || "/") + ")") };
+      return { error: t("missingNote") + ": " + name + (root === null ? "" : " (" + t("package") + ": " + (root || "/") + ")") };
     return { file };
   }
 
@@ -1422,7 +2350,7 @@ class CodeEmbedPlugin extends Plugin {
     const p = parseRef(ref);
     const range = p.range;
     const { file, error } = this.lookup(p.name, sourcePath, root);
-    const scope = root === null ? "" : " (pakiet: " + (root || "/") + ")";
+    const scope = root === null ? "" : " (" + t("package") + ": " + (root || "/") + ")";
     let text = null, outPath = sourcePath, outLocal = null, key;
 
     const self = !!file && file.path === sourcePath;
@@ -1432,18 +2360,18 @@ class CodeEmbedPlugin extends Plugin {
       catch (e) { text = null; localErr = e; }
     }
     if (text === null) {
-      if (!file) return "[błąd: " + error + "]";
+      if (!file) return formatError(error);
       key = file.path + "|" + range;
     }
 
-    if (stack.length >= this.settings.maxDepth) return "[błąd: zbyt głębokie zagnieżdżenie (max " + this.settings.maxDepth + ")" + scope + "]";
-    if (stack.includes(key)) return "[błąd: cykl: " + [...stack, key].join(" -> ") + scope + "]";
+    if (stack.length >= this.settings.maxDepth) return formatError(t("depthExceeded") + " (" + this.settings.maxDepth + ")" + scope);
+    if (stack.includes(key)) return formatError(t("cycle") + ": " + [...stack, key].join(" → ") + scope);
 
     if (text === null) {
       try { text = slice(await this.read(file), range); }
       catch (e) {
-        const where = localErr ? " (szukano w bloku kodu i w pliku " + file.path + ")" : "";
-        return "[błąd: " + e.message.replace(/\]/g, ")") + where + scope + "]";
+        const where = localErr ? " (" + t("searchedBlock", { path: file.path }) + ")" : "";
+        return formatError(e.message.replace(/\]/g, ")") + where + scope);
       }
       outPath = file.path;
     }
@@ -1732,7 +2660,7 @@ class CodeEmbedPlugin extends Plugin {
       const head = wrap.createDiv({ cls: "ce-native-row ce-group" });
       const arrow = head.createSpan({ cls: "ce-arrow" });
       const name = head.createSpan({ cls: "ce-label" });
-      name.textContent = g.root.basename + (g.root.path === file.path ? " (ta notatka)" : "");
+      name.textContent = g.root.basename + (g.root.path === file.path ? " (" + t("currentNote") + ")" : "");
       name.title = g.root.path;
       head.createSpan({ cls: "ce-count", text: "×" + g.total });
       const kids = wrap.createDiv({ cls: "ce-children" });
@@ -1754,7 +2682,7 @@ class CodeEmbedPlugin extends Plugin {
         label.onclick = (e) => { e.preventDefault(); this.goTo(f0.file, f0.line, f0.ch); };
         row.createSpan({ cls: "ce-count", text: "×" + n.occ.length });
         if (it.chain.length > 1) {
-          row.createSpan({ cls: "ce-count", text: "via " + it.chain.slice(0, -1).map((c) => this.labelOf(c)).join(" → ") });
+          row.createSpan({ cls: "ce-count", text: t("via") + " " + it.chain.slice(0, -1).map((c) => this.labelOf(c)).join(" → ") });
         }
         for (const o of n.occ) this.chip(row, o, null);
       }
@@ -1763,7 +2691,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   renderErrors(body, errs, file) {
-    if (!errs.length) { this.emptyNote(body, "Brak błędów."); return; }
+    if (!errs.length) { this.emptyNote(body, t("noErrors")); return; }
     const groups = new Map();
     for (const e of errs) {
       if (!groups.has(e.file.path)) groups.set(e.file.path, { file: e.file, list: [] });
@@ -1830,8 +2758,8 @@ class CodeEmbedPlugin extends Plugin {
     }
     const isBack = type === "backlink";
     this.fillSection(sec, isBack ? "n-in" : "n-out",
-      "Code Embed – " + (isBack ? "zwrotne" : "wychodzące"), items.length, (body) => {
-        if (err) { body.createDiv({ cls: "ce-err", text: "Błąd: " + err }); return; }
+      "Code Embed – " + (isBack ? t("backlinks") : t("outgoing")), items.length, (body) => {
+        if (err) { body.createDiv({ cls: "ce-err", text: t("errorLabel") + ": " + err }); return; }
         if (isBack) this.renderIncoming(body, items, file);
         else this.renderOutgoing(body, items, file);
       });
@@ -1852,15 +2780,15 @@ class CodeEmbedPlugin extends Plugin {
 
     const root = view.contentEl;
     root.empty();
-    if (fail) root.createDiv({ cls: "ce-err", text: "Błąd: " + fail });
+    if (fail) root.createDiv({ cls: "ce-err", text: t("errorLabel") + ": " + fail });
     const mk = (key, title, count, fill) => {
       const sec = root.createDiv({ cls: "ce-native-section" });
       this.fillSection(sec, key, title, count, fill);
     };
-    mk("p-err", "Błędy", errs.length, (b) => this.renderErrors(b, errs, file));
+    mk("p-err", t("errors"), errs.length, (b) => this.renderErrors(b, errs, file));
     if (this.settings.panelLinks && file) {
-      mk("p-out", "Wychodzące – " + file.basename, out.length, (b) => this.renderOutgoing(b, out, file));
-      mk("p-in", "Przychodzące – " + file.basename, inc.length, (b) => this.renderIncoming(b, inc, file));
+      mk("p-out", t("outgoing") + " – " + file.basename, out.length, (b) => this.renderOutgoing(b, out, file));
+      mk("p-in", t("incoming") + " – " + file.basename, inc.length, (b) => this.renderIncoming(b, inc, file));
     }
   }
 
@@ -1993,7 +2921,7 @@ class CodeEmbedPlugin extends Plugin {
       el.classList.toggle("ce-has-error", hasErrors(md));
       await this.renderMd(markErrors(md), el, path, owner);
     } catch (error) {
-      fillErr(el, "[błąd: " + error.message + "]");
+      fillErr(el, formatError(error.message));
     }
   }
 
@@ -2270,7 +3198,7 @@ const renameMethods = {
 
     this.addCommand({
       id: "rename-file",
-      name: "Rename note (update embeds)",
+      name: t("cmdRenameNote"),
       checkCallback: (chk) => {
         const f = ws.getActiveFile();
         if (!f || f.extension !== "md") return false;
@@ -2280,7 +3208,7 @@ const renameMethods = {
     });
     this.addCommand({
       id: "rename-tag",
-      name: "Rename / convert tag in this note (update embeds)",
+      name: t("cmdRenameTag"),
       checkCallback: (chk) => {
         const f = ws.getActiveFile();
         if (!f || f.extension !== "md") return false;
@@ -2290,7 +3218,7 @@ const renameMethods = {
     });
     this.addCommand({
       id: "rename-section",
-      name: "Rename / convert section in this note (update embeds)",
+      name: t("cmdRenameSection"),
       checkCallback: (chk) => {
         const f = ws.getActiveFile();
         if (!f || f.extension !== "md") return false;
@@ -2300,7 +3228,7 @@ const renameMethods = {
     });
     this.addCommand({
       id: "rename-at-cursor",
-      name: "Rename target of embed at cursor (file / tag / section)",
+      name: t("cmdRenameTarget"),
       editorCheckCallback: (chk, editor, view) => {
         if (!view.file || !this.refAtCursor(editor)) return false;
         if (!chk) this.cmdRenameAtCursor(editor, view.file);
@@ -2310,23 +3238,23 @@ const renameMethods = {
 
     this.registerEvent(ws.on("file-menu", (menu, f) => {
       if (!f || f.extension !== "md") return;
-      menu.addItem((i) => i.setTitle("Code Embed: rename (update embeds)").setIcon("pencil")
+      menu.addItem((i) => i.setTitle(t("cmdRenameNote")).setIcon("pencil")
         .onClick(() => this.cmdRenameFile(f)));
     }));
     this.registerEvent(ws.on("editor-menu", (menu, editor, view) => {
       if (!view.file) return;
       if (this.refAtCursor(editor)) {
-        menu.addItem((i) => i.setTitle("Code Embed: rename embed target…").setIcon("pencil")
+        menu.addItem((i) => i.setTitle(t("cmdRenameTarget")).setIcon("pencil")
           .onClick(() => this.cmdRenameAtCursor(editor, view.file)));
       }
       const tag = this.tagAtCursor(editor);
       if (tag) {
-        menu.addItem((i) => i.setTitle("Code Embed: rename tag <" + tag + ">…").setIcon("pencil")
+        menu.addItem((i) => i.setTitle(t("renameTagAction") + " <" + tag + ">…").setIcon("pencil")
           .onClick(() => this.cmdRenameTag(view.file, tag)));
       }
       const h = HEADING_RE.exec(editor.getLine(editor.getCursor().line).replace(/\r$/, ""));
       if (h && h[2].trim()) {
-        menu.addItem((i) => i.setTitle("Code Embed: rename / convert section…").setIcon("pencil")
+        menu.addItem((i) => i.setTitle(t("cmdRenameSection")).setIcon("pencil")
           .onClick(() => this.cmdRenameSection(view.file, editor.getCursor().line)));
       }
     }));
@@ -2403,7 +3331,7 @@ const renameMethods = {
     }
     if (hr.ren && this.settings.autoRenameSection) {
       const [from, to] = hr.ren, title = heads.get(to);
-      if (badSectionName(title)) new Notice("Code Embed: nowa nazwa sekcji zawiera znaki niedozwolone w odwołaniu (# ( ^ | [ ]) – odwołań nie zaktualizowano.");
+      if (badSectionName(title)) new Notice(t("invalidTitle"));
       else await this.renameSectionRefs(file, from, title);
     }
   },
@@ -2428,7 +3356,7 @@ const renameMethods = {
 
   rnNotice(what, res) {
     if (this.settings.renameNotice && res.refs) {
-      new Notice("Code Embed: " + what + " – zaktualizowano " + res.refs + " odwołań w " + res.files + " plikach.");
+      new Notice("Code Embed: " + what + " — " + t("updated", res));
     }
   },
 
@@ -2466,17 +3394,17 @@ const renameMethods = {
         if (next === p.name) return null;
         return next + ref.slice(p.name.length);
       });
-      this.rnNotice("plik " + oldPath + " → " + file.path, res);
+      this.rnNotice(oldPath + " → " + file.path, res);
     });
   },
 
   async cmdRenameFile(file) {
-    const name = await askText(this.app, "Nowa nazwa notatki", file.basename,
-      (v) => !v ? "Nazwa nie może być pusta." : /[\\/:*?"<>|#^\[\]]/.test(v) ? 'Niedozwolone znaki: \\ / : * ? " < > | # ^ [ ]' : null);
+    const name = await askText(this.app, t("newNoteName"), file.basename,
+      (v) => !v ? t("emptyName") : /[\\/:*?"<>|#^\[\]]/.test(v) ? t("badChars") + ': \\ / : * ? " < > | # ^ [ ]' : null);
     if (!name || name === file.basename) return;
     const dir = file.parent && file.parent.path !== "/" ? file.parent.path + "/" : "";
     const target = dir + name + "." + file.extension;
-    if (this.app.vault.getAbstractFileByPath(target)) { new Notice("Plik już istnieje: " + target); return; }
+    if (this.app.vault.getAbstractFileByPath(target)) { new Notice(t("exists") + ": " + target); return; }
     this.forceRenameUpdate = true;
     try { await this.app.fileManager.renameFile(file, target); }
     finally { setTimeout(() => { this.forceRenameUpdate = false; }, 0); }
@@ -2497,29 +3425,29 @@ const renameMethods = {
         if (!re.test(rest)) return null;
         return ref.slice(0, sp[1]) + rest.replace(re, (m, a, b) => a + newTag + b);
       });
-      this.rnNotice("tag <" + oldTag + "> → <" + newTag + ">", res);
+      this.rnNotice("<" + oldTag + "> → <" + newTag + ">", res);
     });
   },
 
   async cmdRenameTag(file, preset) {
     const text = await this.app.vault.read(file);
     const tags = tagsOf(text);
-    if (!tags.length) { new Notice("Brak tagów (par <tag>…</tag>) w tej notatce."); return; }
+    if (!tags.length) { new Notice(t("noTags")); return; }
     let oldTag = preset;
     if (!oldTag) {
-      const it = await pickOne(this.app, "Który tag zmienić?", tags.map((t) => ({ label: "<" + t + ">", value: t })));
+      const it = await pickOne(this.app, t("pickTag"), tags.map((t) => ({ label: "<" + t + ">", value: t })));
       if (!it) return;
       oldTag = it.value;
     }
-    const act = await pickOne(this.app, "Działanie dla <" + oldTag + ">", [
-      { label: "✏️ Zmień nazwę tagu", value: "rename" },
-      { label: "⇄ Zamień na nagłówek Markdown (H1–H5)", value: "heading" },
+    const act = await pickOne(this.app, t("actionFor", { name: "<" + oldTag + ">" }), [
+      { label: t("renameTagAction"), value: "rename" },
+      { label: t("toHeading"), value: "heading" },
     ]);
     if (!act) return;
     if (act.value === "heading") { await this.convertTagToHeading(file, oldTag); return; }
 
-    const nt = await askText(this.app, "Nowa nazwa tagu <" + oldTag + ">", oldTag,
-      (v) => !RN_TAG_RE.test(v) ? "Dozwolone: litery ASCII, cyfry oraz _ : . -" : null);
+    const nt = await askText(this.app, t("newTag") + " <" + oldTag + ">", oldTag,
+      (v) => !RN_TAG_RE.test(v) ? t("tagCharacters") : null);
     if (!nt || nt === oldTag) return;
     await this.withRenameMute(async () => {
       const rx = new RegExp("(!\\[\\[[^\\]\\n]*\\]\\])|<(\\/?)" + rnEsc(oldTag) + ">", "g");
@@ -2531,11 +3459,11 @@ const renameMethods = {
   },
 
   async convertTagToHeading(file, oldTag) {
-    const lv = await pickOne(this.app, "Poziom nagłówka docelowego",
+    const lv = await pickOne(this.app, t("headingLevel"),
       [1, 2, 3, 4, 5].map((n) => ({ label: "#".repeat(n) + "  (H" + n + ")", value: n })));
     if (!lv) return;
-    const title = await askText(this.app, "Tytuł nagłówka docelowego", oldTag.replace(/[-_.:]+/g, " ").trim() || oldTag,
-      (v) => badSectionName(v) ? "Tytuł nie może być pusty ani zawierać: # ( ^ | [ ]" : null);
+    const title = await askText(this.app, t("headingTitle"), oldTag.replace(/[-_.:]+/g, " ").trim() || oldTag,
+      (v) => badSectionName(v) ? !v ? t("emptyName") : t("badChars") + ": # ( ^ | [ ]" : null);
     if (title == null) return;
     await this.withRenameMute(async () => {
       let ok = false;
@@ -2544,7 +3472,7 @@ const renameMethods = {
         ok = r.changed;
         return r.text;
       });
-      if (!ok) { new Notice("Nie znaleziono kompletnej pary <" + oldTag + ">…</" + oldTag + ">."); return; }
+      if (!ok) { new Notice(t("missingTag", { tag: "<" + oldTag + ">…</" + oldTag + ">" })); return; }
       const res = await this.rewriteAll((ref, inF, src) => {
         const p = parseRef(ref);
         const tgt = this.findFile(p.name, src.path);
@@ -2557,7 +3485,7 @@ const renameMethods = {
         const argS = this.refArgSuffix(p);
         return ref.slice(0, sp[1]) + ":" + (inner ? "##" : "#") + title + argS;
       });
-      this.rnNotice("tag <" + oldTag + "> → sekcja " + title, res);
+      this.rnNotice("<" + oldTag + "> → " + title, res);
       await this.snapshot(file, true);
     });
   },
@@ -2589,7 +3517,7 @@ const renameMethods = {
         if (!hit) return null;
         return ref.slice(0, sp[1]) + m[1] + segs.join("#") + m[3];
       });
-      this.rnNotice("sekcja → " + newTitle, res);
+      this.rnNotice(t("section") + " → " + newTitle, res);
     });
   },
 
@@ -2599,20 +3527,20 @@ const renameMethods = {
 
     let h = line != null ? list.find((x) => x.line === line) : null;
     if (!h) {
-      const it = await pickOne(this.app, "Którą sekcję zmienić?",
+      const it = await pickOne(this.app, t("pickSection"),
         list.map((x) => ({ label: "L" + (x.line + 1) + " " + "#".repeat(x.level) + " " + x.raw, value: x })));
       if (!it) return;
       h = it.value;
     }
-    const act = await pickOne(this.app, 'Działanie dla sekcji "' + h.raw + '"', [
-      { label: "✏️ Zmień nazwę sekcji", value: "rename" },
-      { label: "⇄ Zamień na tag XML <tag>…</tag>", value: "tag" },
+    const act = await pickOne(this.app, t("actionFor", { name: h.raw }), [
+      { label: t("renameSectionAction"), value: "rename" },
+      { label: t("toTag"), value: "tag" },
     ]);
     if (!act) return;
     if (act.value === "tag") { await this.convertSectionToTag(file, h); return; }
 
-    const nt = await askText(this.app, "Nowa nazwa sekcji", h.raw,
-      (v) => badSectionName(v) ? "Nazwa nie może być pusta ani zawierać: # ( ^ | [ ]" : null);
+    const nt = await askText(this.app, t("newSection"), h.raw,
+      (v) => badSectionName(v) ? !v ? t("emptyName") : t("badChars") + ": # ( ^ | [ ]" : null);
     if (!nt || nt === h.raw) return;
     await this.withRenameMute(async () => {
       const isFirst = list.find((x) => x.norm === h.norm).line === h.line;
@@ -2625,9 +3553,9 @@ const renameMethods = {
         lines[h.line] = l.slice(0, idx) + nt + l.slice(idx + hm[2].length);
         return lines.join("\n");
       });
-      if (!ok) { new Notice("Nagłówek się zmienił – spróbuj ponownie."); return; }
+      if (!ok) { new Notice(t("headingChanged")); return; }
       if (isFirst) await this.renameSectionRefs(file, h.norm, nt);
-      else new Notice("Istnieje wcześniejsza sekcja o tej samej nazwie – odwołania wskazują na nią, więc ich nie zmieniono.");
+      else new Notice(t("duplicateHeading"));
       await this.snapshot(file, true);
     });
   },
@@ -2637,12 +3565,12 @@ const renameMethods = {
     const list = headingList(text);
     const isFirst = list.find((x) => x.norm === h.norm)?.line === h.line;
     if (!isFirst) {
-      new Notice("Istnieje wcześniejsza sekcja o tej samej nazwie – odwołania wskazują na nią. Konwertuj najpierw ją.");
+      new Notice(t("convertFirst"));
       return;
     }
-    const tag = await askText(this.app, 'Nazwa tagu docelowego dla sekcji "' + h.raw + '"',
-      h.raw.replace(/[*_`]/g, "").replace(/[^\w:.\- ]+/g, "").trim().replace(/\s+/g, "-") || "sekcja",
-      (v) => !RN_TAG_RE.test(v) ? "Dozwolone: litery ASCII, cyfry oraz _ : . -" : null);
+    const tag = await askText(this.app, t("sectionToTag", { name: h.raw }),
+      h.raw.replace(/[*_`]/g, "").replace(/[^\w:.\- ]+/g, "").trim().replace(/\s+/g, "-") || "section",
+      (v) => !RN_TAG_RE.test(v) ? t("tagCharacters") : null);
     if (!tag) return;
     await this.withRenameMute(async () => {
       let ok = false;
@@ -2660,7 +3588,7 @@ const renameMethods = {
         ok = r.changed;
         return r.text;
       });
-      if (!ok) { new Notice("Nie znaleziono nagłówka – spróbuj ponownie."); return; }
+      if (!ok) { new Notice(t("missingHeading")); return; }
       let skipped = 0;
       const res = await this.rewriteAll((ref, inF, src) => {
         const p = parseRef(ref);
@@ -2675,8 +3603,8 @@ const renameMethods = {
         if (!sp) return null;
         return ref.slice(0, sp[1]) + ":" + (inner ? "<<" + tag + ">>" : "<" + tag + ">") + this.refArgSuffix(p);
       });
-      this.rnNotice('sekcja "' + h.raw + '" → tag <' + tag + ">", res);
-      if (skipped) new Notice("Pominięto " + skipped + " odwołań ze zagnieżdżoną ścieżką (#H1#H2…) – tag XML nie wyraża zagnieżdżenia, popraw je ręcznie.");
+      this.rnNotice(h.raw + " → <" + tag + ">", res);
+      if (skipped) new Notice(t("skippedNested", { count: skipped }));
       await this.snapshot(file, true);
     });
   },
@@ -2717,25 +3645,25 @@ const renameMethods = {
 
   async cmdRenameAtCursor(editor, srcFile) {
     const at = this.refAtCursor(editor);
-    if (!at) { new Notice("Kursor nie jest na odwołaniu ![…]."); return; }
+    if (!at) { new Notice(t("missingCursor")); return; }
     const p = parseRef(at.ref);
     const target = this.findFile(p.name, srcFile.path);
-    if (!target || target.extension !== "md") { new Notice("Nie znaleziono notatki docelowej."); return; }
+    if (!target || target.extension !== "md") { new Notice(t("missingTarget")); return; }
     const opts = [];
-    if (p.name && p.name !== ".") opts.push({ label: "Plik: " + target.basename, kind: "file" });
-    else opts.push({ label: "Plik: " + target.basename + " (ta notatka)", kind: "file" });
+    if (p.name && p.name !== ".") opts.push({ label: t("file") + ": " + target.basename, kind: "file" });
+    else opts.push({ label: t("file") + ": " + target.basename + " (" + t("currentNote") + ")", kind: "file" });
     const tm = /^<([<]?)([\w:.\-]+)>[>]?$/.exec(p.range || "");
-    if (tm) opts.push({ label: "Tag: <" + tm[2] + ">", kind: "tag", tag: tm[2] });
+    if (tm) opts.push({ label: t("tag") + ": <" + tm[2] + ">", kind: "tag", tag: tm[2] });
     if (p.range && p.range.startsWith("#")) {
       const m = /^#+\s*([^(|]*)/.exec(p.range);
       const segs = (m ? m[1] : "").split("#").map((s) => s.trim()).filter(Boolean);
       const hs = headingList(await this.app.vault.read(target));
       for (const s of segs) {
         const h = hs.find((x) => x.norm === normTitle(s));
-        if (h) opts.push({ label: "Sekcja: " + s, kind: "section", line: h.line });
+        if (h) opts.push({ label: t("section") + ": " + s, kind: "section", line: h.line });
       }
     }
-    const it = opts.length === 1 ? { value: opts[0] } : await pickOne(this.app, "Co zmienić?", opts.map((o) => ({ label: o.label, value: o })));
+    const it = opts.length === 1 ? { value: opts[0] } : await pickOne(this.app, t("chooseTarget"), opts.map((o) => ({ label: o.label, value: o })));
     if (!it) return;
     const o = it.value;
     if (o.kind === "file") await this.cmdRenameFile(target);

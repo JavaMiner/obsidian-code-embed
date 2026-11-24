@@ -58,6 +58,8 @@ Les blocs `ce` et `codeembed` affichent la structure. Pour `md` ou `xml`, touche
 
 Toucher **+ Racine** ou **◆ Racine** à côté du dossier, ouvrir le menu par appui long ou choisir le dossier dans la palette. Toucher son nom le déplie. Le marquage crée le fichier indiqué ci-dessous. Confirmer son chemin pour le retirer.
 
+Code Embed utilise la langue de l’interface d’Obsidian. Ses réglages affichent la version installée, un lien vers le guide français et **Choisir le dossier du paquet**. Pour marquer un dossier à la main, créez-y une note `_code-embed-root` (fichier `_code-embed-root.md`).
+
 ```text
 Prompts/
   _code-embed-root.md

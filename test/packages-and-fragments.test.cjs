@@ -83,12 +83,12 @@ test("package scope, ambiguity, traversal, nested roots and local import context
   });
   const render = ref => plugin.expand("![" + ref + "]", "P/Start.md");
   assert.equal(await render("A/Style:##Ton"), "A");
-  assert.match(await render("Style"), /niejednoznaczna.*P.*A\/Style.md, B\/Style.md/);
+  assert.match(await render("Style"), /ambiguous.*P.*A\/Style.md, B\/Style.md/);
   for (const ref of ["Hidden", "N/Hidden", "Outside", "../Archive/Outside", "A/../../Archive/Outside",
     "A\\Style", "_code-embed-root", "N/_code-embed-root.md"])
-    assert.match(await render(ref), /nie znaleziono w pakiecie.*pakiet: P/);
+    assert.match(await render(ref), /not found in package.*package: P/);
   assert.equal(await plugin.expand("![Hidden]", "P/N/Entry.md"), "inner");
-  assert.match(await plugin.expand("![Style]", "P/N/Entry.md"), /pakiet: P\/N/);
+  assert.match(await plugin.expand("![Style]", "P/N/Entry.md"), /package: P\/N/);
   assert.equal(await plugin.expand("![Outside]", "unmarked.md"), "outside");
 });
 
@@ -97,7 +97,7 @@ test("moving a package preserves root-relative paths; unmarking restores vault l
     "P/Sub/Style.md": "ok", "Archive/Outside.md": "outside" });
   for (const folder of ["P", "Moved/P"]) {
     assert.equal(await plugin.expand("![Sub/Style]", folder + "/Start.md"), "ok");
-    assert.match(await plugin.expand("![Outside]", folder + "/Start.md"), /nie znaleziono w pakiecie/);
+    assert.match(await plugin.expand("![Outside]", folder + "/Start.md"), /not found in package/);
     if (folder === "P") {
       for (const file of files.filter(f => f.path.startsWith("P/"))) file.path = "Moved/" + file.path;
       plugin.packageIndex = null;
@@ -117,7 +117,7 @@ test("moving a source out of a package reports a lost binding", async () => {
   plugin.packageIndex = null;
   plugin.saveData = plugin.invalidate = plugin.scheduleValidate = () => {};
   await plugin.trackMovedSources(src, "P/Start.md");
-  assert.match(await plugin.expand(src.body, src.path), /utraciło cel/);
+  assert.match(await plugin.expand(src.body, src.path), /lost its target/);
 });
 
 test("numbered and joined arguments are shared by XML and Markdown", async () => {
@@ -144,5 +144,5 @@ test("source root stays fixed when an unmarked entry imports a marked note", asy
   const { plugin } = fixture({ "Entry.md": "", "P/_code-embed-root.md": "",
     "P/Bridge.md": "![Outside]", "Else/Outside.md": "ok" });
   assert.equal(await plugin.expand("![Bridge]", "Entry.md"), "ok");
-  assert.match(await plugin.expand("![Outside]", "P/Bridge.md"), /nie znaleziono w pakiecie/);
+  assert.match(await plugin.expand("![Outside]", "P/Bridge.md"), /not found in package/);
 });

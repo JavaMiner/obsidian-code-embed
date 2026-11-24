@@ -58,6 +58,8 @@ A `ce` or `codeembed` block opens in structured View. Tap View on `md` or `xml` 
 
 Tap **+ Root** or **◆ Root** beside a folder, long-press for its menu, or choose a folder from the command palette. Tapping the name expands the folder. Marking it creates the file below. Confirm its path before removing the marker.
 
+Code Embed uses the Obsidian interface language. Its settings show the installed version, a link to the English guide and **Choose package folder**. To mark a folder manually, create a note named `_code-embed-root` inside it (filename `_code-embed-root.md`).
+
 ```text
 Prompts/
   _code-embed-root.md

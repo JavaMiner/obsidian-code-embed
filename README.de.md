@@ -58,6 +58,8 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 Auf **+ Wurzel** oder **◆ Wurzel** neben dem Ordner tippen, das Kontextmenü durch langes Drücken öffnen oder den Ordner über die Befehlspalette wählen. Ein Tipp auf den Namen klappt den Ordner auf. Die Markierung erzeugt die unten genannte Datei. Zum Entfernen den Pfad bestätigen.
 
+Code Embed verwendet die Oberflächensprache von Obsidian. Die Einstellungen zeigen die installierte Version, den Link zur deutschen Anleitung und **Paketordner auswählen**. Zum manuellen Markieren im Ordner eine Notiz namens `_code-embed-root` anlegen (Dateiname `_code-embed-root.md`).
+
 ```text
 Prompts/
   _code-embed-root.md

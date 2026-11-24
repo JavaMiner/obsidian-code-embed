@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.4 — folder menus and interface languages
+
+- Support both explorer menu events for a single folder and expose package selection in settings.
+- Use the Obsidian language for settings, rename controls, diagnostics and the documentation link.
+
 ## 0.2.3 — localized folder actions
 
 - Match the seven guide languages for package controls, confirmation dialogs and shared command labels. Prefer the Obsidian interface language.

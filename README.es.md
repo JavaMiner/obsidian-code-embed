@@ -58,6 +58,8 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 Toca **+ Raíz** o **◆ Raíz** junto a la carpeta, mantén pulsado para abrir el menú o elige la carpeta en la paleta. Toca su nombre para desplegarla. Al marcarla se crea el archivo indicado abajo. Confirma su ruta para eliminar el marcador.
 
+Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar la carpeta manualmente, crea dentro una nota `_code-embed-root` (archivo `_code-embed-root.md`).
+
 ```text
 Prompts/
   _code-embed-root.md

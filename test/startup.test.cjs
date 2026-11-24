@@ -14,7 +14,7 @@ function loadPlugin(path, locale, appLocale) {
     "registerDomEvent", "registerView", "registerEditorExtension", "registerEditorSuggest",
     "registerMarkdownPostProcessor"]) Plugin.prototype[method] = noop;
   const obsidian = { Plugin, getLanguage: () => appLocale };
-  for (const type of ["PluginSettingTab", "Modal", "ItemView", "EditorSuggest", "TFolder"]) obsidian[type] = class {};
+  for (const type of ["PluginSettingTab", "Modal", "ItemView", "EditorSuggest", "TFolder", "Notice"]) obsidian[type] = class {};
   const modules = {
     obsidian,
     "@codemirror/state": { StateEffect: { define: noop }, StateField: { define: noop } },
@@ -151,5 +151,40 @@ test("app language determines folder labels for every documented locale", () => 
     const confirm = vm.runInNewContext('t("confirmUnmark", {path: "My $& folder/_code-embed-root.md"})', context);
     assert.equal(confirm, labels.confirmUnmark.replace("{path}", () => folder.path + "/_code-embed-root.md"));
     assert.ok(confirm.includes(folder.path));
+  }
+});
+
+test("single-folder context menus support both explorer events and add one working action", async () => {
+  const { plugin } = loadPlugin("dist/main.js", "en", "pl-PL");
+  const events = new Map();
+  plugin.app.workspace.on = (name, callback) => events.set(name, callback);
+  const paths = new Map();
+  plugin.app.vault.getAbstractFileByPath = path => paths.get(path);
+  plugin.app.vault.create = async (path, content) => { paths.set(path, { path, content }); };
+  plugin.setupFolders();
+  const folder = { path: "Prompts", children: [] };
+  const titles = [], menu = { addItem(cb) { cb(this); },
+    setTitle(title) { titles.push(title); return this; }, setIcon() { return this; },
+    onClick(callback) { this.click = callback; return this; } };
+  events.get("files-menu")(menu, [folder, folder]);
+  events.get("file-menu")(menu, { path: "Note.md" });
+  assert.equal(titles.length, 0);
+  events.get("files-menu")(menu, [folder]);
+  events.get("file-menu")(menu, folder);
+  assert.deepEqual(titles, ["Ustaw katalog jako korzeń Code Embed"]);
+  await menu.click();
+  assert.equal(paths.get("Prompts/_code-embed-root.md").content, "");
+  events.get("file-menu")({ ...menu }, folder);
+  assert.equal(titles[1], "Usuń oznaczenie korzenia Code Embed");
+});
+
+test("documentation follows the app language including unsupported-language fallback", () => {
+  for (const language of ["en", "pl", "de", "fr", "es", "nl", "it", "sv"]) {
+    const { context } = loadPlugin("dist/main.js", "pl", language);
+    const filename = ["en", "sv"].includes(language) ? "README.md" : "README." + language + ".md";
+    assert.ok(vm.runInNewContext("guideUrl()", context).endsWith("/" + filename));
+    const expanded = vm.runInNewContext('formatError(t("notInPackage"))', context);
+    context.expanded = expanded;
+    assert.ok(vm.runInNewContext("hasErrors(expanded) && firstError(expanded) === t('notInPackage')", context));
   }
 });

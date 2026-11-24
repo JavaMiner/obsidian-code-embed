@@ -58,6 +58,8 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 Tik op **+ Hoofdmap** of **◆ Hoofdmap** naast de map, houd de map ingedrukt voor het menu of kies een map in het opdrachtenpalet. Tik op de naam om de map uit te klappen. Markeren maakt onderstaand bestand aan. Bevestig het pad om de markering te verwijderen.
 
+Code Embed volgt de interfacetaal van Obsidian. In de instellingen staan de geïnstalleerde versie, een link naar de Nederlandse handleiding en **Pakketmap kiezen**. Maak voor handmatige markering in de map de notitie `_code-embed-root` (bestandsnaam `_code-embed-root.md`).
+
 ```text
 Prompts/
   _code-embed-root.md
