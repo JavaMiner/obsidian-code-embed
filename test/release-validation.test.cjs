@@ -17,7 +17,16 @@ test("release metadata, funding and build output", () => {
   assert.equal(manifest.fundingUrl["Buy me a coffee"], "https://buymeacoffee.com/javaminer");
   for (const url of Object.values(manifest.fundingUrl)) assert.ok(read(".github/FUNDING.yml").includes(url));
   for (const path of ["styles.css", "manifest.json"]) assert.equal(read("dist/" + path), read(path));
-  assert.equal(read("dist/main.js"), read("src/main.js"));
+  const source = read("src/main.js");
+  const importLine = 'const CE_LOCALES = require("./locales");';
+  let expected = source;
+  if (source.includes(importLine)) {
+    assert.equal(source.split(importLine).length - 1, 1);
+    const locales = require("../src/locales.js");
+    expected = source.replace(importLine, () => "const CE_LOCALES = " + JSON.stringify(locales, null, 2) + ";");
+  }
+  assert.equal(read("dist/main.js"), expected);
+  assert.doesNotMatch(read("dist/main.js"), /require\(["']\.\/locales(?:\.js)?["']\)/);
 });
 
 test("seven guides share examples, with legacy syntax confined to migration", () => {

@@ -2,12 +2,16 @@ name: Apply guarded embed UI fixes
 on:
   push:
     branches: [feature/canonical-embeds-packages]
-    paths: [scripts/apply-embed-ui-fixes.cjs]
+    paths:
+      - scripts/apply-embed-ui-fixes.cjs
+      - test/release-validation.test.cjs
+      - .github/workflows/apply-embed-ui-fixes.yml
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
   migrate:
-    if: github.repository == 'JavaMiner/obsidian-code-embed'
+    if: github.repository == 'JavaMiner/obsidian-code-embed' && github.ref == 'refs/heads/feature/canonical-embeds-packages'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
