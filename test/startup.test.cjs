@@ -8,7 +8,7 @@ function loadPlugin(path, locale, appLocale) {
   const noop = () => {};
   class Plugin {
     async loadData() { return {}; }
-    addCommand(command) { commands.set(command.id, command.name); }
+    addCommand(command) { commands.set(command.id, command); }
   }
   for (const method of ["addRibbonIcon", "addSettingTab", "register", "registerEvent",
     "registerDomEvent", "registerView", "registerEditorExtension", "registerEditorSuggest",
@@ -26,18 +26,19 @@ function loadPlugin(path, locale, appLocale) {
     MutationObserver: class { observe() {} }, requestAnimationFrame: noop, cancelAnimationFrame: noop };
   vm.runInNewContext(fs.readFileSync(path, "utf8"), context);
   const plugin = new context.module.exports();
+  plugin.settings = vm.runInNewContext("({ ...DEFAULTS })", context);
   plugin.manifest = require("../dist/manifest.json");
   plugin.app = { workspace: { on: noop, onLayoutReady: noop }, vault: { on: noop } };
   return { plugin, commands, context };
 }
 
-for (const path of ["src/main.js", "dist/main.js"]) {
+for (const path of ["dist/main.js"]) {
   for (const [locale, command] of [["pl-PL", "Wstaw tag XML"], ["fr-FR", "Insérer une balise XML"], ["sv-SE", "Insert XML tag"]]) {
     test(path + " registers translated commands on startup for " + locale, async () => {
       const { plugin, commands } = loadPlugin(path, locale);
       await plugin.onload();
       assert.ok(commands.get("support"));
-      assert.equal(commands.get("insert-xml"), command);
+      assert.equal(commands.get("insert-xml").name, command);
       assert.ok(commands.has("copy-expanded"));
     });
   }
@@ -50,79 +51,100 @@ test("all bundled languages define the English translation keys", () => {
     assert.deepEqual(Object.keys(labels).sort(), Object.keys(languages.en).sort());
 });
 
-test("folder action survives late mounting and recycled rows, preserves folder clicks and follows the marker", async () => {
+test("marked folders stay visible across note switches and only unmarked actions depend on settings", () => {
   const { plugin, context } = loadPlugin("dist/main.js", "pl");
-  const Folder = context.require("obsidian").TFolder;
-  const folder = Object.assign(new Folder(), { path: "Prompts" });
-  const files = new Map([[folder.path, folder]]);
-  const removed = [];
-  plugin.app.vault = {
-    getAbstractFileByPath: path => files.get(path),
-    async create(path) {
-      assert.equal(files.has(path), false);
-      files.set(path, { path, name: "_code-embed-root.md" });
-    },
-    async trash(file) { removed.push(file.path); files.delete(file.path); }
-  };
-  const handlers = {}, classes = new Set();
-  let attached, pending, choice;
-  const row = {
-    dataset: {}, isConnected: true,
-    closest: () => ({ dataset: { path: folder.path } }),
-    classList: { toggle(key, enabled) { if (enabled) classes.add(key); else classes.delete(key); } },
-    querySelector: selector => selector === ".ce-folder-action" ? attached : null,
-    createEl(tag) {
-      assert.equal(tag, "button");
-      assert.equal(attached, undefined);
-      return attached = { dataset: {}, setAttribute() {}, addEventListener(type, fn) { handlers[type] = fn; } };
-    }
-  };
-  const leaves = [];
-  plugin.app.workspace.getLeavesOfType = () => leaves;
-  context.requestAnimationFrame = cb => { assert.equal(pending, undefined); pending = cb; return 1; };
-  vm.runInNewContext("pickOne = async (_app, title, items) => globalThis.choose(title, items)", context);
-  context.choose = (title, items) => { assert.ok(title.includes(folder.path + "/_code-embed-root.md")); return items[choice]; };
-  function refresh() {
+  const events = new Map();
+  plugin.app.workspace.on = (name, callback) => events.set(name, callback);
+  const roots = ["Prompts", "Prompts/Nested", "Other"];
+  plugin.app.vault.getFiles = () => roots.map(root =>
+    ({ path: root + "/_code-embed-root.md", name: "_code-embed-root.md" }));
+  const rows = roots.concat("Unmarked").map(path => {
+    let button;
+    const classes = new Set();
+    return {
+      classes,
+      isConnected: true,
+      folder: { path, children: [] },
+      classList: { toggle(key, state) { if (state) classes.add(key); else classes.delete(key); } },
+      querySelector: () => button,
+      createEl() {
+        button = { dataset: {}, setAttribute() {}, addEventListener() {}, remove() { button = undefined; } };
+        return button;
+      }
+    };
+  });
+  plugin.app.workspace.getLeavesOfType = () => [{ view: {
+    fileItems: rows.map(row => ({ file: row.folder, selfEl: row })),
+    containerEl: { querySelectorAll: () => [] }
+  } }];
+  let activeFile, frame;
+  plugin.app.workspace.getActiveFile = () => activeFile;
+  context.requestAnimationFrame = callback => { frame = callback; return 1; };
+  plugin.setupFolders();
+  function check(path, root, event) {
+    activeFile = path ? { path, extension: "md" } : null;
     plugin.scheduleFolders();
-    plugin.scheduleFolders();
-    const cb = pending;
-    pending = undefined;
-    cb();
+    frame();
+    assert.deepEqual(rows.filter(row => row.querySelector()).map(row => row.folder.path), roots);
+    assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), roots);
+    for (const row of rows.filter(row => row.querySelector())) assert.equal(row.querySelector().textContent, "◆ Korzeń");
   }
-  refresh();
-  assert.equal(attached, undefined);
-  leaves.push({ view: { containerEl: { querySelectorAll: () => [row] } } });
-  refresh();
-  assert.equal(attached.textContent, "+ Korzeń");
-  const click = async () => {
-    let stopped = false;
-    handlers.click({ preventDefault() {}, stopPropagation() { stopped = true; } });
-    assert.ok(stopped);
-    await new Promise(resolve => setImmediate(resolve));
-    refresh();
+  check("Prompts/Nested/Note.md", "Prompts/Nested", "file-open");
+  check("Prompts/Note.md", "Prompts", "active-leaf-change");
+  check("Other/Note.md", "Other", "file-open");
+  check("Unmarked/Note.md", null, "file-open");
+  check(null, null, "active-leaf-change");
+  const workspace = plugin.app.workspace;
+  workspace.rootSplit = {};
+  let editorFile = { path: "Prompts/Nested/Note.md", extension: "md" };
+  workspace.getMostRecentLeaf = split => {
+    assert.equal(split, workspace.rootSplit);
+    return { view: { file: editorFile } };
   };
-  await click();
-  assert.equal(attached.textContent, "◆ Korzeń");
-  assert.ok(classes.has("ce-package-folder"));
-  const marker = files.get("Prompts/_code-embed-root.md");
-  assert.ok(marker);
-  files.clear();
-  folder.path = "Moved/Prompts";
-  marker.path = folder.path + "/_code-embed-root.md";
-  files.set(folder.path, folder);
-  files.set(marker.path, marker);
-  leaves[0].view.fileItems = { moved: { file: folder, selfEl: row } };
-  refresh();
-  assert.equal(attached.dataset.folderPath, folder.path);
-  choice = 0;
-  await click();
-  assert.ok(files.has(marker.path));
-  choice = 1;
-  await click();
-  assert.deepEqual(removed, [marker.path]);
-  assert.ok(files.has(folder.path));
-  assert.equal(classes.size, 0);
-  assert.equal(attached.textContent, "+ Korzeń");
+  workspace.activeLeaf = { view: { getViewType: () => "file-explorer" } };
+  check(null, "Prompts/Nested", "active-leaf-change");
+  editorFile = { path: "Unmarked/Note.md", extension: "md" };
+  check(null, null, "active-leaf-change");
+  editorFile = null;
+  check(null, null, "file-open");
+  plugin.settings.showAllFolderActions = true;
+  plugin.scheduleFolders();
+  frame();
+  assert.deepEqual(rows.map(row => row.querySelector().textContent), ["◆ Korzeń", "◆ Korzeń", "◆ Korzeń", "+ Korzeń"]);
+  assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), roots);
+  plugin.settings.showAllFolderActions = false;
+  check("Other/Note.md", "Other", "file-open");
+});
+
+test("the expand shortcut command inserts a named XML pair with the cursor between tags", async () => {
+  const { plugin, commands, context } = loadPlugin("dist/main.js", "en");
+  await plugin.onload();
+  let value = "_xvarZMIENNA", cursor = value.length;
+  const editor = {
+    getCursor: () => ({ line: 0, ch: cursor }),
+    getSelection: () => "",
+    getLine: () => value,
+    posToOffset: pos => pos.ch,
+    offsetToPos: ch => ({ line: 0, ch }),
+    replaceRange(text, start, end) { value = value.slice(0, start.ch) + text + value.slice(end.ch); },
+    setSelection(start, end) { assert.equal(start.ch, end.ch); cursor = start.ch; }
+  };
+  const expand = commands.get("expand-shortcut").editorCheckCallback;
+  assert.equal(expand(true, editor), true);
+  assert.equal(value, "_xvarZMIENNA");
+  assert.equal(expand(false, editor), true);
+  assert.equal(value, "<ZMIENNA></ZMIENNA>");
+  assert.equal(cursor, "<ZMIENNA>".length);
+
+  const prompts = [];
+  context.recordPrompt = (...args) => prompts.push(args);
+  vm.runInNewContext("promptFragment = (_app, _editor, kind, trigger) => recordPrompt(kind, trigger)", context);
+  for (const trigger of ["_xvar", "_mvar", "_mvarZMIENNA"]) {
+    value = trigger;
+    cursor = value.length;
+    assert.equal(expand(false, editor), trigger !== "_mvarZMIENNA");
+  }
+  assert.deepEqual(prompts, [["xml", "_xvar"], ["markdown", "_mvar"]]);
 });
 
 test("app language determines folder labels for every documented locale", () => {
@@ -140,14 +162,12 @@ test("app language determines folder labels for every documented locale", () => 
     const button = { dataset: {}, setAttribute(key, value) { this[key] = value; } };
     const row = { classList: { toggle() {} }, querySelector: () => button };
     const folder = { path: "My $& folder" };
-    for (const marked of [false, true]) {
-      plugin.app.vault.getAbstractFileByPath = () => marked ? {name: "_code-embed-root.md"} : null;
-      plugin.decorateFolder(row, folder);
-      assert.equal(button.textContent, (marked ? "◆ " : "+ ") + root);
-      assert.ok(guide.includes(button.textContent));
-      assert.equal(button.title, marked ? labels.unmarkFolder : labels.markFolder);
-      assert.equal(button["aria-label"], button.title + " — " + folder.path);
-    }
+    plugin.packages = () => ({ roots: new Set([folder.path]) });
+    plugin.decorateFolder(row, folder);
+    assert.equal(button.textContent, "◆ " + root);
+    assert.ok(guide.includes(button.textContent));
+    assert.equal(button.title, labels.unmarkFolder);
+    assert.equal(button["aria-label"], button.title + " — " + folder.path);
     const confirm = vm.runInNewContext('t("confirmUnmark", {path: "My $& folder/_code-embed-root.md"})', context);
     assert.equal(confirm, labels.confirmUnmark.replace("{path}", () => folder.path + "/_code-embed-root.md"));
     assert.ok(confirm.includes(folder.path));
@@ -155,12 +175,15 @@ test("app language determines folder labels for every documented locale", () => 
 });
 
 test("single-folder context menus support both explorer events and add one working action", async () => {
-  const { plugin } = loadPlugin("dist/main.js", "en", "pl-PL");
+  const { context, plugin } = loadPlugin("dist/main.js", "en", "pl-PL");
   const events = new Map();
   plugin.app.workspace.on = (name, callback) => events.set(name, callback);
+  plugin.app.workspace.getActiveFile = () => ({ path: "Outside.md", extension: "md" });
   const paths = new Map();
   plugin.app.vault.getAbstractFileByPath = path => paths.get(path);
   plugin.app.vault.create = async (path, content) => { paths.set(path, { path, content }); };
+  plugin.app.vault.trash = async file => { paths.delete(file.path); };
+  vm.runInNewContext("pickOne = async (_app, _title, choices) => choices.find(choice => choice.remove)", context);
   plugin.setupFolders();
   const folder = { path: "Prompts", children: [] };
   const titles = [], menu = { addItem(cb) { cb(this); },
@@ -174,8 +197,11 @@ test("single-folder context menus support both explorer events and add one worki
   assert.deepEqual(titles, ["Ustaw katalog jako korzeń Code Embed"]);
   await menu.click();
   assert.equal(paths.get("Prompts/_code-embed-root.md").content, "");
-  events.get("file-menu")({ ...menu }, folder);
+  const markedMenu = { ...menu };
+  events.get("file-menu")(markedMenu, folder);
   assert.equal(titles[1], "Usuń oznaczenie korzenia Code Embed");
+  await markedMenu.click();
+  assert.equal(paths.has("Prompts/_code-embed-root.md"), false);
 });
 
 test("documentation follows the app language including unsupported-language fallback", () => {

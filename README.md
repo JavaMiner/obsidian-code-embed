@@ -8,8 +8,8 @@
 
 Keep the closing instruction for several prompts in one note, `Szablony`. Edit it once and the next Copy+ in each prompt picks up the change.
 
-1. On an empty line in `Szablony`, type exactly `_xvar`. Leave the cursor after `r`, with no trailing space or selection. `_xvarZMIENNA` does not trigger expansion.
-2. Choose **Expand shortcut** from the command palette. Enter `ZMIENNA` in the name dialog, tap OK and type the instruction between the generated tags.
+1. Type `_xvarZMIENNA` and leave the cursor after the final letter without a trailing space.
+2. Choose **Expand shortcut**. The command inserts both tags and places the cursor between them. Type your instruction there.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -71,7 +71,9 @@ A `ce` or `codeembed` block opens in structured View. Tap View on `md` or `xml` 
 
 ## Limit lookup to a package
 
-Tap **+ Root** or **◆ Root** beside a folder, long-press for its menu, or choose a folder from the command palette. Tapping the name expands the folder. Marking it creates the file below. Confirm its path before removing the marker.
+Open the folder context menu with a right click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. Every marked folder always shows its color and **◆ Root**. Enable the setting to show **+ Root** on unmarked folders. It defaults to off.
+
+**Show actions on all folders** — Show “+ Root” on unmarked folders and “◆ Root” on every package root.
 
 Code Embed uses the Obsidian interface language. Its settings show the installed version, a link to the English guide and **Choose package folder**. To mark a folder manually, create a note named `_code-embed-root` inside it (filename `_code-embed-root.md`).
 
