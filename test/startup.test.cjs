@@ -33,12 +33,12 @@ function loadPlugin(path, locale, appLocale) {
 }
 
 for (const path of ["dist/main.js"]) {
-  for (const [locale, command] of [["pl-PL", "Wstaw tag XML"], ["fr-FR", "Insérer une balise XML"], ["sv-SE", "Insert XML tag"]]) {
+  for (const [locale, command] of [["pl-PL", "Wybierz katalog pakietu"], ["fr-FR", "Choisir le dossier du paquet"], ["sv-SE", "Choose package folder"]]) {
     test(path + " registers translated commands on startup for " + locale, async () => {
       const { plugin, commands } = loadPlugin(path, locale);
       await plugin.onload();
       assert.ok(commands.get("support"));
-      assert.equal(commands.get("insert-xml").name, command);
+      assert.equal(commands.get("choose-package-folder").name, command);
       assert.ok(commands.has("copy-expanded"));
     });
   }
@@ -114,37 +114,6 @@ test("marked folders stay visible across note switches and only unmarked actions
   assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), roots);
   plugin.settings.showAllFolderActions = false;
   check("Other/Note.md", "Other", "file-open");
-});
-
-test("the expand shortcut command inserts a named XML pair with the cursor between tags", async () => {
-  const { plugin, commands, context } = loadPlugin("dist/main.js", "en");
-  await plugin.onload();
-  let value = "_xvarZMIENNA", cursor = value.length;
-  const editor = {
-    getCursor: () => ({ line: 0, ch: cursor }),
-    getSelection: () => "",
-    getLine: () => value,
-    posToOffset: pos => pos.ch,
-    offsetToPos: ch => ({ line: 0, ch }),
-    replaceRange(text, start, end) { value = value.slice(0, start.ch) + text + value.slice(end.ch); },
-    setSelection(start, end) { assert.equal(start.ch, end.ch); cursor = start.ch; }
-  };
-  const expand = commands.get("expand-shortcut").editorCheckCallback;
-  assert.equal(expand(true, editor), true);
-  assert.equal(value, "_xvarZMIENNA");
-  assert.equal(expand(false, editor), true);
-  assert.equal(value, "<ZMIENNA></ZMIENNA>");
-  assert.equal(cursor, "<ZMIENNA>".length);
-
-  const prompts = [];
-  context.recordPrompt = (...args) => prompts.push(args);
-  vm.runInNewContext("promptFragment = (_app, _editor, kind, trigger) => recordPrompt(kind, trigger)", context);
-  for (const trigger of ["_xvar", "_mvar", "_mvarZMIENNA"]) {
-    value = trigger;
-    cursor = value.length;
-    assert.equal(expand(false, editor), trigger !== "_mvarZMIENNA");
-  }
-  assert.deepEqual(prompts, [["xml", "_xvar"], ["markdown", "_mvar"]]);
 });
 
 test("app language determines folder labels for every documented locale", () => {

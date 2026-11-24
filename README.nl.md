@@ -8,9 +8,6 @@
 
 Bewaar de gedeelde slotinstructie van meerdere prompts in `Szablony`. Wijzig die één keer en elke prompt gebruikt de nieuwe tekst bij de volgende Copy+.
 
-1. Typ `_xvarZMIENNA` en laat de cursor na de laatste letter staan, zonder spatie.
-2. Kies **Afkorting uitwerken**. De opdracht voegt beide tags in en plaatst de cursor ertussen. Typ daar de instructie.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -20,8 +17,6 @@ Plaats het volgende blok in een andere notitie. Tik op **Copy+** en plak de teks
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-Kies **XML-tag invoegen** of **Markdown-sectie invoegen** in het opdrachtenpalet. Vul een naam in en tik op OK. Zonder naam krijg je een `var`-tagpaar of wordt `Fragmentnaam` geselecteerd om te vervangen. Geselecteerde tekst vormt de inhoud. Bevestig `_xvar` of `_mvar` met **Afkorting uitwerken**.
 
 Zet deze gelijkwaardige definities in aparte notities of sluit de sectie af met een volgende kop van hetzelfde niveau.
 

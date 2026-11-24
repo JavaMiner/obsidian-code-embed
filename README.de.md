@@ -8,9 +8,6 @@
 
 Speichere die gemeinsame Schlussanweisung mehrerer Prompts in `Szablony`. Eine Änderung gilt beim nächsten Kopieren mit Copy+ für alle.
 
-1. Tippe `_xvarZMIENNA` und lass den Cursor ohne Leerzeichen hinter dem letzten Buchstaben.
-2. Wähle **Kürzel erweitern**. Der Befehl fügt beide Tags ein und setzt den Cursor dazwischen. Schreibe dort die Anweisung.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -20,8 +17,6 @@ Füge den folgenden Block in eine andere Notiz ein. Mit **Copy+** erhältst du `
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-Über die Befehlspalette **XML-Tag einfügen** oder **Markdown-Abschnitt einfügen** wählen. Namen eingeben und auf OK tippen. Ein leerer Name erzeugt ein `var`-Paar oder markiert `Fragmentname` zum Ersetzen. Markierter Text wird zum Inhalt. `_xvar` und `_mvar` mit **Kürzel erweitern** bestätigen.
 
 Diese gleichwertigen Definitionen in getrennten Notizen anlegen oder den Abschnitt mit einer weiteren Überschrift derselben Ebene abschließen.
 

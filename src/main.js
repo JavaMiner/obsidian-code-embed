@@ -848,23 +848,6 @@ class CodeEmbedPlugin extends Plugin {
       setTimeout(() => this.validate(true), 3000);
     });
 
-    for (const [kind, name] of [["xml", t("insertXml")], ["markdown", t("insertMarkdown")]]) {
-      this.addCommand({ id: "insert-" + kind, name,
-        editorCallback: editor => promptFragment(this.app, editor, kind) });
-    }
-    this.addCommand({ id: "expand-shortcut", name: t("expandShortcut"),
-      editorCheckCallback: (checking, editor) => {
-        const trigger = triggerAt(editor);
-        if (!trigger) return false;
-        if (!checking) {
-          if (trigger.startsWith("_xvar") && trigger !== "_xvar") {
-            insertFragment(editor, "xml", trigger.slice("_xvar".length), trigger);
-          } else {
-            promptFragment(this.app, editor, trigger === "_xvar" ? "xml" : "markdown", trigger);
-          }
-        }
-        return true;
-      } });
     this.setupFolders();
     this.suggest = new EmbedSuggest(this.app, this);
     this.registerEditorSuggest(this.suggest);
@@ -1934,47 +1917,6 @@ function tagsOf(text) {
 }
 
 const badSectionName = (s) => !s || /[#(^|\]\[\n]/.test(s);
-
-function insertFragment(editor, kind, name, trigger = "") {
-  const from = editor.getCursor("from"), to = editor.getCursor("to");
-  const start = editor.posToOffset(from) - trigger.length;
-  const selected = editor.getSelection();
-  let prefix, suffix, selectionStart, selectionEnd;
-  if (kind === "xml") {
-    const tag = name || "var";
-    prefix = "<" + tag + ">";
-    suffix = "</" + tag + ">";
-    selectionStart = selectionEnd = prefix.length;
-  } else {
-    const title = name || t("fragmentName");
-    const newline = editor.getLine(from.line).slice(0, from.ch - trigger.length).length ? "\n" : "";
-    prefix = newline + "## " + title + "\n";
-    suffix = editor.getLine(to.line).slice(to.ch) ? "\n" : "";
-    selectionStart = name ? prefix.length : newline.length + 3;
-    selectionEnd = name ? selectionStart : selectionStart + title.length;
-  }
-  editor.replaceRange(prefix + selected + suffix, editor.offsetToPos(start), to);
-  editor.setSelection(editor.offsetToPos(start + selectionStart), editor.offsetToPos(start + selectionEnd));
-}
-
-function triggerAt(editor) {
-  if (editor.getSelection()) return "";
-  const cur = editor.getCursor();
-  return /(?:^|\s)(_xvar(?:[A-Za-z_][\w.:\-]*)?|_mvar)$/.exec(editor.getLine(cur.line).slice(0, cur.ch))?.[1] || "";
-}
-
-async function promptFragment(app, editor, kind, trigger = "") {
-  const before = editor.getValue(), from = editor.posToOffset(editor.getCursor("from"));
-  const to = editor.posToOffset(editor.getCursor("to"));
-  const xml = kind === "xml";
-  const name = await askText(app, xml ? t("insertXml") : t("insertMarkdown"), "",
-    value => xml && value && !/^[A-Za-z_][\w.:\-]*$/.test(value) ? t("invalidTag") :
-      !xml && value && badSectionName(value) ? t("invalidTitle") : null);
-  if (name === null || editor.getValue() !== before) return;
-  editor.focus();
-  editor.setSelection(editor.offsetToPos(from), editor.offsetToPos(to));
-  insertFragment(editor, kind, name, trigger);
-}
 
 function askText(app, title, initial, validate) {
   return new Promise((resolve) => {

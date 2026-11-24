@@ -8,9 +8,6 @@
 
 Guarda la instrucción final de varios prompts en `Szablony`. Al editarla una vez, la siguiente copia de cada prompt incluirá el cambio.
 
-1. Escribe `_xvarZMIENNA` y deja el cursor detrás de la última letra, sin espacio.
-2. Elige **Expandir abreviatura**. El comando inserta ambas etiquetas y coloca el cursor entre ellas. Escribe ahí la instrucción.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -20,8 +17,6 @@ Inserta el siguiente bloque en otra nota. Toca **Copy+** y pega el resultado: `P
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-En la paleta, elige **Insertar etiqueta XML** o **Insertar sección Markdown**. Escribe un nombre y toca OK. Si lo dejas vacío, se crea un par `var` o se selecciona `Nombre del fragmento` para sustituirlo. La selección previa pasa al cuerpo. Confirma `_xvar` o `_mvar` con **Expandir abreviatura**.
 
 Coloca estas definiciones equivalentes en notas distintas o termina la sección con otro encabezado del mismo nivel.
 

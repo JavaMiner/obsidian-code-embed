@@ -8,9 +8,6 @@
 
 Piszesz kilka promptów, które mają kończyć się takim samym poleceniem. Zapisz je raz w notatce `Szablony`. Gdy zmienisz tekst w tej notatce, kolejne użycie Copy+ w każdym z promptów uwzględni poprawkę.
 
-1. Wpisz `_xvarZMIENNA` i zostaw kursor za ostatnią literą, bez spacji.
-2. Wybierz **Rozwiń skrót**. Polecenie wstawi oba tagi i ustawi kursor między nimi. Wpisz tam instrukcję.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -20,8 +17,6 @@ W innej notatce wstaw poniższy blok. Stuknij **Copy+** i wklej wynik. Otrzymasz
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-W palecie poleceń wybierz **Wstaw tag XML** lub **Wstaw sekcję Markdown**. Wpisz nazwę i stuknij OK. Pusta nazwa daje parę `var` albo zaznaczony tytuł `Nazwa fragmentu`. Zaznaczony wcześniej tekst trafia do środka. Skróty `_xvar` i `_mvar` zatwierdza polecenie **Rozwiń skrót**.
 
 Umieść te równoważne definicje w oddzielnych notatkach lub zakończ sekcję kolejnym nagłówkiem tego samego poziomu.
 

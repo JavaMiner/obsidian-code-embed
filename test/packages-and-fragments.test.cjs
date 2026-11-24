@@ -7,8 +7,8 @@ const ctx = { module: { exports: {} }, require: () => new Proxy({}, {
   get: (_, key) => key === "getLanguage" ? undefined : key === "StateEffect" ? { define: () => ({}) } : Base
 }) };
 vm.runInNewContext(fs.readFileSync("dist/main.js", "utf8") +
-  "\nglobalThis.api = { parseRef, REF_RE, rewriteText, formatEmbed, insertFragment };", ctx);
-const { REF_RE, formatEmbed, rewriteText, insertFragment } = ctx.api;
+  "\nglobalThis.api = { parseRef, REF_RE, rewriteText, formatEmbed };", ctx);
+const { REF_RE, formatEmbed, rewriteText } = ctx.api;
 
 function fixture(notes) {
   const files = Object.entries(notes).map(([path, body]) => ({
@@ -47,31 +47,6 @@ test("Markdown and XML expand identically with explicit forwarding", async () =>
     assert.equal(await plugin.expand(raw, "A.md"), "Odpowiedz po polsku. Ton: rzeczowy.");
   assert.equal(await plugin.expand("![B:##H(polsku)]", "A.md"),
     "Odpowiedz po polsku. Ton: rzeczowy.\nOdpowiedz po $1. Ton: rzeczowy.");
-});
-
-test("insertion preserves selection and positions the caret or title selection", () => {
-  function editor(initial, start, end) {
-    return { text: initial, selection: [],
-      getCursor: which => ({line: 0, ch: which === "to" ? end : start}),
-      posToOffset: p => p.ch, offsetToPos: n => n, getLine: () => initial,
-      getSelection: () => initial.slice(start, end),
-      replaceRange(value, a, b) { this.text = initial.slice(0, a) + value + initial.slice(b.ch); },
-      setSelection(a, b) { this.selection = [a, b]; } };
-  }
-  for (const [kind, name, output, selection] of [
-    ["xml", "style", "<style>abc</style>", [7, 7]],
-    ["markdown", "", "## Fragment name\nabc", [3, 16]],
-    ["markdown", "Ton", "## Ton\nabc", [7, 7]]
-  ]) {
-    const ed = editor("abc", 0, 3);
-    insertFragment(ed, kind, name);
-    assert.equal(ed.text, output);
-    assert.deepEqual(ed.selection, selection);
-  }
-  const ed = editor("_xvar", 5, 5);
-  insertFragment(ed, "xml", "", "_xvar");
-  assert.equal(ed.text, "<var></var>");
-  assert.deepEqual(ed.selection, [5, 5]);
 });
 
 test("package scope, ambiguity, traversal, nested roots and local import context", async () => {
