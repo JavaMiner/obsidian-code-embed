@@ -12,8 +12,6 @@
   "backlinks": "Zwrotne",
   "support": "Wesprzyj Code Embed",
   "insertXml": "Wstaw tag XML",
-  "insertMarkdown": "Wstaw sekcję Markdown",
-  "expandShortcut": "Rozwiń skrót",
   "chooseFolder": "Wybierz katalog pakietu",
   "rootSet": "+ Korzeń",
   "rootActive": "◆ Korzeń",
@@ -26,7 +24,6 @@
   "removeMarker": "Usuń {path}",
   "markerIsFolder": "Ścieżka znacznika jest katalogiem: {path}",
   "cancel": "Anuluj",
-  "fragmentName": "Nazwa fragmentu",
   "invalidTag": "Podaj poprawną nazwę tagu.",
   "invalidTitle": "Tytuł zawiera niedozwolony znak.",
   "maxDepth": "Maksymalna głębokość zagnieżdżeń",
@@ -159,5 +156,7 @@
   "rootCreated": "Ustawiono korzeń Code Embed: {path}",
   "rootRemoved": "Usunięto oznaczenie korzenia: {path}",
   "showAllFolderActions": "Pokaż akcje przy wszystkich folderach",
-  "showAllFolderActionsHelp": "Każdy oznaczony folder zawsze ma kolor i ◆ Korzeń. Przełącznik pokazuje + Korzeń przy pozostałych folderach. Domyślnie jest wyłączony."
+  "showAllFolderActionsHelp": "Każdy oznaczony folder zawsze ma kolor i ◆ Korzeń. Przełącznik pokazuje + Korzeń przy pozostałych folderach. Domyślnie jest wyłączony.",
+  "autoCloseXml": "Automatycznie domykaj tagi XML",
+  "autoCloseXmlHelp": "W bloku xml lub ce wpisz <x> i odczekaj sekundę. Kursor pozostanie między tagami."
 }

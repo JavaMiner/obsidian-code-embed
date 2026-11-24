@@ -12,8 +12,6 @@
   "backlinks": "Collegamenti in entrata",
   "support": "Sostieni Code Embed",
   "insertXml": "Inserisci tag XML",
-  "insertMarkdown": "Inserisci sezione Markdown",
-  "expandShortcut": "Espandi abbreviazione",
   "chooseFolder": "Scegli la cartella del pacchetto",
   "rootSet": "+ Radice",
   "rootActive": "◆ Radice",
@@ -26,7 +24,6 @@
   "removeMarker": "Rimuovi {path}",
   "markerIsFolder": "Il percorso del marcatore è una cartella: {path}",
   "cancel": "Annulla",
-  "fragmentName": "Nome del frammento",
   "invalidTag": "Inserisci un nome di tag valido.",
   "invalidTitle": "Il titolo contiene un carattere non valido.",
   "maxDepth": "Profondità massima",
@@ -159,5 +156,7 @@
   "rootCreated": "Radice di Code Embed impostata: {path}",
   "rootRemoved": "Marcatore di radice rimosso: {path}",
   "showAllFolderActions": "Mostra le azioni su tutte le cartelle",
-  "showAllFolderActionsHelp": "Ogni cartella contrassegnata mostra sempre il colore e ◆ Radice. L’opzione, disattivata per impostazione predefinita, mostra + Radice sulle altre cartelle."
+  "showAllFolderActionsHelp": "Ogni cartella contrassegnata mostra sempre il colore e ◆ Radice. L’opzione, disattivata per impostazione predefinita, mostra + Radice sulle altre cartelle.",
+  "autoCloseXml": "Chiudi automaticamente i tag XML",
+  "autoCloseXmlHelp": "Chiude il tag dopo un secondo nei blocchi xml e ce."
 }

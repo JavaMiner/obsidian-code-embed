@@ -116,39 +116,39 @@ test("marked folders stay visible across note switches and only unmarked actions
   check("Other/Note.md", "Other", "file-open");
 });
 
-test("the expand shortcut command inserts a named XML pair with the cursor between tags", async () => {
-  const { plugin, commands, context } = loadPlugin("dist/main.js", "en");
-  await plugin.onload();
-  let value = "_xvarZMIENNA", cursor = value.length;
-  const editor = {
-    getCursor: () => ({ line: 0, ch: cursor }),
-    getSelection: () => "",
-    getLine: () => value,
-    posToOffset: pos => pos.ch,
-    offsetToPos: ch => ({ line: 0, ch }),
-    replaceRange(text, start, end) { value = value.slice(0, start.ch) + text + value.slice(end.ch); },
-    setSelection(start, end) { assert.equal(start.ch, end.ch); cursor = start.ch; }
-  };
-  const expand = commands.get("expand-shortcut").editorCheckCallback;
-  for (const trigger of ["_xvarZMIENNA", "!xvarZMIENNA"]) {
-    value = trigger;
-    cursor = value.length;
-    assert.equal(expand(true, editor), true);
-    assert.equal(value, trigger);
-    assert.equal(expand(false, editor), true);
-    assert.equal(value, "<ZMIENNA></ZMIENNA>");
-    assert.equal(cursor, "<ZMIENNA>".length);
+test("auto-close inserts a matching tag after one second and preserves the caret", () => {
+  const { plugin, context } = loadPlugin("dist/main.js", "en");
+  context.require("@codemirror/view").ViewPlugin.fromClass = implementation => implementation;
+  let timer, delay;
+  context.setTimeout = (callback, ms) => { timer = callback; delay = ms; return 1; };
+  context.clearTimeout = () => { timer = null; };
+  context.plugin = plugin;
+  const handler = vm.runInNewContext("new (xmlClosingExtension(plugin))()", context);
+  for (const [lang, typed, existing, enabled, expected] of [
+    ["xml", "<x>", "", true, "</x>"], ["ce", "<data-item>", "", true, "</data-item>"],
+    ["md", "<x>", "", true, ""], ["xml", "<x/>", "", true, ""],
+    ["xml", "<x>", "</x>", true, ""], ["ce", "<x>", "", false, ""]
+  ]) {
+    const first = "```" + lang, text = first + "\n" + typed + existing;
+    const pos = first.length + 1 + typed.length;
+    const doc = { length: text.length, line: () => ({ text: first }),
+      lineAt: () => ({ from: first.length + 1, number: 2 }), sliceString: (a,b) => text.slice(a,b) };
+    const state = { doc, selection: { main: { empty: true, head: pos }, ranges: [{}] } };
+    let edit;
+    const view = { state, hasFocus: true, dispatch: value => { edit = value; } };
+    plugin.settings.autoCloseXml = enabled;
+    const update = { state, view, docChanged: true, transactions: [{ isUserEvent: key => key === "input.type" }] };
+    handler.update(update);
+    if (!expected) { assert.equal(timer, null); continue; }
+    assert.equal(delay, 1000);
+    timer();
+    assert.equal(edit.changes.from, pos);
+    assert.equal(edit.changes.insert, expected);
+    assert.equal(edit.selection.anchor, pos);
+    handler.update(update);
+    handler.update({ ...update, docChanged: false, selectionSet: true });
+    assert.equal(timer, null);
   }
-
-  const prompts = [];
-  context.recordPrompt = (...args) => prompts.push(args);
-  vm.runInNewContext("promptFragment = (_app, _editor, kind, trigger) => recordPrompt(kind, trigger)", context);
-  for (const trigger of ["_xvar", "_mvar", "!xvar", "!mvar", "_mvarZMIENNA"]) {
-    value = trigger;
-    cursor = value.length;
-    assert.equal(expand(false, editor), trigger !== "_mvarZMIENNA");
-  }
-  assert.deepEqual(prompts, [["xml", "_xvar"], ["markdown", "_mvar"], ["xml", "!xvar"], ["markdown", "!mvar"]]);
 });
 
 test("app language determines folder labels for every documented locale", () => {

@@ -12,8 +12,6 @@
   "backlinks": "Backlinks",
   "support": "Support Code Embed",
   "insertXml": "Insert XML tag",
-  "insertMarkdown": "Insert Markdown section",
-  "expandShortcut": "Expand shortcut",
   "chooseFolder": "Choose package folder",
   "rootSet": "+ Root",
   "rootActive": "◆ Root",
@@ -26,7 +24,6 @@
   "removeMarker": "Remove {path}",
   "markerIsFolder": "The marker path is a folder: {path}",
   "cancel": "Cancel",
-  "fragmentName": "Fragment name",
   "invalidTag": "Enter a valid tag name.",
   "invalidTitle": "The title contains an invalid character.",
   "maxDepth": "Maximum nesting depth",
@@ -159,5 +156,7 @@
   "rootCreated": "Code Embed root set: {path}",
   "rootRemoved": "Root marker removed: {path}",
   "showAllFolderActions": "Show actions on all folders",
-  "showAllFolderActionsHelp": "Every marked folder always shows its color and ◆ Root. Enable the setting to show + Root on unmarked folders. It defaults to off."
+  "showAllFolderActionsHelp": "Every marked folder always shows its color and ◆ Root. Enable the setting to show + Root on unmarked folders. It defaults to off.",
+  "autoCloseXml": "Automatically close XML tags",
+  "autoCloseXmlHelp": "Type <x> in an xml or ce block and pause for one second. The cursor stays between the tags."
 }

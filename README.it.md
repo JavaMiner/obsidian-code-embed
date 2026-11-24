@@ -8,8 +8,7 @@
 
 Salva in `Szablony` l’istruzione finale comune a più prompt. Modificala una volta e la prossima copia di ogni prompt includerà la modifica.
 
-1. Digita `!xvarZMIENNA` e lascia il cursore dopo l’ultima lettera, senza spazi.
-2. Scegli **Espandi abbreviazione**. Il comando inserisce entrambi i tag e posiziona il cursore tra di essi. Scrivi lì l’istruzione.
+Digita `<ZMIENNA>` in un blocco `xml` o `ce`. Dopo un secondo scrivi l’istruzione tra i tag.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -21,7 +20,7 @@ Inserisci il blocco seguente in un’altra nota. Tocca **Copy+** e incolla il ri
 ![Szablony:<<ZMIENNA>>]
 ```
 
-Nella tavolozza scegli **Inserisci tag XML** o **Inserisci sezione Markdown**. Inserisci un nome e tocca OK. Un nome vuoto crea una coppia `var` oppure seleziona `Nome del frammento` da sostituire. Il testo selezionato diventa il contenuto. Conferma `!xvar` (`_xvar`) o `!mvar` (`_mvar`) con **Espandi abbreviazione**.
+**Inserisci tag XML** · `Ctrl+Alt+X` (macOS: `Cmd+Alt+X`)
 
 Inserisci queste definizioni equivalenti in note separate oppure termina la sezione con un’altra intestazione dello stesso livello.
 

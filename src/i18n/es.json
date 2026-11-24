@@ -12,8 +12,6 @@
   "backlinks": "Enlaces entrantes",
   "support": "Apoyar a Code Embed",
   "insertXml": "Insertar etiqueta XML",
-  "insertMarkdown": "Insertar sección Markdown",
-  "expandShortcut": "Expandir abreviatura",
   "chooseFolder": "Elegir carpeta del paquete",
   "rootSet": "+ Raíz",
   "rootActive": "◆ Raíz",
@@ -26,7 +24,6 @@
   "removeMarker": "Quitar {path}",
   "markerIsFolder": "La ruta del marcador es una carpeta: {path}",
   "cancel": "Cancelar",
-  "fragmentName": "Nombre del fragmento",
   "invalidTag": "Introduce un nombre de etiqueta válido.",
   "invalidTitle": "El título contiene un carácter no válido.",
   "maxDepth": "Profundidad máxima",
@@ -159,5 +156,7 @@
   "rootCreated": "Raíz de Code Embed establecida: {path}",
   "rootRemoved": "Marcador de raíz eliminado: {path}",
   "showAllFolderActions": "Mostrar acciones en todas las carpetas",
-  "showAllFolderActionsHelp": "Cada carpeta marcada conserva su color y ◆ Raíz. La opción, desactivada por defecto, muestra + Raíz en las demás carpetas."
+  "showAllFolderActionsHelp": "Cada carpeta marcada conserva su color y ◆ Raíz. La opción, desactivada por defecto, muestra + Raíz en las demás carpetas.",
+  "autoCloseXml": "Cerrar etiquetas XML automáticamente",
+  "autoCloseXmlHelp": "Cierra la etiqueta tras un segundo en bloques xml y ce."
 }

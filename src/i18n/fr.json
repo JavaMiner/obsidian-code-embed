@@ -12,8 +12,6 @@
   "backlinks": "Liens entrants",
   "support": "Soutenir Code Embed",
   "insertXml": "Insérer une balise XML",
-  "insertMarkdown": "Insérer une section Markdown",
-  "expandShortcut": "Développer le raccourci",
   "chooseFolder": "Choisir le dossier du paquet",
   "rootSet": "+ Racine",
   "rootActive": "◆ Racine",
@@ -26,7 +24,6 @@
   "removeMarker": "Retirer {path}",
   "markerIsFolder": "Le chemin du marqueur désigne un dossier : {path}",
   "cancel": "Annuler",
-  "fragmentName": "Nom du fragment",
   "invalidTag": "Saisissez un nom de balise valide.",
   "invalidTitle": "Le titre contient un caractère non autorisé.",
   "maxDepth": "Profondeur maximale",
@@ -159,5 +156,7 @@
   "rootCreated": "Racine Code Embed définie : {path}",
   "rootRemoved": "Marqueur de racine retiré : {path}",
   "showAllFolderActions": "Afficher les actions sur tous les dossiers",
-  "showAllFolderActionsHelp": "Chaque dossier marqué affiche toujours sa couleur et ◆ Racine. L’option, désactivée par défaut, affiche + Racine sur les autres dossiers."
+  "showAllFolderActionsHelp": "Chaque dossier marqué affiche toujours sa couleur et ◆ Racine. L’option, désactivée par défaut, affiche + Racine sur les autres dossiers.",
+  "autoCloseXml": "Fermer automatiquement les balises XML",
+  "autoCloseXmlHelp": "Ferme la balise après une seconde dans les blocs xml et ce."
 }

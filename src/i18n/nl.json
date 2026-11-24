@@ -12,8 +12,6 @@
   "backlinks": "Terugverwijzingen",
   "support": "Code Embed steunen",
   "insertXml": "XML-tag invoegen",
-  "insertMarkdown": "Markdown-sectie invoegen",
-  "expandShortcut": "Afkorting uitwerken",
   "chooseFolder": "Pakketmap kiezen",
   "rootSet": "+ Hoofdmap",
   "rootActive": "◆ Hoofdmap",
@@ -26,7 +24,6 @@
   "removeMarker": "{path} verwijderen",
   "markerIsFolder": "Het markeringspad verwijst naar een map: {path}",
   "cancel": "Annuleren",
-  "fragmentName": "Fragmentnaam",
   "invalidTag": "Voer een geldige tagnaam in.",
   "invalidTitle": "De titel bevat een ongeldig teken.",
   "maxDepth": "Maximale nestdiepte",
@@ -159,5 +156,7 @@
   "rootCreated": "Code Embed-hoofdmap ingesteld: {path}",
   "rootRemoved": "Hoofdmapmarkering verwijderd: {path}",
   "showAllFolderActions": "Acties bij alle mappen tonen",
-  "showAllFolderActionsHelp": "Elke gemarkeerde map toont altijd de kleur en ◆ Hoofdmap. De standaard uitgeschakelde optie toont + Hoofdmap bij de overige mappen."
+  "showAllFolderActionsHelp": "Elke gemarkeerde map toont altijd de kleur en ◆ Hoofdmap. De standaard uitgeschakelde optie toont + Hoofdmap bij de overige mappen.",
+  "autoCloseXml": "XML-tags automatisch sluiten",
+  "autoCloseXmlHelp": "Sluit de tag na één seconde in xml- en ce-blokken."
 }

@@ -32,6 +32,7 @@ const DEFAULTS = {
   maxDepth: 5,
   livePreview: true,
   viewTree: true,
+  autoCloseXml: true,
   xmlPlain: true,
   treeOpenDepth: 2,
   inlineMax: 80,
@@ -383,6 +384,51 @@ class EmbedWidget extends WidgetType {
   ignoreEvent() { return false; }
 }
 
+function closingTagAt(doc, pos) {
+  const line = doc.lineAt(pos);
+  const match = /<([A-Za-z_][\w.:-]*)>$/.exec(doc.sliceString(line.from, pos));
+  if (!match) return "";
+  let fence = "", language = "";
+  for (let number = 1; number < line.number; number++) {
+    const delimiter = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(doc.line(number).text);
+    if (!delimiter) continue;
+    if (!fence) {
+      fence = delimiter[1];
+      language = delimiter[2].trim().split(/\s+/)[0].toLowerCase();
+    } else if (delimiter[1].startsWith(fence) && !delimiter[2].trim()) {
+      fence = language = "";
+    }
+  }
+  if (!["xml", "ce", "codeembed"].includes(language)) return "";
+  const closer = "</" + match[1] + ">";
+  return doc.sliceString(pos, Math.min(doc.length, pos + closer.length)) === closer ? "" : closer;
+}
+
+function xmlClosingExtension(plugin) {
+  return ViewPlugin.fromClass(class {
+    update(update) {
+      if (!(update.docChanged || update.selectionSet || update.focusChanged)) return;
+      clearTimeout(this.timer);
+      if (!plugin.settings.autoCloseXml || !update.docChanged ||
+          !update.transactions.some(tr => tr.isUserEvent("input.type"))) return;
+      const { view, state } = update;
+      const { main, ranges } = state.selection;
+      if (ranges.length !== 1 || !main.empty) return;
+      const pos = main.head;
+      if (state.doc.sliceString(Math.max(0, pos - 1), pos) !== ">") return;
+      const closer = closingTagAt(state.doc, pos);
+      if (!closer) return;
+      this.timer = setTimeout(() => {
+        if (view.hasFocus && plugin.settings.autoCloseXml && view.state.doc === state.doc &&
+            view.state.selection.main.head === pos) {
+          view.dispatch({ changes: { from: pos, insert: closer }, selection: { anchor: pos } });
+        }
+      }, 1000);
+    }
+    destroy() { clearTimeout(this.timer); }
+  });
+}
+
 function makeEditorExt(plugin) {
   return ViewPlugin.fromClass(class {
     constructor(view) { this.deco = this.build(view); }
@@ -595,6 +641,7 @@ class CodeEmbedSettings extends PluginSettingTab {
 
     new Setting(el).setName(t("previewMode")).setHeading();
     this.toggle(el, "viewTree", t("viewTree"), t("viewTreeHelp"));
+    this.toggle(el, "autoCloseXml", t("autoCloseXml"), t("autoCloseXmlHelp"));
     this.toggle(el, "xmlPlain", t("xmlPlain"), t("xmlPlainHelp"));
     this.slider(el, "treeOpenDepth", t("treeOpenDepth"), t("treeOpenDepthHelp"), 0, 10, 1);
     this.slider(el, "inlineMax", t("inlineMax"), t("inlineMaxHelp"), 0, 200, 10);
@@ -800,7 +847,7 @@ class CodeEmbedPlugin extends Plugin {
     this.addRibbonIcon("link", t("panel"), () => this.openPanel());
     this.addCommand({ id: "open-panel", name: t("openPanel"), callback: () => this.openPanel() });
 
-    this.registerEditorExtension([makeEditorExt(this), makeMarkdownEditorExt(this), makeLinkNavExt(this)]);
+    this.registerEditorExtension([makeEditorExt(this), makeMarkdownEditorExt(this), makeLinkNavExt(this), xmlClosingExtension(this)]);
     this.registerMarkdownPostProcessor((el, ctx) => this.postProcess(el, ctx));
 
     this.addCommand({
@@ -848,25 +895,9 @@ class CodeEmbedPlugin extends Plugin {
       setTimeout(() => this.validate(true), 3000);
     });
 
-    for (const [kind, name] of [["xml", t("insertXml")], ["markdown", t("insertMarkdown")]]) {
-      this.addCommand({ id: "insert-" + kind, name,
-        editorCallback: editor => promptFragment(this.app, editor, kind) });
-    }
-    this.addCommand({ id: "expand-shortcut", name: t("expandShortcut"),
-      editorCheckCallback: (checking, editor) => {
-        const trigger = triggerAt(editor);
-        if (!trigger) return false;
-        if (!checking) {
-          const xml = trigger.slice(1, 5) === "xvar";
-          const tagName = trigger.slice(5);
-          if (xml && tagName) {
-            insertFragment(editor, "xml", tagName, trigger);
-          } else {
-            promptFragment(this.app, editor, xml ? "xml" : "markdown", trigger);
-          }
-        }
-        return true;
-      } });
+    this.addCommand({ id: "insert-xml", name: t("insertXml"),
+      hotkeys: [{ modifiers: ["Mod", "Alt"], key: "x" }],
+      editorCallback: editor => promptXmlTag(this.app, editor) });
     this.setupFolders();
     this.suggest = new EmbedSuggest(this.app, this);
     this.registerEditorSuggest(this.suggest);
@@ -1937,45 +1968,24 @@ function tagsOf(text) {
 
 const badSectionName = (s) => !s || /[#(^|\]\[\n]/.test(s);
 
-function insertFragment(editor, kind, name, trigger = "") {
+function insertXmlTag(editor, name) {
   const from = editor.getCursor("from"), to = editor.getCursor("to");
-  const start = editor.posToOffset(from) - trigger.length;
-  const selected = editor.getSelection();
-  let prefix, suffix, selectionStart, selectionEnd;
-  if (kind === "xml") {
-    const tag = name || "var";
-    prefix = "<" + tag + ">";
-    suffix = "</" + tag + ">";
-    selectionStart = selectionEnd = prefix.length;
-  } else {
-    const title = name || t("fragmentName");
-    const newline = editor.getLine(from.line).slice(0, from.ch - trigger.length).length ? "\n" : "";
-    prefix = newline + "## " + title + "\n";
-    suffix = editor.getLine(to.line).slice(to.ch) ? "\n" : "";
-    selectionStart = name ? prefix.length : newline.length + 3;
-    selectionEnd = name ? selectionStart : selectionStart + title.length;
-  }
-  editor.replaceRange(prefix + selected + suffix, editor.offsetToPos(start), to);
-  editor.setSelection(editor.offsetToPos(start + selectionStart), editor.offsetToPos(start + selectionEnd));
+  const tag = name || "var";
+  const opener = "<" + tag + ">";
+  const caret = editor.posToOffset(from) + opener.length;
+  editor.replaceRange(opener + editor.getSelection() + "</" + tag + ">", from, to);
+  editor.setCursor(editor.offsetToPos(caret));
 }
 
-function triggerAt(editor) {
-  if (editor.getSelection()) return "";
-  const cur = editor.getCursor();
-  return /(?:^|\s)([!_]xvar(?:[A-Za-z_][\w.:\-]*)?|[!_]mvar)$/.exec(editor.getLine(cur.line).slice(0, cur.ch))?.[1] || "";
-}
-
-async function promptFragment(app, editor, kind, trigger = "") {
+async function promptXmlTag(app, editor) {
   const before = editor.getValue(), from = editor.posToOffset(editor.getCursor("from"));
   const to = editor.posToOffset(editor.getCursor("to"));
-  const xml = kind === "xml";
-  const name = await askText(app, xml ? t("insertXml") : t("insertMarkdown"), "",
-    value => xml && value && !/^[A-Za-z_][\w.:\-]*$/.test(value) ? t("invalidTag") :
-      !xml && value && badSectionName(value) ? t("invalidTitle") : null);
+  const name = await askText(app, t("insertXml"), "",
+    value => value && !/^[A-Za-z_][\w.:\-]*$/.test(value) ? t("invalidTag") : null);
   if (name === null || editor.getValue() !== before) return;
   editor.focus();
   editor.setSelection(editor.offsetToPos(from), editor.offsetToPos(to));
-  insertFragment(editor, kind, name, trigger);
+  insertXmlTag(editor, name);
 }
 
 function askText(app, title, initial, validate) {
