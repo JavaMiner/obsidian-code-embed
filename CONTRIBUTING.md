@@ -1,6 +1,6 @@
 # Development
 
-Run `npm run build`, `npm test`, and `node --check dist/main.js`. Keep shared UI translations in `CE_LOCALES` in `src/main.js`. Not all legacy strings have been migrated yet.
+Run `npm run build`, `npm test`, and `node --check dist/main.js`. Keep shared UI translations in `src/locales.js` (inlined into `dist/main.js` during the build). Not all legacy strings have been migrated yet.
 
 ## Code style
 

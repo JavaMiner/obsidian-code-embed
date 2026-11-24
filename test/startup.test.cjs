@@ -21,7 +21,7 @@ function loadPlugin(path, locale, appLocale) {
     "@codemirror/view": { WidgetType: class {}, ViewPlugin: { fromClass: noop },
       EditorView: { domEventHandlers: noop } }
   };
-  const context = { module: { exports: {} }, require: name => modules[name],
+  const context = { module: { exports: {} }, require: name => name === "./locales" ? require("../src/locales.js") : modules[name],
     navigator: { language: locale }, document: { body: { style: { setProperty: noop, removeProperty: noop } } },
     MutationObserver: class { observe() {} }, requestAnimationFrame: noop, cancelAnimationFrame: noop };
   vm.runInNewContext(fs.readFileSync(path, "utf8"), context);
@@ -93,6 +93,7 @@ test("folder action survives late mounting and recycled rows, preserves folder c
   assert.equal(attached, undefined);
   leaves.push({ view: { containerEl: { querySelectorAll: () => [row] } } });
   refresh();
+  assert.equal(attached.hidden, true);
   assert.equal(attached.textContent, "+ Korzeń");
   const click = async () => {
     let stopped = false;
@@ -122,6 +123,7 @@ test("folder action survives late mounting and recycled rows, preserves folder c
   assert.deepEqual(removed, [marker.path]);
   assert.ok(files.has(folder.path));
   assert.equal(classes.size, 0);
+  assert.equal(attached.hidden, true);
   assert.equal(attached.textContent, "+ Korzeń");
 });
 
@@ -142,7 +144,9 @@ test("app language determines folder labels for every documented locale", () => 
     const folder = { path: "My $& folder" };
     for (const marked of [false, true]) {
       plugin.app.vault.getAbstractFileByPath = () => marked ? {name: "_code-embed-root.md"} : null;
+      plugin.app.workspace.getActiveFile = () => ({ path: folder.path + "/Note.md" });
       plugin.decorateFolder(row, folder);
+      assert.equal(button.hidden, !marked);
       assert.equal(button.textContent, (marked ? "◆ " : "+ ") + root);
       assert.ok(guide.includes(button.textContent));
       assert.equal(button.title, marked ? labels.unmarkFolder : labels.markFolder);

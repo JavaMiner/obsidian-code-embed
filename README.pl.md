@@ -8,8 +8,11 @@
 
 Piszesz kilka promptów, które mają kończyć się takim samym poleceniem. Zapisz je raz w notatce `Szablony`. Gdy zmienisz tekst w tej notatce, kolejne użycie Copy+ w każdym z promptów uwzględni poprawkę.
 
-1. W `Szablony` wpisz w pustym wierszu dokładnie `_xvar`. Zostaw kursor tuż za `r`, bez spacji i zaznaczenia. `_xvarZMIENNA` nie uruchamia skrótu.
-2. Otwórz paletę i wybierz **Rozwiń skrót**. Dopiero w oknie nazwy wpisz `ZMIENNA` i stuknij OK. Między utworzonymi tagami wpisz treść, jak poniżej.
+1. W notatce `Szablony` wpisz `_xvarZMIENNA`; kursor zostaw bezpośrednio za ostatnią literą.
+2. Uruchom z palety polecenie **Rozwiń skrót** wtyczki Code Embed. Tekst zostanie zastąpiony przez `<ZMIENNA></ZMIENNA>`, bez okna nazwy; kursor trafi pomiędzy tagi.
+3. Wpisz treść pomiędzy tagami, jak poniżej.
+
+Samo wpisanie skrótu nie uruchamia rozwinięcia. Poleceniu możesz przypisać klawisze w ustawieniach Obsidiana. `_xvar` bez nazwy nadal otwiera okno nazwy; anulowanie nie zmienia tekstu. `_mvarNazwa` tworzy sekcję Markdown.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -71,7 +74,7 @@ W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuk
 
 ## Ogranicz wyszukiwanie do pakietu
 
-Stuknij przycisk **+ Korzeń** lub **◆ Korzeń** przy katalogu, użyj menu po przytrzymaniu albo wybierz katalog z palety poleceń. Stuknięcie nazwy rozwija drzewo. Oznaczenie tworzy plik poniżej. Zdjęcie oznaczenia wymaga potwierdzenia ścieżki znacznika.
+Przycisk **+ Korzeń** jest ukryty. **◆ Korzeń** jest widoczny tylko przy najbliższym korzeniu aktywnej notatki; poza pakietem nie pojawia się żaden znacznik. Nowy korzeń ustawisz z menu kontekstowego katalogu lub poleceniem **Wybierz katalog pakietu**. Stuknięcie nazwy rozwija drzewo. Oznaczenie tworzy plik poniżej. Zdjęcie oznaczenia wymaga potwierdzenia ścieżki znacznika.
 
 Wtyczka używa języka interfejsu Obsidiana. W ustawieniach Code Embed znajdziesz numer wersji, odnośnik do polskiego przewodnika i przycisk **Wybierz katalog pakietu**. Aby ręcznie oznaczyć katalog, utwórz w nim notatkę `_code-embed-root` (pełna nazwa pliku to `_code-embed-root.md`).
 
