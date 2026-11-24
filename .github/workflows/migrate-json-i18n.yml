@@ -1,0 +1,32 @@
+name: Migrate all locales to JSON i18n
+on:
+  push:
+    branches: [feature/canonical-embeds-packages]
+    paths: [scripts/migrate-json-i18n.cjs]
+permissions:
+  contents: write
+jobs:
+  migrate:
+    if: github.repository == 'JavaMiner/obsidian-code-embed' && github.ref == 'refs/heads/feature/canonical-embeds-packages'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/canonical-embeds-packages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/migrate-json-i18n.cjs
+      - run: npm run build && npm test && node --check dist/main.js
+      - name: Commit verified JSON migration
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A src scripts/build.cjs test/startup.test.cjs test/release-validation.test.cjs CONTRIBUTING.md
+          git commit -m 'Preserve all seven locales as JSON and bundle translations for Obsidian'
+          git push origin HEAD:feature/canonical-embeds-packages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: code-embed-json-i18n-build
+          path: dist/
+          if-no-files-found: error

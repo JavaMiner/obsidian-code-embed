@@ -1,0 +1,16 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const {execFileSync} = require('node:child_process');
+const root = path.resolve(__dirname, '..');
+const manifest = require('../manifest.json');
+assert.equal(process.argv.length, 3, 'Usage: node scripts/install.cjs /absolute/path/to/vault/.obsidian/plugins/code-embed');
+const target = process.argv[2];
+assert.ok(path.isAbsolute(target), 'An absolute plugin directory is required');
+assert.equal(path.basename(path.resolve(target)), manifest.id, 'Target directory must match the plugin id');
+execFileSync(process.execPath, ['scripts/build.cjs'], {cwd: root, stdio: 'inherit'});
+const bundled = fs.readFileSync(path.join(root, 'dist/main.js'), 'utf8');
+assert.doesNotMatch(bundled, /require\s*\(\s*['"]\.{1,2}\//, 'Refusing to install an unbundled plugin');
+fs.mkdirSync(target, {recursive: true});
+for (const file of ['main.js', 'manifest.json', 'styles.css']) fs.copyFileSync(path.join(root, 'dist', file), path.join(target, file));
+console.log('Installed build in ' + target);
