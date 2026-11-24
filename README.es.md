@@ -56,7 +56,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Limitar la búsqueda a un paquete
 
-Toca CE junto a la carpeta, mantén pulsado para abrir el menú o elige la carpeta en la paleta. Toca su nombre para desplegarla. Al marcarla se crea el archivo indicado abajo. Confirma su ruta para eliminar el marcador.
+Toca **+ Root** o **◆ Root** junto a la carpeta, mantén pulsado para abrir el menú o elige la carpeta en la paleta. Toca su nombre para desplegarla. Al marcarla se crea el archivo indicado abajo. Confirma su ruta para eliminar el marcador.
 
 ```text
 Prompts/

@@ -1,4 +1,4 @@
-# Test Code Embed · 0.2.1
+# Test Code Embed · 0.2.2
 
 > [!tip] Start
 > Skopiuj cały katalog `smoke-vault` do skarbca testowego albo otwórz go jako skarbiec. Włącz testową wersję Code Embed. Ta notatka jest ekranem testowym. W trybie czytania porównaj wynik z opisem. Do prób edycji przejdź do Live Preview.
@@ -57,7 +57,7 @@
 | Wpisz `_xvar` lub `_mvar`, dodaj spację, cofnij spację i wybierz Rozwiń skrót | Rozwinięcie dopiero po poleceniu | NIE URUCHOMIONO |
 | W wierszu edycji wpisz początek osadzenia i stuknij podpowiedź | Kanoniczne osadzenie, cele z pakietu | NIE URUCHOMIONO |
 | W trybie czytania otwórz podgląd i skopiuj trzy wiersze | Wynik zgodny z pierwszym przykładem | NIE URUCHOMIONO |
-| Stuknij nazwę katalogu, potem przycisk CE, sprawdź też długie przytrzymanie i paletę | Nazwa zwija katalog, akcje oferują zmianę oznaczenia | NIE URUCHOMIONO |
+| Stuknij nazwę katalogu, potem przycisk + Korzeń lub ◆ Korzeń, sprawdź też długie przytrzymanie i paletę | Nazwa zwija katalog, akcje oferują zmianę oznaczenia | NIE URUCHOMIONO |
 | Anuluj usunięcie znacznika, potem potwierdź ścieżkę | Anulowanie zachowuje plik, potwierdzenie usuwa tylko znacznik | NIE URUCHOMIONO |
 | Ponownie oznacz Prompts, zmień kolor i przenieś cały katalog | Etykieta i kolor widoczne, pierwszy blok działa po przeniesieniu | NIE URUCHOMIONO |
 | Wykonaj Rename sekcji Ton w Wspólne/Styl | Importy do tego celu zaktualizowane, Inne/Styl bez zmian | NIE URUCHOMIONO |

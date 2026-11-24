@@ -56,7 +56,7 @@ A `ce` or `codeembed` block opens in structured View. Tap View on `md` or `xml` 
 
 ## Limit lookup to a package
 
-Tap the CE button beside a folder, long-press for its menu, or choose a folder from the command palette. Tapping the name expands the folder. Marking it creates the file below. Confirm its path before removing the marker.
+Tap **+ Root** or **◆ Root** beside a folder, long-press for its menu, or choose a folder from the command palette. Tapping the name expands the folder. Marking it creates the file below. Confirm its path before removing the marker.
 
 ```text
 Prompts/

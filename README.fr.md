@@ -56,7 +56,7 @@ Les blocs `ce` et `codeembed` affichent la structure. Pour `md` ou `xml`, touche
 
 ## Limiter la recherche à un paquet
 
-Toucher CE à côté du dossier, ouvrir le menu par appui long ou choisir le dossier dans la palette. Toucher son nom le déplie. Le marquage crée le fichier indiqué ci-dessous. Confirmer son chemin pour le retirer.
+Toucher **+ Root** ou **◆ Root** à côté du dossier, ouvrir le menu par appui long ou choisir le dossier dans la palette. Toucher son nom le déplie. Le marquage crée le fichier indiqué ci-dessous. Confirmer son chemin pour le retirer.
 
 ```text
 Prompts/

@@ -56,7 +56,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Limitare la ricerca a un pacchetto
 
-Tocca CE accanto alla cartella, tieni premuto per il menu o scegli la cartella dalla tavolozza. Tocca il nome per espanderla. Il contrassegno crea il file indicato sotto. Conferma il percorso per rimuoverlo.
+Tocca **+ Root** o **◆ Root** accanto alla cartella, tieni premuto per il menu o scegli la cartella dalla tavolozza. Tocca il nome per espanderla. Il contrassegno crea il file indicato sotto. Conferma il percorso per rimuoverlo.
 
 ```text
 Prompts/

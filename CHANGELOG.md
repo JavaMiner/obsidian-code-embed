@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 — folder actions
+
+- Show a labelled root action beside folder names and tint marked folders.
+- Reattach actions when the file explorer mounts or rebuilds rows. Add a folder-picker ribbon shortcut.
+
 ## 0.2.1 — startup fix
 
 - Include translations in the plugin entry point so it can load directly in Obsidian.

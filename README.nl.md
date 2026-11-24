@@ -56,7 +56,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Zoeken binnen een pakket
 
-Tik op CE naast de map, houd de map ingedrukt voor het menu of kies een map in het opdrachtenpalet. Tik op de naam om de map uit te klappen. Markeren maakt onderstaand bestand aan. Bevestig het pad om de markering te verwijderen.
+Tik op **+ Root** of **◆ Root** naast de map, houd de map ingedrukt voor het menu of kies een map in het opdrachtenpalet. Tik op de naam om de map uit te klappen. Markeren maakt onderstaand bestand aan. Bevestig het pad om de markering te verwijderen.
 
 ```text
 Prompts/

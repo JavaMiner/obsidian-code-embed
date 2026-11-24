@@ -56,7 +56,7 @@ W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuk
 
 ## Ogranicz wyszukiwanie do pakietu
 
-Stuknij przycisk CE przy katalogu, użyj menu po przytrzymaniu albo wybierz katalog z palety poleceń. Stuknięcie nazwy rozwija drzewo. Oznaczenie tworzy plik poniżej. Zdjęcie oznaczenia wymaga potwierdzenia ścieżki znacznika.
+Stuknij przycisk **+ Korzeń** lub **◆ Korzeń** przy katalogu, użyj menu po przytrzymaniu albo wybierz katalog z palety poleceń. Stuknięcie nazwy rozwija drzewo. Oznaczenie tworzy plik poniżej. Zdjęcie oznaczenia wymaga potwierdzenia ścieżki znacznika.
 
 ```text
 Prompts/

@@ -56,7 +56,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Suche auf ein Paket begrenzen
 
-Auf CE neben dem Ordner tippen, das Kontextmenü durch langes Drücken öffnen oder den Ordner über die Befehlspalette wählen. Ein Tipp auf den Namen klappt den Ordner auf. Die Markierung erzeugt die unten genannte Datei. Zum Entfernen den Pfad bestätigen.
+Auf **+ Root** oder **◆ Root** neben dem Ordner tippen, das Kontextmenü durch langes Drücken öffnen oder den Ordner über die Befehlspalette wählen. Ein Tipp auf den Namen klappt den Ordner auf. Die Markierung erzeugt die unten genannte Datei. Zum Entfernen den Pfad bestätigen.
 
 ```text
 Prompts/

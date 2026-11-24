@@ -24,6 +24,8 @@ const CE_LOCALES = {
     "insertMarkdown": "Insert Markdown section",
     "expandShortcut": "Expand shortcut",
     "chooseFolder": "Choose package folder",
+    "rootSet": "+ Root",
+    "rootActive": "◆ Root",
     "markFolder": "Set folder as Code Embed root",
     "unmarkFolder": "Remove Code Embed root marker"
   },
@@ -44,6 +46,8 @@ const CE_LOCALES = {
     "insertMarkdown": "Wstaw sekcję Markdown",
     "expandShortcut": "Rozwiń skrót",
     "chooseFolder": "Wybierz katalog pakietu",
+    "rootSet": "+ Korzeń",
+    "rootActive": "◆ Korzeń",
     "markFolder": "Ustaw katalog jako korzeń Code Embed",
     "unmarkFolder": "Usuń oznaczenie korzenia Code Embed"
   }
@@ -1110,16 +1114,20 @@ class CodeEmbedPlugin extends Plugin {
       if (file instanceof TFolder) menu.addItem(i => i.setTitle(action(file)).setIcon("package")
         .onClick(() => this.toggleFolder(file)));
     }));
-    this.addCommand({ id: "choose-package-folder", name: t("chooseFolder"), callback: async () => {
+    const chooseFolder = async () => {
       const folders = [this.app.vault.getRoot(), ...this.app.vault.getAllLoadedFiles().filter(f =>
         f instanceof TFolder && f !== this.app.vault.getRoot())];
       const choice = await pickOne(this.app, "Wybierz katalog", folders.map(folder =>
         ({ folder, label: folder.path + " — " + action(folder) })));
       if (choice) await this.toggleFolder(choice.folder);
-    } });
+    };
+    this.addCommand({ id: "choose-package-folder", name: t("chooseFolder"), callback: chooseFolder });
+    this.addRibbonIcon("folder-cog", t("chooseFolder"), chooseFolder);
+    this.app.workspace.onLayoutReady(() => this.scheduleFolders());
+    this.registerEvent(this.app.workspace.on("layout-change", () => this.scheduleFolders()));
     const observer = new MutationObserver(records => {
-      if (records.some(r => r.type === "attributes" || [...r.addedNodes].some(n =>
-        n.nodeType === 1 && (n.matches(".nav-folder-title") || n.querySelector(".nav-folder-title"))))) this.scheduleFolders();
+      if (records.some(r => r.type === "attributes" || r.target.matches?.(".nav-folder-title") && !r.target.querySelector(".ce-folder-action") || [...r.addedNodes].some(n =>
+        n.nodeType === 1 && (n.matches(".nav-folder, .nav-folder-title, .workspace-leaf-content[data-type=file-explorer]") || n.querySelector(".nav-folder-title") || n.parentElement?.closest(".nav-folder-title") && !n.matches(".ce-folder-action"))))) this.scheduleFolders();
     });
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-path"] });
     this.register(() => {
@@ -1133,27 +1141,53 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   scheduleFolders() {
-    cancelAnimationFrame(this.folderFrame);
+    if (this.folderFrame != null) return;
     this.folderFrame = requestAnimationFrame(() => {
-      for (const row of document.querySelectorAll(".nav-folder-title[data-path]")) {
-        const folder = this.app.vault.getAbstractFileByPath(row.dataset.path);
-        if (!(folder instanceof TFolder)) continue;
-        const marked = this.packages().roots.has(folder.path === "/" ? "" : folder.path);
-        row.classList.toggle("ce-package-folder", marked);
-        let button = row.querySelector(".ce-folder-action");
-        if (!button) {
-          button = row.createEl("button", { cls: "ce-folder-action" });
-          button.addEventListener("click", event => {
-            event.stopPropagation();
-            const current = this.app.vault.getAbstractFileByPath(row.dataset.path);
-            if (current instanceof TFolder) this.toggleFolder(current);
-          });
+      this.folderFrame = null;
+      for (const leaf of this.app.workspace.getLeavesOfType("file-explorer")) {
+        const view = leaf.view;
+        // Some explorer versions keep the file on the tree item rather than the title element.
+        const rows = new Map();
+        const items = view.fileItems instanceof Map ? view.fileItems.values() : Object.values(view.fileItems || {});
+        for (const item of items) {
+          if (!(item.file instanceof TFolder)) continue;
+          const row = item.selfEl || item.el?.querySelector(".nav-folder-title");
+          if (row?.isConnected) rows.set(row, item.file);
         }
-        button.textContent = marked ? "◆ CE" : "+ CE";
-        button.title = marked ? t("unmarkFolder") : t("markFolder");
-        button.setAttribute("aria-label", button.title + " — " + folder.path);
+        for (const row of view.containerEl.querySelectorAll(".nav-folder-title")) {
+          if (rows.has(row)) continue;
+          const path = row.dataset.path ?? row.closest(".nav-folder")?.dataset.path
+            ?? row.querySelector("[data-path]")?.dataset.path;
+          const folder = path && this.app.vault.getAbstractFileByPath(path);
+          if (folder instanceof TFolder) rows.set(row, folder);
+        }
+        for (const [row, folder] of rows) this.decorateFolder(row, folder);
       }
     });
+  }
+
+  decorateFolder(row, folder) {
+    const marker = this.app.vault.getAbstractFileByPath(markerPath(folder.path));
+    const marked = Boolean(marker && !(marker instanceof TFolder));
+    row.classList.toggle("ce-package-folder", marked);
+    let button = row.querySelector(".ce-folder-action");
+    if (!button) {
+      button = row.createEl("button", { cls: "ce-folder-action" });
+      button.type = "button";
+      button.addEventListener("pointerdown", event => event.stopPropagation());
+      button.addEventListener("mousedown", event => event.stopPropagation());
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        const current = this.app.vault.getAbstractFileByPath(button.dataset.folderPath);
+        if (current instanceof TFolder) this.toggleFolder(current);
+      });
+    }
+    button.dataset.folderPath = folder.path;
+    const label = marked ? t("rootActive") : t("rootSet");
+    if (button.textContent !== label) button.textContent = label;
+    button.title = marked ? t("unmarkFolder") : t("markFolder");
+    button.setAttribute("aria-label", button.title + " — " + folder.path);
   }
 
   async toggleFolder(folder) {
