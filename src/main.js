@@ -1066,17 +1066,23 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   setupFolders() {
-    const populatedMenus = new WeakSet();
-    const addFolderAction = (menu, folder) => {
-      if (!isVaultFolder(folder) || populatedMenus.has(menu)) return;
-      populatedMenus.add(menu);
-      menu.addItem(item => item.setTitle(this.folderActionLabel(folder)).setIcon("folder-cog")
-        .onClick(() => this.toggleFolder(folder)));
+    const addFolderAction = (menu, candidate) => {
+      const folder = this.app.vault.getAbstractFileByPath(candidate?.path) || candidate;
+      if (!isVaultFolder(folder)) return;
+      const action = this.folderActionLabel(folder);
+      // A Menu may be reused after its items have been cleared.
+      if (menu.items?.some(item => item.ceRootFolderPath === folder.path && item.ceRootFolderAction === action)) return;
+      menu.addItem(item => {
+        item.ceRootFolderPath = folder.path;
+        item.ceRootFolderAction = action;
+        item.setTitle(action).setIcon("folder-cog")
+          .onClick(() => this.toggleFolder(folder));
+      });
     };
     const workspace = this.app.workspace;
     this.registerEvent(workspace.on("file-menu", addFolderAction));
     this.registerEvent(workspace.on("files-menu", (menu, files) => {
-      if (files.length === 1) addFolderAction(menu, files[0]);
+      if (Array.isArray(files) && files.length === 1) addFolderAction(menu, files[0]);
     }));
     const chooseFolder = () => this.choosePackageFolder();
     this.addCommand({ id: "choose-package-folder", name: t("chooseFolder"), callback: chooseFolder });

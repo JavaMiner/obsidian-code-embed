@@ -167,9 +167,9 @@ test("single-folder context menus support both explorer events and add one worki
   plugin.app.vault.create = async (path, content) => { paths.set(path, { path, content }); };
   plugin.setupFolders();
   const folder = { path: "Prompts", children: [] };
-  const titles = [], menu = { addItem(cb) { cb(this); },
+  const titles = [], menu = { items: [], addItem(cb) { const item = { ...this }; this.items.push(item); cb(item); },
     setTitle(title) { titles.push(title); return this; }, setIcon() { return this; },
-    onClick(callback) { this.click = callback; return this; } };
+    onClick(callback) { menu.click = callback; return this; } };
   events.get("files-menu")(menu, [folder, folder]);
   events.get("file-menu")(menu, { path: "Note.md" });
   assert.equal(titles.length, 0);
@@ -191,4 +191,41 @@ test("documentation follows the app language including unsupported-language fall
     context.expanded = expanded;
     assert.ok(vm.runInNewContext("hasErrors(expanded) && firstError(expanded) === t('notInPackage')", context));
   }
+});
+
+
+test("reused folder menu restores the root action after each clear independently of the active note", async () => {
+  const { plugin } = loadPlugin("dist/main.js", "en", "pl");
+  const events = new Map(), files = new Map();
+  const folder = {path: "Prompts", children: []};
+  files.set(folder.path, folder);
+  plugin.app.workspace.on = (name, fn) => { events.set(name, fn); };
+  plugin.app.workspace.getActiveFile = () => ({path: "Elsewhere/Note.md"});
+  plugin.app.vault.getAbstractFileByPath = path => files.get(path);
+  plugin.app.vault.create = async (path, content) => { files.set(path, {path, content}); };
+  plugin.scheduleFolders = () => {};
+  plugin.setupFolders();
+  const menu = {items: [], addItem(callback) {
+    const item = {setTitle(title) {this.title = title; return this;},
+      setIcon() {return this;}, onClick(fn) {this.click = fn; return this;}};
+    this.items.push(item);
+    callback(item);
+  }};
+  for (let opening = 0; opening < 3; opening++) {
+    menu.items.length = 0;
+    events.get("file-menu")(menu, folder);
+    events.get("files-menu")(menu, [folder]);
+    assert.equal(menu.items.length, 1);
+    assert.equal(menu.items[0].title, "Ustaw katalog jako korzeń Code Embed");
+  }
+  await menu.items[0].click();
+  assert.equal(files.get("Prompts/_code-embed-root.md").content, "");
+  menu.items.length = 0;
+  events.get("files-menu")(menu, [folder]);
+  events.get("file-menu")(menu, folder);
+  assert.equal(menu.items.length, 1);
+  assert.equal(menu.items[0].title, "Usuń oznaczenie korzenia Code Embed");
+  menu.items.length = 0;
+  events.get("file-menu")(menu, {path: "Note.md", extension: "md"});
+  assert.equal(menu.items.length, 0);
 });
