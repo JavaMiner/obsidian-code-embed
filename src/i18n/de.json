@@ -157,5 +157,7 @@
   "sectionToTag": "Tag-Name für Abschnitt {name}",
   "skippedNested": "Übersprungene verschachtelte Pfade: {count}. Bitte manuell aktualisieren.",
   "rootCreated": "Code-Embed-Paketwurzel festgelegt: {path}",
-  "rootRemoved": "Wurzelmarkierung entfernt: {path}"
+  "rootRemoved": "Wurzelmarkierung entfernt: {path}",
+  "showAllFolderActions": "Aktionen bei allen Ordnern anzeigen",
+  "showAllFolderActionsHelp": "Zeigt „+ Wurzel“ bei unmarkierten Ordnern und „◆ Wurzel“ bei allen Paketwurzeln."
 }

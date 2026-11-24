@@ -73,6 +73,8 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. **◆ Wurzel** erscheint nur an der nächsten Paketwurzel der aktiven Notiz.
 
+**Aktionen bei allen Ordnern anzeigen** — Zeigt „+ Wurzel“ bei unmarkierten Ordnern und „◆ Wurzel“ bei allen Paketwurzeln.
+
 Code Embed verwendet die Oberflächensprache von Obsidian. Die Einstellungen zeigen die installierte Version, den Link zur deutschen Anleitung und **Paketordner auswählen**. Zum manuellen Markieren im Ordner eine Notiz namens `_code-embed-root` anlegen (Dateiname `_code-embed-root.md`).
 
 ```text

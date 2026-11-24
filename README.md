@@ -73,6 +73,8 @@ A `ce` or `codeembed` block opens in structured View. Tap View on `md` or `xml` 
 
 Open the folder context menu with a right click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. **◆ Root** appears only beside the nearest root of the active note.
 
+**Show actions on all folders** — Show “+ Root” on unmarked folders and “◆ Root” on every package root.
+
 Code Embed uses the Obsidian interface language. Its settings show the installed version, a link to the English guide and **Choose package folder**. To mark a folder manually, create a note named `_code-embed-root` inside it (filename `_code-embed-root.md`).
 
 ```text

@@ -157,5 +157,7 @@
   "sectionToTag": "Nazwa tagu dla sekcji {name}",
   "skippedNested": "Pominięte ścieżki zagnieżdżone: {count}. Zaktualizuj je ręcznie.",
   "rootCreated": "Ustawiono korzeń Code Embed: {path}",
-  "rootRemoved": "Usunięto oznaczenie korzenia: {path}"
+  "rootRemoved": "Usunięto oznaczenie korzenia: {path}",
+  "showAllFolderActions": "Pokaż akcje przy wszystkich folderach",
+  "showAllFolderActionsHelp": "Wyświetla „+ Korzeń” przy nieoznaczonych folderach i „◆ Korzeń” przy wszystkich korzeniach."
 }

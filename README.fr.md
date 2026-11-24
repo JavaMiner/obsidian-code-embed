@@ -73,6 +73,8 @@ Les blocs `ce` et `codeembed` affichent la structure. Pour `md` ou `xml`, touche
 
 Ouvrez le menu du dossier par clic droit ou appui long, ou choisissez un dossier dans la palette. Confirmez le chemin du marqueur avant de le retirer. **◆ Racine** apparaît seulement à côté de la racine la plus proche de la note active.
 
+**Afficher les actions sur tous les dossiers** — Affiche « + Racine » sur les dossiers sans marqueur et « ◆ Racine » sur chaque racine de paquet.
+
 Code Embed utilise la langue de l’interface d’Obsidian. Ses réglages affichent la version installée, un lien vers le guide français et **Choisir le dossier du paquet**. Pour marquer un dossier à la main, créez-y une note `_code-embed-root` (fichier `_code-embed-root.md`).
 
 ```text

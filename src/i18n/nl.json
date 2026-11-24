@@ -157,5 +157,7 @@
   "sectionToTag": "Tagnaam voor sectie {name}",
   "skippedNested": "Overgeslagen geneste paden: {count}. Werk ze handmatig bij.",
   "rootCreated": "Code Embed-hoofdmap ingesteld: {path}",
-  "rootRemoved": "Hoofdmapmarkering verwijderd: {path}"
+  "rootRemoved": "Hoofdmapmarkering verwijderd: {path}",
+  "showAllFolderActions": "Acties bij alle mappen tonen",
+  "showAllFolderActionsHelp": "Toont ‘+ Hoofdmap’ bij ongemarkeerde mappen en ‘◆ Hoofdmap’ bij elke pakketmap."
 }

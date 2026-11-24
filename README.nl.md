@@ -73,6 +73,8 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 Open het mapmenu met een rechtermuisklik of door de map ingedrukt te houden. Je kunt ook een map kiezen via het opdrachtenpalet. Bevestig het markeringspad bij het verwijderen. **◆ Hoofdmap** staat alleen bij de dichtstbijzijnde pakketmap van de actieve notitie.
 
+**Acties bij alle mappen tonen** — Toont ‘+ Hoofdmap’ bij ongemarkeerde mappen en ‘◆ Hoofdmap’ bij elke pakketmap.
+
 Code Embed volgt de interfacetaal van Obsidian. In de instellingen staan de geïnstalleerde versie, een link naar de Nederlandse handleiding en **Pakketmap kiezen**. Maak voor handmatige markering in de map de notitie `_code-embed-root` (bestandsnaam `_code-embed-root.md`).
 
 ```text

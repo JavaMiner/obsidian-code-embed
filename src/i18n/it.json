@@ -157,5 +157,7 @@
   "sectionToTag": "Nome del tag per la sezione {name}",
   "skippedNested": "Percorsi annidati ignorati: {count}. Aggiornali manualmente.",
   "rootCreated": "Radice di Code Embed impostata: {path}",
-  "rootRemoved": "Marcatore di radice rimosso: {path}"
+  "rootRemoved": "Marcatore di radice rimosso: {path}",
+  "showAllFolderActions": "Mostra le azioni su tutte le cartelle",
+  "showAllFolderActionsHelp": "Mostra «+ Radice» sulle cartelle senza marcatore e «◆ Radice» su tutte le radici dei pacchetti."
 }

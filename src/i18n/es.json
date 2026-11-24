@@ -157,5 +157,7 @@
   "sectionToTag": "Nombre de etiqueta para la sección {name}",
   "skippedNested": "Rutas anidadas omitidas: {count}. Actualízalas manualmente.",
   "rootCreated": "Raíz de Code Embed establecida: {path}",
-  "rootRemoved": "Marcador de raíz eliminado: {path}"
+  "rootRemoved": "Marcador de raíz eliminado: {path}",
+  "showAllFolderActions": "Mostrar acciones en todas las carpetas",
+  "showAllFolderActionsHelp": "Muestra «+ Raíz» en las carpetas sin marcador y «◆ Raíz» en todas las raíces de paquete."
 }

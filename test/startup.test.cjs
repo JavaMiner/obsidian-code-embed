@@ -26,6 +26,7 @@ function loadPlugin(path, locale, appLocale) {
     MutationObserver: class { observe() {} }, requestAnimationFrame: noop, cancelAnimationFrame: noop };
   vm.runInNewContext(fs.readFileSync(path, "utf8"), context);
   const plugin = new context.module.exports();
+  plugin.settings = vm.runInNewContext("({ ...DEFAULTS })", context);
   plugin.manifest = require("../dist/manifest.json");
   plugin.app = { workspace: { on: noop, onLayoutReady: noop }, vault: { on: noop } };
   return { plugin, commands, context };
@@ -59,10 +60,12 @@ test("folder badge follows the closest active root across note switches", () => 
     ({ path: root + "/_code-embed-root.md", name: "_code-embed-root.md" }));
   const rows = roots.concat("Unmarked").map(path => {
     let button;
+    const classes = new Set();
     return {
+      classes,
       isConnected: true,
       folder: { path, children: [] },
-      classList: { toggle() {} },
+      classList: { toggle(key, state) { if (state) classes.add(key); else classes.delete(key); } },
       querySelector: () => button,
       createEl() {
         button = { dataset: {}, setAttribute() {}, addEventListener() {}, remove() { button = undefined; } };
@@ -83,6 +86,7 @@ test("folder badge follows the closest active root across note switches", () => 
     events.get(event)();
     frame();
     assert.deepEqual(rows.filter(row => row.querySelector()).map(row => row.folder.path), root ? [root] : []);
+    assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), root ? [root] : []);
     for (const row of rows.filter(row => row.querySelector())) assert.equal(row.querySelector().textContent, "◆ Korzeń");
   }
   check("Prompts/Nested/Note.md", "Prompts/Nested", "file-open");
@@ -90,6 +94,26 @@ test("folder badge follows the closest active root across note switches", () => 
   check("Other/Note.md", "Other", "file-open");
   check("Unmarked/Note.md", null, "file-open");
   check(null, null, "active-leaf-change");
+  const workspace = plugin.app.workspace;
+  workspace.rootSplit = {};
+  let editorFile = { path: "Prompts/Nested/Note.md", extension: "md" };
+  workspace.getMostRecentLeaf = split => {
+    assert.equal(split, workspace.rootSplit);
+    return { view: { file: editorFile } };
+  };
+  workspace.activeLeaf = { view: { getViewType: () => "file-explorer" } };
+  check(null, "Prompts/Nested", "active-leaf-change");
+  editorFile = { path: "Unmarked/Note.md", extension: "md" };
+  check(null, null, "active-leaf-change");
+  editorFile = null;
+  check(null, null, "file-open");
+  plugin.settings.showAllFolderActions = true;
+  plugin.scheduleFolders();
+  frame();
+  assert.deepEqual(rows.map(row => row.querySelector().textContent), ["◆ Korzeń", "◆ Korzeń", "◆ Korzeń", "+ Korzeń"]);
+  assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), roots);
+  plugin.settings.showAllFolderActions = false;
+  check("Other/Note.md", "Other", "file-open");
 });
 
 test("the expand shortcut command inserts a named XML pair with the cursor between tags", async () => {

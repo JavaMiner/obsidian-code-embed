@@ -73,6 +73,8 @@ W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuk
 
 Otwórz menu folderu prawym kliknięciem lub długim przytrzymaniem albo wybierz folder z palety poleceń. Przy zdejmowaniu oznaczenia potwierdź ścieżkę znacznika. **◆ Korzeń** pojawia się tylko przy najbliższym korzeniu aktywnej notatki.
 
+**Pokaż akcje przy wszystkich folderach** — Wyświetla „+ Korzeń” przy nieoznaczonych folderach i „◆ Korzeń” przy wszystkich korzeniach.
+
 Wtyczka używa języka interfejsu Obsidiana. W ustawieniach Code Embed znajdziesz numer wersji, odnośnik do polskiego przewodnika i przycisk **Wybierz katalog pakietu**. Aby ręcznie oznaczyć katalog, utwórz w nim notatkę `_code-embed-root` (pełna nazwa pliku to `_code-embed-root.md`).
 
 ```text

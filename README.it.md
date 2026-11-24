@@ -73,6 +73,8 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 Apri il menu della cartella con un clic destro o una pressione prolungata, oppure scegli una cartella nella tavolozza. Conferma il percorso del marcatore per rimuoverlo. **◆ Radice** compare solo accanto alla radice più vicina alla nota attiva.
 
+**Mostra le azioni su tutte le cartelle** — Mostra «+ Radice» sulle cartelle senza marcatore e «◆ Radice» su tutte le radici dei pacchetti.
+
 Code Embed usa la lingua dell’interfaccia di Obsidian. Le impostazioni mostrano la versione installata, il collegamento alla guida italiana e **Scegli la cartella del pacchetto**. Per contrassegnare una cartella manualmente, crea al suo interno una nota `_code-embed-root` (file `_code-embed-root.md`).
 
 ```text

@@ -27,6 +27,7 @@ const REF_RE = () => /(?<esc>\\)?(?<all>(?=[!$]\[\[?(?<ref>[^\[\]\r\n]+)\])(?:!\
 const hasEmbed = (text) => text.includes('![') || text.includes('$[');
 
 const DEFAULTS = {
+  showAllFolderActions: false,
   packageColor: "#498b78",
   maxDepth: 5,
   livePreview: true,
@@ -586,6 +587,7 @@ class CodeEmbedSettings extends PluginSettingTab {
     el.createEl("a", { text: t("helpGuide"), href: guideUrl(), attr: { target: "_blank", rel: "noopener noreferrer" } });
     new Setting(el).setName(t("chooseFolder"))
       .addButton(button => button.setButtonText(t("chooseFolder")).onClick(() => this.plugin.choosePackageFolder()));
+    this.toggle(el, "showAllFolderActions", t("showAllFolderActions"), t("showAllFolderActionsHelp"));
     this.color(el, "packageColor", t("rootColor"), t("rootColorHelp"));
     new Setting(el).setName(t("expansion")).setHeading();
     this.slider(el, "maxDepth", t("maxDepth"), t("maxDepthHelp"), 1, 10, 1);
@@ -900,6 +902,7 @@ class CodeEmbedPlugin extends Plugin {
 
   applySettings(key) {
     this.applyColors();
+    if (key === "showAllFolderActions" || key === "all") this.scheduleFolders();
     this.refIndex.clear();
     this.rawIndex.clear();
     this.invalidate();
@@ -1103,7 +1106,11 @@ class CodeEmbedPlugin extends Plugin {
     if (this.folderFrame != null) return;
     this.folderFrame = requestAnimationFrame(() => {
       this.folderFrame = null;
-      const activeFile = this.app.workspace.getActiveFile();
+      const workspace = this.app.workspace;
+      const explorerFocused = workspace.activeLeaf?.view.getViewType() === "file-explorer";
+      const activeFile = workspace.getActiveFile() ?? (explorerFocused
+        ? workspace.getMostRecentLeaf(workspace.rootSplit)?.view.file
+        : null);
       const activeRoot = activeFile?.extension === "md" ? this.packages().root(activeFile.path) : null;
       for (const leaf of this.app.workspace.getLeavesOfType("file-explorer")) {
         const view = leaf.view;
@@ -1129,10 +1136,11 @@ class CodeEmbedPlugin extends Plugin {
 
   decorateFolder(row, folder, activeRoot) {
     const folderPath = folder.path === "/" ? "" : folder.path;
-    const isActiveRoot = activeRoot === folderPath;
-    row.classList.toggle("ce-package-folder", isActiveRoot);
+    const showAll = this.settings.showAllFolderActions;
+    const marked = showAll ? this.packages().roots.has(folderPath) : activeRoot === folderPath;
+    row.classList.toggle("ce-package-folder", marked);
     let button = row.querySelector(".ce-folder-action");
-    if (!isActiveRoot) {
+    if (!showAll && !marked) {
       button?.remove();
       return;
     }
@@ -1149,9 +1157,9 @@ class CodeEmbedPlugin extends Plugin {
       });
     }
     button.dataset.folderPath = folder.path;
-    const label = t("rootActive");
+    const label = marked ? t("rootActive") : t("rootSet");
     if (button.textContent !== label) button.textContent = label;
-    button.title = t("unmarkFolder");
+    button.title = marked ? t("unmarkFolder") : t("markFolder");
     button.setAttribute("aria-label", button.title + " — " + folder.path);
   }
 

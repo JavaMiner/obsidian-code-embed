@@ -157,5 +157,7 @@
   "sectionToTag": "Nom de balise pour la section {name}",
   "skippedNested": "Chemins imbriqués ignorés : {count}. Actualisez-les manuellement.",
   "rootCreated": "Racine Code Embed définie : {path}",
-  "rootRemoved": "Marqueur de racine retiré : {path}"
+  "rootRemoved": "Marqueur de racine retiré : {path}",
+  "showAllFolderActions": "Afficher les actions sur tous les dossiers",
+  "showAllFolderActionsHelp": "Affiche « + Racine » sur les dossiers sans marqueur et « ◆ Racine » sur chaque racine de paquet."
 }

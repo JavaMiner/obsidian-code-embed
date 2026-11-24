@@ -73,6 +73,8 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta. Confirma la ruta del marcador al quitarlo. **◆ Raíz** solo aparece junto a la raíz más cercana a la nota activa.
 
+**Mostrar acciones en todas las carpetas** — Muestra «+ Raíz» en las carpetas sin marcador y «◆ Raíz» en todas las raíces de paquete.
+
 Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar la carpeta manualmente, crea dentro una nota `_code-embed-root` (archivo `_code-embed-root.md`).
 
 ```text
