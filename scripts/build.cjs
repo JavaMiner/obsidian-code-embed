@@ -8,9 +8,8 @@ const locales = Object.fromEntries(languages.map(language => [
 
 fs.mkdirSync("dist", { recursive: true });
 const source = fs.readFileSync("src/main.js", "utf8");
-const strictDirective = "'use strict';\n";
-const entry = source.replace(strictDirective, strictDirective + "const CE_LOCALES = " + JSON.stringify(locales) + ";\n");
-fs.writeFileSync("dist/main.js", entry);
+const prelude = "'use strict';\nconst CE_LOCALES = " + JSON.stringify(locales) + ";\n";
+fs.writeFileSync("dist/main.js", prelude + source);
 for (const name of ["manifest.json", "styles.css"]) {
   fs.copyFileSync(name, "dist/" + name);
 }

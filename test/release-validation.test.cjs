@@ -1,6 +1,9 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { execFileSync } = require("node:child_process");
 const read = path => fs.readFileSync(path, "utf8");
 
 test("release metadata, funding and build output", () => {
@@ -46,4 +49,24 @@ test("clipboard access remains write-only", () => {
   const source = read("src/main.js");
   assert.doesNotMatch(source, /clipboard\s*\.\s*read(?:Text)?\s*\(/);
   assert.match(source, /navigator\.clipboard\.writeText\(/);
+});
+
+test("the build embeds dictionaries for both LF and Windows CRLF checkouts", t => {
+  const checkout = fs.mkdtempSync(path.join(os.tmpdir(), "code-embed-build-"));
+  t.after(() => fs.rmSync(checkout, { recursive: true, force: true }));
+  fs.cpSync("src", path.join(checkout, "src"), { recursive: true });
+  for (const file of ["manifest.json", "styles.css"])
+    fs.copyFileSync(file, path.join(checkout, file));
+
+  const source = read("src/main.js");
+  for (const newline of ["\n", "\r\n"]) {
+    fs.writeFileSync(path.join(checkout, "src/main.js"), source.replace(/\r?\n/g, newline));
+    execFileSync(process.execPath, [path.resolve("scripts/build.cjs")], { cwd: checkout });
+    const artifact = read(path.join(checkout, "dist/main.js"));
+    const declaration = /^const CE_LOCALES = (.+);$/m.exec(artifact);
+    assert.ok(declaration, "artifact must declare translations before the plugin uses them");
+    assert.ok(declaration.index < artifact.indexOf("Object.values(CE_LOCALES)"));
+    for (const [language, labels] of Object.entries(JSON.parse(declaration[1])))
+      assert.deepEqual(labels, JSON.parse(read("src/i18n/" + language + ".json")));
+  }
 });
