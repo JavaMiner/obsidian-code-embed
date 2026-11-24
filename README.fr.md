@@ -8,8 +8,6 @@
 
 Conservez la consigne finale de plusieurs prompts dans `Szablony`. Une modification sera prise en compte à la prochaine copie de chaque prompt.
 
-Tapez `<ZMIENNA>` dans un bloc `xml` ou `ce`. Après une seconde, saisissez la consigne entre les balises.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -19,8 +17,6 @@ Insérez le bloc suivant dans une autre note. Touchez **Copy+** et collez le ré
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-**Insérer une balise XML** · `Ctrl+Alt+X` (macOS: `Cmd+Alt+X`)
 
 Placer ces définitions équivalentes dans deux notes, ou terminer la section par un autre titre de même niveau.
 

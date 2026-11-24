@@ -8,8 +8,6 @@
 
 Speichere die gemeinsame Schlussanweisung mehrerer Prompts in `Szablony`. Eine Änderung gilt beim nächsten Kopieren mit Copy+ für alle.
 
-Tippe `<ZMIENNA>` in einem `xml`- oder `ce`-Block. Schreibe nach einer Sekunde die Anweisung zwischen die Tags.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -19,8 +17,6 @@ Füge den folgenden Block in eine andere Notiz ein. Mit **Copy+** erhältst du `
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-**XML-Tag einfügen** · `Ctrl+Alt+X` (macOS: `Cmd+Alt+X`)
 
 Diese gleichwertigen Definitionen in getrennten Notizen anlegen oder den Abschnitt mit einer weiteren Überschrift derselben Ebene abschließen.
 

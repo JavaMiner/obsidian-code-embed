@@ -7,8 +7,8 @@ const ctx = { module: { exports: {} }, require: () => new Proxy({}, {
   get: (_, key) => key === "getLanguage" ? undefined : key === "StateEffect" ? { define: () => ({}) } : Base
 }) };
 vm.runInNewContext(fs.readFileSync("dist/main.js", "utf8") +
-  "\nglobalThis.api = { parseRef, REF_RE, rewriteText, formatEmbed, insertXmlTag };", ctx);
-const { REF_RE, formatEmbed, rewriteText, insertXmlTag } = ctx.api;
+  "\nglobalThis.api = { parseRef, REF_RE, rewriteText, formatEmbed };", ctx);
+const { REF_RE, formatEmbed, rewriteText } = ctx.api;
 
 function fixture(notes) {
   const files = Object.entries(notes).map(([path, body]) => ({
@@ -47,21 +47,6 @@ test("Markdown and XML expand identically with explicit forwarding", async () =>
     assert.equal(await plugin.expand(raw, "A.md"), "Odpowiedz po polsku. Ton: rzeczowy.");
   assert.equal(await plugin.expand("![B:##H(polsku)]", "A.md"),
     "Odpowiedz po polsku. Ton: rzeczowy.\nOdpowiedz po $1. Ton: rzeczowy.");
-});
-
-test("insertion preserves selection and positions the caret inside the XML tag", () => {
-  function editor(initial, start, end) {
-    return { text: initial, selection: [],
-      getCursor: which => ({line: 0, ch: which === "to" ? end : start}),
-      posToOffset: p => p.ch, offsetToPos: n => n, getLine: () => initial,
-      getSelection: () => initial.slice(start, end),
-      replaceRange(value, a, b) { this.text = initial.slice(0, a.ch) + value + initial.slice(b.ch); },
-      setCursor(pos) { this.selection = [pos, pos]; } };
-  }
-  const ed = editor("abc", 0, 3);
-  insertXmlTag(ed, "style");
-  assert.equal(ed.text, "<style>abc</style>");
-  assert.deepEqual(ed.selection, [7, 7]);
 });
 
 test("package scope, ambiguity, traversal, nested roots and local import context", async () => {

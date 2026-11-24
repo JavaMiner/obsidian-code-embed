@@ -8,8 +8,6 @@
 
 Salva in `Szablony` l’istruzione finale comune a più prompt. Modificala una volta e la prossima copia di ogni prompt includerà la modifica.
 
-Digita `<ZMIENNA>` in un blocco `xml` o `ce`. Dopo un secondo scrivi l’istruzione tra i tag.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -19,8 +17,6 @@ Inserisci il blocco seguente in un’altra nota. Tocca **Copy+** e incolla il ri
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-**Inserisci tag XML** · `Ctrl+Alt+X` (macOS: `Cmd+Alt+X`)
 
 Inserisci queste definizioni equivalenti in note separate oppure termina la sezione con un’altra intestazione dello stesso livello.
 

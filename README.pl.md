@@ -8,8 +8,6 @@
 
 Piszesz kilka promptów, które mają kończyć się takim samym poleceniem. Zapisz je raz w notatce `Szablony`. Gdy zmienisz tekst w tej notatce, kolejne użycie Copy+ w każdym z promptów uwzględni poprawkę.
 
-Wpisz `<ZMIENNA>` w bloku `xml` lub `ce`. Po sekundzie wpisz instrukcję między tagami.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -19,8 +17,6 @@ W innej notatce wstaw poniższy blok. Stuknij **Copy+** i wklej wynik. Otrzymasz
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-**Wstaw tag XML** · `Ctrl+Alt+X` (macOS: `Cmd+Alt+X`)
 
 Umieść te równoważne definicje w oddzielnych notatkach lub zakończ sekcję kolejnym nagłówkiem tego samego poziomu.
 

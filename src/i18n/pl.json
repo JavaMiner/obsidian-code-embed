@@ -11,7 +11,6 @@
   "blockCopied": "Skopiowano rozwinięty blok.",
   "backlinks": "Zwrotne",
   "support": "Wesprzyj Code Embed",
-  "insertXml": "Wstaw tag XML",
   "chooseFolder": "Wybierz katalog pakietu",
   "rootSet": "+ Korzeń",
   "rootActive": "◆ Korzeń",
@@ -24,7 +23,6 @@
   "removeMarker": "Usuń {path}",
   "markerIsFolder": "Ścieżka znacznika jest katalogiem: {path}",
   "cancel": "Anuluj",
-  "invalidTag": "Podaj poprawną nazwę tagu.",
   "invalidTitle": "Tytuł zawiera niedozwolony znak.",
   "maxDepth": "Maksymalna głębokość zagnieżdżeń",
   "maxDepthHelp": "Limit zagnieżdżonych ![…]. Wpływa na rozwijanie, panele i sprawdzanie odwołań.",
@@ -156,7 +154,5 @@
   "rootCreated": "Ustawiono korzeń Code Embed: {path}",
   "rootRemoved": "Usunięto oznaczenie korzenia: {path}",
   "showAllFolderActions": "Pokaż akcje przy wszystkich folderach",
-  "showAllFolderActionsHelp": "Każdy oznaczony folder zawsze ma kolor i ◆ Korzeń. Przełącznik pokazuje + Korzeń przy pozostałych folderach. Domyślnie jest wyłączony.",
-  "autoCloseXml": "Automatycznie domykaj tagi XML",
-  "autoCloseXmlHelp": "W bloku xml lub ce wpisz <x> i odczekaj sekundę. Kursor pozostanie między tagami."
+  "showAllFolderActionsHelp": "Każdy oznaczony folder zawsze ma kolor i ◆ Korzeń. Przełącznik pokazuje + Korzeń przy pozostałych folderach. Domyślnie jest wyłączony."
 }

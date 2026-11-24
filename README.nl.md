@@ -8,8 +8,6 @@
 
 Bewaar de gedeelde slotinstructie van meerdere prompts in `Szablony`. Wijzig die één keer en elke prompt gebruikt de nieuwe tekst bij de volgende Copy+.
 
-Typ `<ZMIENNA>` in een `xml`- of `ce`-blok. Typ na één seconde de instructie tussen de tags.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -19,8 +17,6 @@ Plaats het volgende blok in een andere notitie. Tik op **Copy+** en plak de teks
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-**XML-tag invoegen** · `Ctrl+Alt+X` (macOS: `Cmd+Alt+X`)
 
 Zet deze gelijkwaardige definities in aparte notities of sluit de sectie af met een volgende kop van hetzelfde niveau.
 

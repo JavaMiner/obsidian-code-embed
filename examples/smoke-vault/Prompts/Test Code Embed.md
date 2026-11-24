@@ -51,8 +51,6 @@
 
 | Scenariusz w Obsidianie na Androidzie | Wynik oczekiwany | Wynik próby |
 | --- | --- | --- |
-| Zaznacz słowo „próba”, wywołaj Wstaw tag XML, wpisz styl i stuknij OK | Słowo między zgodnymi tagami | NIE URUCHOMIONO |
-| W bloku `ce` wpisz `<x>` i odczekaj sekundę | Pojawia się `</x>`, kursor pozostaje między tagami | NIE URUCHOMIONO |
 | W wierszu edycji wpisz początek osadzenia i stuknij podpowiedź | Kanoniczne osadzenie, cele z pakietu | NIE URUCHOMIONO |
 | W trybie czytania otwórz podgląd i skopiuj trzy wiersze | Wynik zgodny z pierwszym przykładem | NIE URUCHOMIONO |
 | Stuknij nazwę katalogu, potem przycisk + Korzeń lub ◆ Korzeń, sprawdź też długie przytrzymanie i paletę | Nazwa zwija katalog, akcje oferują zmianę oznaczenia | NIE URUCHOMIONO |

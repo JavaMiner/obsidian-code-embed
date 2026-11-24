@@ -11,7 +11,6 @@
   "blockCopied": "Erweiterter Block kopiert.",
   "backlinks": "Rückverweise",
   "support": "Code Embed unterstützen",
-  "insertXml": "XML-Tag einfügen",
   "chooseFolder": "Paketordner auswählen",
   "rootSet": "+ Wurzel",
   "rootActive": "◆ Wurzel",
@@ -24,7 +23,6 @@
   "removeMarker": "{path} entfernen",
   "markerIsFolder": "Der Markierungspfad ist ein Ordner: {path}",
   "cancel": "Abbrechen",
-  "invalidTag": "Gib einen gültigen Tag-Namen ein.",
   "invalidTitle": "Der Titel enthält ein unzulässiges Zeichen.",
   "maxDepth": "Maximale Verschachtelungstiefe",
   "maxDepthHelp": "Begrenzt Ebenen bei Auflösung, Anzeige und Prüfung.",
@@ -156,7 +154,5 @@
   "rootCreated": "Code-Embed-Paketwurzel festgelegt: {path}",
   "rootRemoved": "Wurzelmarkierung entfernt: {path}",
   "showAllFolderActions": "Aktionen bei allen Ordnern anzeigen",
-  "showAllFolderActionsHelp": "Jeder markierte Ordner zeigt immer seine Farbe und ◆ Wurzel. Die standardmäßig deaktivierte Option zeigt + Wurzel bei unmarkierten Ordnern.",
-  "autoCloseXml": "XML-Tags automatisch schließen",
-  "autoCloseXmlHelp": "Nach einer Sekunde wird ein Tag in xml- und ce-Blöcken geschlossen."
+  "showAllFolderActionsHelp": "Jeder markierte Ordner zeigt immer seine Farbe und ◆ Wurzel. Die standardmäßig deaktivierte Option zeigt + Wurzel bei unmarkierten Ordnern."
 }

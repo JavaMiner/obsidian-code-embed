@@ -8,8 +8,6 @@
 
 Keep the closing instruction for several prompts in one note, `Szablony`. Edit it once and the next Copy+ in each prompt picks up the change.
 
-Type `<ZMIENNA>` in an `xml` or `ce` block. After one second, enter your instruction between the tags.
-
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
@@ -19,8 +17,6 @@ In another note insert the block below. Tap **Copy+** and paste the result: `Pod
 ```ce
 ![Szablony:<<ZMIENNA>>]
 ```
-
-**Insert XML tag** · `Ctrl+Alt+X` (macOS: `Cmd+Alt+X`)
 
 Put these equivalent definitions in separate notes or end the section with another heading of the same level.
 

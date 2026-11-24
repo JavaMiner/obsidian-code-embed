@@ -33,12 +33,12 @@ function loadPlugin(path, locale, appLocale) {
 }
 
 for (const path of ["dist/main.js"]) {
-  for (const [locale, command] of [["pl-PL", "Wstaw tag XML"], ["fr-FR", "Insérer une balise XML"], ["sv-SE", "Insert XML tag"]]) {
+  for (const [locale, command] of [["pl-PL", "Wybierz katalog pakietu"], ["fr-FR", "Choisir le dossier du paquet"], ["sv-SE", "Choose package folder"]]) {
     test(path + " registers translated commands on startup for " + locale, async () => {
       const { plugin, commands } = loadPlugin(path, locale);
       await plugin.onload();
       assert.ok(commands.get("support"));
-      assert.equal(commands.get("insert-xml").name, command);
+      assert.equal(commands.get("choose-package-folder").name, command);
       assert.ok(commands.has("copy-expanded"));
     });
   }
@@ -114,41 +114,6 @@ test("marked folders stay visible across note switches and only unmarked actions
   assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), roots);
   plugin.settings.showAllFolderActions = false;
   check("Other/Note.md", "Other", "file-open");
-});
-
-test("auto-close inserts a matching tag after one second and preserves the caret", () => {
-  const { plugin, context } = loadPlugin("dist/main.js", "en");
-  context.require("@codemirror/view").ViewPlugin.fromClass = implementation => implementation;
-  let timer, delay;
-  context.setTimeout = (callback, ms) => { timer = callback; delay = ms; return 1; };
-  context.clearTimeout = () => { timer = null; };
-  context.plugin = plugin;
-  const handler = vm.runInNewContext("new (xmlClosingExtension(plugin))()", context);
-  for (const [lang, typed, existing, enabled, expected] of [
-    ["xml", "<x>", "", true, "</x>"], ["ce", "<data-item>", "", true, "</data-item>"],
-    ["md", "<x>", "", true, ""], ["xml", "<x/>", "", true, ""],
-    ["xml", "<x>", "</x>", true, ""], ["ce", "<x>", "", false, ""]
-  ]) {
-    const first = "```" + lang, text = first + "\n" + typed + existing;
-    const pos = first.length + 1 + typed.length;
-    const doc = { length: text.length, line: () => ({ text: first }),
-      lineAt: () => ({ from: first.length + 1, number: 2 }), sliceString: (a,b) => text.slice(a,b) };
-    const state = { doc, selection: { main: { empty: true, head: pos }, ranges: [{}] } };
-    let edit;
-    const view = { state, hasFocus: true, dispatch: value => { edit = value; } };
-    plugin.settings.autoCloseXml = enabled;
-    const update = { state, view, docChanged: true, transactions: [{ isUserEvent: key => key === "input.type" }] };
-    handler.update(update);
-    if (!expected) { assert.equal(timer, null); continue; }
-    assert.equal(delay, 1000);
-    timer();
-    assert.equal(edit.changes.from, pos);
-    assert.equal(edit.changes.insert, expected);
-    assert.equal(edit.selection.anchor, pos);
-    handler.update(update);
-    handler.update({ ...update, docChanged: false, selectionSet: true });
-    assert.equal(timer, null);
-  }
 });
 
 test("app language determines folder labels for every documented locale", () => {
