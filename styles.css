@@ -7,3 +7,42 @@
 .ce-children { padding-inline-start: 1em; }
 .ce-err { color: var(--ce-err-text, var(--text-error)); }
 .ce-native-section { max-height: var(--ce-panel-max, 55vh); overflow: auto; }
+
+.nav-folder-title.ce-package-folder {
+  border-inline-start: 3px solid var(--ce-package-color, #498b78);
+}
+.nav-folder-title .ce-folder-action {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+  min-height: 24px;
+  padding: 0 5px;
+  font-size: var(--font-ui-smallest);
+  background: transparent;
+  box-shadow: none;
+}
+.ce-package-folder .ce-folder-action { color: var(--ce-package-color, #498b78); }
+.is-mobile .nav-folder-title .ce-folder-action { min-height: 44px; min-width: 44px; }
+
+/* Keep the action visible even when a long folder name fills the sidebar. */
+.nav-folder-title:has(> .ce-folder-action) .nav-folder-title-content {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-folder-title > .ce-folder-action {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+}
+.nav-folder-title.ce-package-folder {
+  background-color: color-mix(in srgb, var(--ce-package-color, #498b78) 18%, var(--background-secondary));
+}
+.nav-folder-title.ce-package-folder .nav-folder-title-content,
+.nav-folder-title.ce-package-folder > .ce-folder-action {
+  color: var(--ce-package-color, #498b78);
+  font-weight: var(--font-semibold);
+}

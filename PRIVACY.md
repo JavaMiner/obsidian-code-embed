@@ -9,3 +9,11 @@ Copy+ and the expanded-copy command write the selected block's expanded text to 
 Code Embed listuje pliki Markdown, aby znajdować odwołania na potrzeby linków zwrotnych, sprawdzania zerwanych odwołań i ich aktualizacji przy zmianie nazw. Odczytuje pojedyncze notatki, aby rozwijać osadzane fragmenty. Te operacje korzystają z lokalnego API Obsidiana.
 
 Copy+ i polecenie kopiowania rozwiniętego bloku zapisują jego treść do schowka na żądanie. Nie odczytują schowka.
+
+## Package discovery
+
+The package index enumerates local file paths to locate markers and compare candidates. Folder selection lists vault folders. Reference validation, backlinks and Rename can read Markdown notes across the vault. Expansion inside a package selects targets within its boundary. Copy+ uses `navigator.clipboard.writeText` after a user action. The support command opens the chosen payment provider in an external browser.
+
+## Wykrywanie pakietów
+
+Indeks odczytuje lokalne ścieżki, aby znaleźć znaczniki i rozróżnić pliki o tej samej nazwie. Polecenie wyboru katalogu wyświetla katalogi skarbca. Walidacja, linki zwrotne i Rename mogą odczytywać notatki Markdown w całym skarbcu. Rozwijanie w pakiecie wybiera cele w jego granicach. Polecenie wsparcia otwiera wybraną stronę płatności w przeglądarce.

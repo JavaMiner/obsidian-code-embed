@@ -1,0 +1,1 @@
+Plik spoza pakietu.

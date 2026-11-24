@@ -1,15 +1,107 @@
-# Code Embed
+# Code Embed · Guía de la versión de desarrollo
 
-Inserta fragmentos reutilizables de notas en Obsidian.
+[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![License](https://img.shields.io/badge/license-CC_BY--NC_4.0-blue)](LICENSE)
 
-## Secciones y etiquetas locales
+[PL](README.pl.md) · [EN](README.md) · [DE](README.de.md) · [FR](README.fr.md) · [ES](README.es.md) · [NL](README.nl.md) · [IT](README.it.md)
 
-- `![x]`
-- `![#Section]` / `![##Section]`
-- `![<tag>]` / `![<<tag>>]`
+## Definir un fragmento
 
-[English documentation](README.md) · [Polski](README.pl.md)
+Guarda la instrucción final de varios prompts en `Szablony`. Al editarla una vez, la siguiente copia de cada prompt incluirá el cambio.
 
-## Apoyar el proyecto
+```xml
+<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+```
 
-[Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+Inserta el siguiente bloque en otra nota. Toca **Copy+** y pega el resultado: `Podaj trzy przykłady.` (Da tres ejemplos.)
+
+```ce
+![Szablony:<<ZMIENNA>>]
+```
+
+Coloca estas definiciones equivalentes en notas distintas o termina la sección con otro encabezado del mismo nivel.
+
+```markdown
+## Instrukcje
+Odpowiedz po $1. Ton: ${2:rzeczowy}.
+```
+
+```xml
+<styl>Odpowiedz po $1. Ton: ${2:rzeczowy}.</styl>
+```
+
+## Insertar el fragmento
+
+`![źródło:selektor(argumenty)]`
+
+Omite el origen para usar la nota actual. Los dos puntos solo separan el origen del selector.
+
+- `![Szablony]` — Nota completa
+- `![Szablony:3-8]` — Líneas, extremos incluidos
+- `![Szablony:#Styl]` — Sección con encabezado
+- `![Szablony:##Styl]` — Contenido de la sección
+- `![Szablony:##Rozdział#Styl]` — Contenido de la subsección
+- `![Szablony:<styl>]` — Elemento con etiquetas
+- `![Szablony:<<styl>>]` — Contenido del elemento
+- `![#Styl]` · `![##Styl]` — Sección local
+- `![<styl>]` · `![<<styl>>]` — Etiqueta local
+
+## Pasar argumentos
+
+Ambas llamadas producen el resultado siguiente. `$1`–`$9` seleccionan un valor, `$*` los une y `${2:rzeczowy}` sustituye un valor ausente o vacío. Pon entre comillas los argumentos con comas. Pasa los valores explícitamente a las importaciones anidadas.
+
+```ce
+![##Instrukcje(polsku)]
+![<<styl>>(polsku)]
+```
+
+```text
+Odpowiedz po polsku. Ton: rzeczowy.
+```
+
+`![Wspólne:##Ton($1)]`
+
+## Previsualizar y copiar
+
+`ce` y `codeembed` muestran la estructura. En `md` o `xml`, toca Vista previa. Copy+ copia el texto expandido. El lenguaje del bloque controla la presentación.
+
+## Limitar la búsqueda a un paquete
+
+Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta. Confirma la ruta del marcador al quitarlo. Cada carpeta marcada conserva su color y **◆ Raíz**. La opción, desactivada por defecto, muestra **+ Raíz** en las demás carpetas.
+
+**Mostrar acciones en todas las carpetas** — Muestra «+ Raíz» en las carpetas sin marcador y «◆ Raíz» en todas las raíces de paquete.
+
+Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar la carpeta manualmente, crea dentro una nota `_code-embed-root` (archivo `_code-embed-root.md`).
+
+```text
+Prompts/
+  _code-embed-root.md
+  Start.md
+  Wspólne/
+    Styl.md
+```
+
+`Prompts/Start.md` → `![Wspólne/Styl:##Ton]`
+
+El marcador más cercano delimita toda la expansión. Los nombres cortos deben ser únicos. Si hay duplicados, utiliza una ruta del diagnóstico. Las rutas con barra parten de la raíz del paquete. Los paquetes anidados son independientes. Mueve la carpeta con su marcador para conservar las referencias.
+
+## Compatibilidad y migración
+
+Dentro de un bloque de código se reconocen todas las formas antiguas siguientes. Fuera del bloque, Obsidian gestiona las inserciones nativas de notas, encabezados e imágenes. Rename guarda las referencias modificadas en forma canónica.
+
+| Legacy | → |
+| --- | --- |
+| `![[Szablony:##Styl]]` | `![Szablony:##Styl]` |
+| `$[##Styl]` | `![##Styl]` |
+| `![.:<<styl>>]` | `![<<styl>>]` |
+| `![Szablony##Styl]` | `![Szablony:##Styl]` |
+
+## Instalar la versión de desarrollo
+
+```sh
+npm run build
+npm test
+```
+
+`dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
+
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)

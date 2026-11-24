@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');const vm=require('node:vm');
 const Base=class{};
 const code=fs.readFileSync('dist/main.js','utf8');
-const ctx={module:{exports:{}},require:()=>new Proxy({}, {get:(_,k)=>k==='StateEffect'?{define:()=>({})}:Base})};
+const ctx={module:{exports:{}},require:()=>new Proxy({}, {get:(_,k)=>k==='getLanguage'?undefined:k==='StateEffect'?{define:()=>({})}:Base})};
 vm.runInNewContext(code+'\nglobalThis.api={parseRef,t};',ctx);
 test('parameterized XML reference',()=>{const p=ctx.api.parseRef('.:<<lh>>(8000)');assert.equal(p.range,'<<lh>>');assert.equal(p.args[0],'8000');});
 test('default English',()=>assert.equal(ctx.api.t('view'),'View'));

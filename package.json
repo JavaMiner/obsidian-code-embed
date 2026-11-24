@@ -1,10 +1,12 @@
 {
   "name": "obsidian-code-embed",
-  "version": "0.1.1",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "build": "node scripts/build.cjs",
     "test": "node --test",
-    "version:sync": "node scripts/version.cjs"
-  }
+    "version:sync": "node scripts/version.cjs",
+    "validate": "node --test test/release-validation.test.cjs"
+  },
+  "license": "CC-BY-NC-4.0"
 }
