@@ -21,7 +21,7 @@ function loadPlugin(path, locale, appLocale) {
     "@codemirror/view": { WidgetType: class {}, ViewPlugin: { fromClass: noop },
       EditorView: { domEventHandlers: noop } }
   };
-  const context = { module: { exports: {} }, require: name => name === "./locales" ? require("../src/locales.js") : modules[name],
+  const context = { module: { exports: {} }, require: name => name === "./i18n" ? require("../src/i18n/index.js") : modules[name],
     navigator: { language: locale }, document: { body: { style: { setProperty: noop, removeProperty: noop } } },
     MutationObserver: class { observe() {} }, requestAnimationFrame: noop, cancelAnimationFrame: noop };
   vm.runInNewContext(fs.readFileSync(path, "utf8"), context);

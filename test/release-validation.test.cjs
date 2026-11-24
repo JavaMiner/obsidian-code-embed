@@ -18,11 +18,11 @@ test("release metadata, funding and build output", () => {
   for (const url of Object.values(manifest.fundingUrl)) assert.ok(read(".github/FUNDING.yml").includes(url));
   for (const path of ["styles.css", "manifest.json"]) assert.equal(read("dist/" + path), read(path));
   const source = read("src/main.js");
-  const importLine = 'const CE_LOCALES = require("./locales");';
+  const importLine = 'const CE_LOCALES = require("./i18n");';
   let expected = source;
   if (source.includes(importLine)) {
     assert.equal(source.split(importLine).length - 1, 1);
-    const locales = require("../src/locales.js");
+    const locales = require("../src/i18n/index.js");
     expected = source.replace(importLine, () => "const CE_LOCALES = " + JSON.stringify(locales, null, 2) + ";");
   }
   assert.equal(read("dist/main.js"), expected);

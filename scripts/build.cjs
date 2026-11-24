@@ -1,8 +1,8 @@
 const fs = require("node:fs");
 const assert = require("node:assert/strict");
-const locales = require("../src/locales.js");
+const locales = require("../src/i18n/index.js");
 const source = fs.readFileSync("src/main.js", "utf8");
-const importLine = 'const CE_LOCALES = require("./locales");';
+const importLine = 'const CE_LOCALES = require("./i18n");';
 assert.equal(source.split(importLine).length - 1, 1);
 const bundled = source.replace(importLine, () => "const CE_LOCALES = " + JSON.stringify(locales, null, 2) + ";");
 fs.mkdirSync("dist", { recursive: true });

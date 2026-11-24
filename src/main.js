@@ -3,7 +3,7 @@ const { Plugin, PluginSettingTab, Setting, Modal, ItemView, MarkdownRenderer, Ma
 const { ViewPlugin, EditorView, Decoration, WidgetType } = require("@codemirror/view");
 const { RangeSetBuilder, StateEffect, StateField } = require("@codemirror/state");
 
-const CE_LOCALES = require("./locales");
+const CE_LOCALES = require("./i18n");
 
 function activeLanguage() {
   const locale = getLanguage?.() || globalThis.moment?.locale?.() || globalThis.navigator?.language || "en";
