@@ -1,6 +1,3 @@
-// main.js — Code Embed
-// Rozwija ![…] w blokach kodu, Drzewo/View dla xml/md, panele powiązań,
-// rename (plik / tag XML / sekcja / odnośnik) z konwersją tag <-> nagłówek.
 'use strict';
 const { Plugin, PluginSettingTab, Setting, Modal, ItemView, MarkdownRenderer, MarkdownView, Notice, Component, MarkdownRenderChild, editorInfoField, editorLivePreviewField, FuzzySuggestModal, EditorSuggest, TFolder, getLanguage } = require("obsidian");
 const { ViewPlugin, EditorView, Decoration, WidgetType } = require("@codemirror/view");
@@ -319,7 +316,6 @@ function rgba(hex, a) {
   return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a / 100 + ")";
 }
 
-// Argumenty rozdzielane przecinkami; cytowanie "..." lub `...` (cudzysłowy nie trafiają do wyniku).
 function splitArgs(s) {
   const out = [];
   let cur = "", q = null;
@@ -369,7 +365,6 @@ function fenceAware(lines) {
   return inFence;
 }
 
-// Parser odwołania: "x:<tag>", "x:<<tag>>", "x:10-20", "x#sekcja", "x##sekcja", "x#H1#H2", z opcjonalnym "(args)".
 function parseRef(ref) {
   if (/^\d+-(?:-\d+|\d*)$/.test(ref.trim())) ref = ".:" + ref.trim();
   if (/^\s*[:<#]/.test(ref)) ref = '.:' + ref.trimStart().replace(/^:/, '');
@@ -395,7 +390,6 @@ function parseRef(ref) {
   return { name, range, args, heading };
 }
 
-// Natywnie obsługiwane przez Obsidiana: x#sekcja (ale nie x##sekcja).
 const isNativeHeading = (p) => p.heading && !p.range.startsWith("##") && p.args === null && p.name !== "." && p.name !== "";
 
 function argumentSuffix(ref, parsed) {
@@ -418,11 +412,11 @@ const normTitle = (s) => s.replace(/[*_`]/g, "").replace(/\s+/g, " ").trim().toL
 
 const HEADING_RE = /^ {0,3}(#{1,6})[ \t]+(.*?)[ \t]*#*[ \t]*$/;
 
-function headingsOf(text, ignoreFence) {
+function headingsOf(text, includeFencedHeadings) {
   const lines = text.split("\n"), fence = fenceAware(lines), out = [];
   lines.forEach((l, i) => {
     if (FENCE_RE.test(l)) return;
-    if (!ignoreFence && fence[i]) return;
+    if (!includeFencedHeadings && fence[i]) return;
     const h = HEADING_RE.exec(l.replace(/\r$/, ""));
     if (h) out.push(h[2]);
   });
@@ -435,15 +429,13 @@ function sectionError(text, title) {
   return new Error('brak sekcji "' + title + '"' + hint);
 }
 
-// Szuka PIERWSZEJ sekcji o danym tytule (H1..H6).
-// ignoreFence=false: nagłówki w blokach kodu są pomijane.
-// ignoreFence=true: nagłówki w blokach kodu też się liczą, a sekcja kończy się na granicy bloku kodu.
-function findSection(text, title, withHeading, ignoreFence) {
+// When matching headings inside fenced examples, the closing fence also ends the section.
+function findSection(text, title, withHeading, includeFencedHeadings) {
   const lines = text.split("\n"), fence = fenceAware(lines);
   let start = -1, level = 0;
   for (let i = 0; i < lines.length; i++) {
     const isFenceLine = FENCE_RE.test(lines[i]);
-    if (ignoreFence) {
+    if (includeFencedHeadings) {
       if (isFenceLine) {
         if (start >= 0) return lines.slice(withHeading ? start - 1 : start, i).join("\n");
         continue;
@@ -463,22 +455,28 @@ function findSection(text, title, withHeading, ignoreFence) {
   return lines.slice(withHeading ? start - 1 : start).join("\n");
 }
 
-// "#sekcja" = z nagłówkiem, "##sekcja" = sama zawartość.
 function sliceSection(text, spec) {
   const withHeading = !spec.startsWith("##");
   const titles = spec.replace(/^#+\s*/, "").split("#").map(normTitle).filter(Boolean);
   if (!titles.length) throw new Error("pusta nazwa sekcji");
-  const run = (ign) => {
-    let cur = stripFrontmatter(text);
-    titles.forEach((t, i) => {
-      if (t.startsWith("^")) throw new Error("odwołania do bloków (^) nie są obsługiwane");
-      cur = findSection(cur, t, withHeading && i === titles.length - 1, ign);
-    });
-    return cur;
-  };
-  try { return run(false); }
-  catch (e) {
-    try { return run(true); } catch (_) { throw e; }
+  function selectHeadingPath(includeFencedHeadings) {
+    let section = stripFrontmatter(text);
+    for (const [index, title] of titles.entries()) {
+      if (title.startsWith("^")) throw new Error("odwołania do bloków (^) nie są obsługiwane");
+      const includeHeading = withHeading && index === titles.length - 1;
+      section = findSection(section, title, includeHeading, includeFencedHeadings);
+    }
+    return section;
+  }
+
+  try {
+    return selectHeadingPath(false);
+  } catch (noteHeadingError) {
+    try {
+      return selectHeadingPath(true);
+    } catch {
+      throw noteHeadingError;
+    }
   }
 }
 
@@ -569,11 +567,6 @@ function hasStructure(node) {
 
 const countNl = (s) => { let n = 0; for (let i = 0; i < s.length; i++) if (s.charCodeAt(i) === 10) n++; return n; };
 
-
-// =====================================================================
-// Widżety Live Preview
-// =====================================================================
-
 class EmbedWidget extends WidgetType {
   constructor(plugin, ref, ver, local, lang, path) { super(); Object.assign(this, {plugin, ref, ver, local, lang, path}); }
   eq(o) { return o.ref === this.ref && o.ver === this.ver && o.local === this.local && o.lang === this.lang && o.path === this.path; }
@@ -648,7 +641,6 @@ function makeEditorExt(plugin) {
   }, { decorations: (v) => v.deco });
 }
 
-// Poza blokami kodu używamy renderera Markdown, nigdy fillErr/textContent.
 class MarkdownEmbedWidget extends WidgetType {
   constructor(plugin, ref, path, ver, block) {
     super(); Object.assign(this, { plugin, ref, path, ver, block });
@@ -705,7 +697,7 @@ function makeMarkdownEditorExt(plugin) {
       const re = REF_RE(); let m;
       while ((m = re.exec(text)) !== null) {
         if (m.groups.esc || (m.groups.all.startsWith("![[") && !plugin.handlesMarkdownRef(m.groups.ref, path))) continue;
-        // Nie interpretuj odwołań wewnątrz `inline code`.
+        // Literal examples inside inline code must remain editable as written.
         const prefix = text.slice(0, m.index);
         let tick = null;
         for (const run of prefix.matchAll(/`+/g)) {
@@ -727,8 +719,6 @@ function makeMarkdownEditorExt(plugin) {
   return StateField.define({
     create: build,
     update(value, tr) {
-      // POPRAWKA: wcześniej było tr.selection (nieistniejąca własność) – widżety
-      // nie znikały po ustawieniu kursora w linii z odwołaniem.
       if (tr.docChanged || tr.selectionSet || tr.effects.length) return build(tr.state);
       return value;
     },
@@ -736,8 +726,6 @@ function makeMarkdownEditorExt(plugin) {
   });
 }
 
-// Nawigacja Ctrl/Cmd+klik po NIE-natywnych odnośnikach [[…]] / ![…] w Live Preview
-// (np. [[x:<<tag>>]]) – Obsidian sam ich nie obsługuje.
 function makeLinkNavExt(plugin) {
   return EditorView.domEventHandlers({
     mousedown(e, view) {
@@ -753,7 +741,7 @@ function makeLinkNavExt(plugin) {
         const from = line.from + m.index, to = from + m[0].length;
         if (pos < from || pos > to) continue;
         const p = parseRef(m[1]);
-        if (!p.range || isNativeHeading(p)) return; // natywne zostawiamy Obsidianowi
+        if (!p.range || isNativeHeading(p)) return;
         const tgt = plugin.findFile(p.name, path);
         if (!tgt) return;
         e.preventDefault();
@@ -765,9 +753,6 @@ function makeLinkNavExt(plugin) {
   });
 }
 
-// =====================================================================
-// Panel Code Embed i ustawienia
-// =====================================================================
 
 class CEPanel extends ItemView {
   constructor(leaf, plugin) { super(leaf); this.plugin = plugin; }
@@ -909,9 +894,6 @@ class BrokenModal extends Modal {
   }
 }
 
-// =====================================================================
-// Plugin
-// =====================================================================
 
 class EmbedSuggest extends EditorSuggest {
   constructor(app, plugin) { super(app); this.plugin = plugin; }
@@ -1012,7 +994,7 @@ class CodeEmbedPlugin extends Plugin {
     this.valSeq = 0;
     this.panelSeq = 0;
     this.fold = {};
-    this.rnMute = 0;
+    this.activeRenameCount = 0;
     this.addSettingTab(new CodeEmbedSettings(this.app, this));
 
     this.cache = new Map();
@@ -1162,7 +1144,6 @@ class CodeEmbedPlugin extends Plugin {
     }, 500);
   }
 
-  // ---------- błędy i ostrzeżenia ----------
 
   rawRefs(text) {
     const lines = text.split("\n"), out = [];
@@ -1221,10 +1202,10 @@ class CodeEmbedPlugin extends Plugin {
 
   async validate(silent) {
     if (!this.settings.warnBroken) return;
-    if (this.rnMute) return; // operacja Rename w toku – po niej validate odpali się od nowa
+    if (this.activeRenameCount) return;
     const my = ++this.valSeq;
     const list = await this.collectErrors();
-    if (my !== this.valSeq || this.rnMute) return;
+    if (my !== this.valSeq || this.activeRenameCount) return;
     const cur = new Map();
     for (const e of list) {
       const key = e.file.path + "|" + e.ref + "|" + e.why;
@@ -1238,7 +1219,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   notifyBroken(list) {
-    if (this.rnMute) return;
+    if (this.activeRenameCount) return;
     const k = (b) => b.file.path + "|" + b.ref + "|" + b.why;
     if (this.brokenModal) {
       const m = this.brokenModal;
@@ -1251,7 +1232,6 @@ class CodeEmbedPlugin extends Plugin {
     this.brokenModal.open();
   }
 
-  // ---------- odczyt i rozwijanie ----------
 
   async read(file) {
     if (this.cache.has(file.path)) return this.cache.get(file.path);
@@ -1437,8 +1417,7 @@ class CodeEmbedPlugin extends Plugin {
     return parts.join("");
   }
 
-  // Odwołanie do własnej notatki ("." lub jej nazwa): najpierw bieżący blok, potem cały plik
-  // (sekcja poza blokami kodu -> sekcja wewnątrz bloków kodu). Zawsze bierzemy PIERWSZĄ pasującą sekcję.
+  // For self-references, a matching fragment in the active block takes precedence over the note.
   async resolve(ref, sourcePath, stack = [], mark = false, local = null, root = this.packages().root(sourcePath)) {
     const p = parseRef(ref);
     const range = p.range;
@@ -1474,7 +1453,6 @@ class CodeEmbedPlugin extends Plugin {
     return mark ? "\u0001" + ref.replace(/[\u0001-\u0003]/g, "") + "\u0002" + out + "\u0003" : out;
   }
 
-  // ---------- indeks odwołań ----------
 
   scanText(text, off) {
     const lines = text.split("\n"), fence = fenceAware(lines), out = [];
@@ -1571,7 +1549,6 @@ class CodeEmbedPlugin extends Plugin {
     return res;
   }
 
-  // ---------- panele ----------
 
   trackFile() {
     const f = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
@@ -1649,7 +1626,6 @@ class CodeEmbedPlugin extends Plugin {
     }, 60);
   }
 
-  // Pozycja zakresu (tag / zagnieżdżona sekcja / linie) w tekście.
   locateRange(text, range) {
     const r = (range || "").replace(/\([\s\S]*$/, "").replace(/\|.*$/, "").trim();
     if (!r) return { line: 0, ch: 0 };
@@ -1888,7 +1864,6 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
-  // ---------- render ----------
 
   async renderMd(md, el, path, owner = this) {
     if (MarkdownRenderer.render) await MarkdownRenderer.render(this.app, md, el, path, owner);
@@ -1907,7 +1882,6 @@ class CodeEmbedPlugin extends Plugin {
       const imp = n.type === "import";
       const label = imp ? "⤵ " + n.ref : "<" + n.tag + (n.attrs ? " " + n.attrs : "") + ">";
 
-      // Import-zmienna: rozwinięcie jest jedną krótką linią → domyślnie zwinięty chip z wartością.
       if (imp && this.settings.inlineMax > 0 && n.children.length === 1 && n.children[0].type === "text") {
         const val = n.children[0].text.trim();
         if (val && !val.includes("\n") && val.length <= this.settings.inlineMax) {
@@ -1945,8 +1919,6 @@ class CodeEmbedPlugin extends Plugin {
       const autoView = lang === "ce" || lang === "codeembed";
       if (!autoView && !has && !(this.settings.buttonsOnPlain && (isMd || isXml))) continue;
       pre.dataset.ce = "1";
-      // Pasek narzędzi jest absolutnie pozycjonowany (CSS) – treść <pre>/<code>
-      // pozostaje nietknięta, więc podgląd xml/md wygląda identycznie jak bez wtyczki.
       const expandedRaw = has ? await this.expand(raw, path, [], false, raw) : raw;
       const expanded = applyArgs(expandedRaw, [], false);
 
@@ -2037,8 +2009,7 @@ class CodeEmbedPlugin extends Plugin {
       if (this.handlesMarkdownRef(src, path)) await this.renderMarkdownRef(el, src, path, ctx);
     }
 
-    // Obsidian nie zawsze tworzy .internal-embed dla niestandardowej składni.
-    // Obsłuż także odwołania, które pozostały zwykłym tekstem DOM.
+    // Custom references can survive Markdown rendering as plain text nodes.
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) => hasEmbed(node.nodeValue) &&
         !node.parentElement?.closest("pre, code, a, .internal-embed, [data-ce-rendered]")
@@ -2064,8 +2035,6 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
-  // Nie-natywne odnośniki [[x:<<tag>>]], [[x:##Sekcja]], [[x:1-10]] poza blokami kodu:
-  // Obsidian renderuje je jako martwy link (cel "nie istnieje"). Podpinamy nawigację.
   processLinks(root, path) {
     if (root.closest("[data-ce-rendered]")) return;
     for (const a of root.querySelectorAll("a.internal-link")) {
@@ -2089,7 +2058,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   scanLive() {
-    // Live Preview jest obsługiwany przez StateField. Nie zmieniamy DOM CodeMirror.
+    // Live Preview updates through the CodeMirror state field.
   }
 
   onClick(e) {
@@ -2105,16 +2074,10 @@ class CodeEmbedPlugin extends Plugin {
   }
 }
 
-// =====================================================================
-// RENAME: zmiana nazwy pliku / tagu / sekcji + konwersja tag <-> nagłówek.
-// Wszystkie odwołania ![…] są przepisywane; alerty "zerwane odwołanie"
-// są wyciszane na czas operacji (rnMute).
-// =====================================================================
 
 const RN_TAG_RE = /^[\w:.\-]+$/;
 const rnEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Przepisuje odwołania ![…] w tekście. fn(ref, inFence) -> nowy ref albo null.
 function rewriteText(text, fn) {
   const lines = text.split("\n");
   let inF = false, count = 0;
@@ -2240,7 +2203,6 @@ function pickOne(app, placeholder, items) {
   });
 }
 
-// <tag>…</tag>  ->  "#"*level + " " + title + zawartość wewnętrzna
 function tagToHeading(text, tag, level, title) {
   const lines = text.split("\n");
   const op = "<" + tag + ">", cl = "</" + tag + ">";
@@ -2272,7 +2234,6 @@ function tagToHeading(text, tag, level, title) {
   return { changed: true, text: lines.join("\n") };
 }
 
-// Nagłówek + sekcja  ->  <tag> na miejscu nagłówka, </tag> na końcu sekcji
 function headingToTag(text, lineIdx, tag) {
   const lines = text.split("\n"), fence = fenceAware(lines);
   const h = HEADING_RE.exec((lines[lineIdx] || "").replace(/\r$/, ""));
@@ -2290,19 +2251,19 @@ function headingToTag(text, lineIdx, tag) {
 
 const renameMethods = {
   setupRename() {
-    this.rnSnap = new Map();
-    this.rnTimers = new Map();
-    this.rnForce = false;
+    this.renameSnapshots = new Map();
+    this.renameScanTimers = new Map();
+    this.forceRenameUpdate = false;
     const ws = this.app.workspace, v = this.app.vault;
 
     this.registerEvent(v.on("rename", (f, oldPath) => {
       if (!f || f.extension !== "md") return;
-      const sn = this.rnSnap.get(oldPath);
-      if (sn) { this.rnSnap.delete(oldPath); this.rnSnap.set(f.path, sn); }
-      if (!this.rnForce && !this.settings.autoRenameFile) return;
+      const sn = this.renameSnapshots.get(oldPath);
+      if (sn) { this.renameSnapshots.delete(oldPath); this.renameSnapshots.set(f.path, sn); }
+      if (!this.forceRenameUpdate && !this.settings.autoRenameFile) return;
       this.renameFileRefs(f, oldPath).catch((e) => console.error("code-embed rename", e));
     }));
-    this.registerEvent(v.on("delete", (f) => { this.rnSnap.delete(f.path); }));
+    this.registerEvent(v.on("delete", (f) => { this.renameSnapshots.delete(f.path); }));
     this.registerEvent(v.on("modify", (f) => this.scheduleRenameScan(f)));
     this.registerEvent(ws.on("file-open", (f) => { if (f && f.extension === "md") this.snapshot(f, false); }));
     ws.onLayoutReady(() => { const f = ws.getActiveFile(); if (f && f.extension === "md") this.snapshot(f, false); });
@@ -2372,18 +2333,17 @@ const renameMethods = {
   },
 
   teardownRename() {
-    for (const t of this.rnTimers?.values() ?? []) clearTimeout(t);
+    for (const t of this.renameScanTimers?.values() ?? []) clearTimeout(t);
   },
 
-  // Licznik wyciszenia: na czas Rename nie odpalamy walidacji ani alertu o zerwanych
-  // odwołaniach (w trakcie operacji źródło już zmienione, a odwołania jeszcze nie).
+  // Validate after the outermost rename has updated both definitions and references.
   async withRenameMute(fn) {
-    this.rnMute++;
+    this.activeRenameCount++;
     try { return await fn(); }
     finally {
-      this.rnMute--;
-      if (!this.rnMute) {
-        this.brokenPrev = null; // stan po operacji traktujemy jako nową bazę
+      this.activeRenameCount--;
+      if (!this.activeRenameCount) {
+        this.brokenPrev = null;
         if (this.settings.warnBroken) {
           clearTimeout(this.valT);
           this.valT = setTimeout(() => this.validate(false), this.settings.validateDelay);
@@ -2392,13 +2352,12 @@ const renameMethods = {
     }
   },
 
-  // ---------- migawki (wykrywanie ręcznej zmiany nazwy tagu / sekcji) ----------
   async snapshot(file, force) {
-    if (!force && this.rnSnap.has(file.path)) return;
+    if (!force && this.renameSnapshots.has(file.path)) return;
     const text = await this.app.vault.read(file);
     const heads = new Map();
     for (const h of headingList(text)) if (!heads.has(h.norm)) heads.set(h.norm, h.raw);
-    this.rnSnap.set(file.path, {
+    this.renameSnapshots.set(file.path, {
       tags: new Set(tagsOf(text)), heads,
       pendTag: 0, pendHead: 0
     });
@@ -2407,9 +2366,9 @@ const renameMethods = {
   scheduleRenameScan(file) {
     if (!file || file.extension !== "md") return;
     const s = this.settings;
-    if (!s.autoRenameTag && !s.autoRenameSection) { this.rnSnap.delete(file.path); return; }
-    clearTimeout(this.rnTimers.get(file.path));
-    this.rnTimers.set(file.path, setTimeout(() => {
+    if (!s.autoRenameTag && !s.autoRenameSection) { this.renameSnapshots.delete(file.path); return; }
+    clearTimeout(this.renameScanTimers.get(file.path));
+    this.renameScanTimers.set(file.path, setTimeout(() => {
       this.scanRename(file).catch((e) => console.error("code-embed rename", e));
     }, 1500));
   },
@@ -2426,8 +2385,8 @@ const renameMethods = {
   },
 
   async scanRename(file) {
-    if (this.rnMute) { this.rnSnap.delete(file.path); return; } // zmiany pochodzą z Rename
-    const prev = this.rnSnap.get(file.path);
+    if (this.activeRenameCount) { this.renameSnapshots.delete(file.path); return; }
+    const prev = this.renameSnapshots.get(file.path);
     if (!prev) { await this.snapshot(file, true); return; }
     const text = await this.app.vault.read(file);
     const heads = new Map();
@@ -2449,7 +2408,6 @@ const renameMethods = {
     }
   },
 
-  // ---------- silnik przepisywania ----------
   async rewriteAll(mapper) {
     let files = 0, refs = 0;
     for (const f of this.app.vault.getMarkdownFiles()) {
@@ -2479,7 +2437,6 @@ const renameMethods = {
     return i < 0 ? null : [i, i + p.name.length];
   },
 
-  // ---------- plik ----------
   async renameFileRefs(file, oldPath) {
     await this.withRenameMute(async () => {
       if (file.name === MARKER || oldPath.split("/").pop() === MARKER) return;
@@ -2520,12 +2477,11 @@ const renameMethods = {
     const dir = file.parent && file.parent.path !== "/" ? file.parent.path + "/" : "";
     const target = dir + name + "." + file.extension;
     if (this.app.vault.getAbstractFileByPath(target)) { new Notice("Plik już istnieje: " + target); return; }
-    this.rnForce = true;
+    this.forceRenameUpdate = true;
     try { await this.app.fileManager.renameFile(file, target); }
-    finally { setTimeout(() => { this.rnForce = false; }, 0); }
+    finally { setTimeout(() => { this.forceRenameUpdate = false; }, 0); }
   },
 
-  // ---------- tag ----------
   async renameTagRefs(file, oldTag, newTag) {
     await this.withRenameMute(async () => {
 
@@ -2574,7 +2530,6 @@ const renameMethods = {
     });
   },
 
-  // ---------- konwersja: tag -> nagłówek ----------
   async convertTagToHeading(file, oldTag) {
     const lv = await pickOne(this.app, "Poziom nagłówka docelowego",
       [1, 2, 3, 4, 5].map((n) => ({ label: "#".repeat(n) + "  (H" + n + ")", value: n })));
@@ -2613,7 +2568,6 @@ const renameMethods = {
     return "(" + p.args.map((a) => /[",\n]/.test(a) ? '"' + a + '"' : a).join(", ") + ")";
   },
 
-  // ---------- sekcja ----------
   async renameSectionRefs(file, oldNorm, newTitle) {
     await this.withRenameMute(async () => {
       const res = await this.rewriteAll((ref, inF, src) => {
@@ -2678,7 +2632,6 @@ const renameMethods = {
     });
   },
 
-  // ---------- konwersja: nagłówek -> tag ----------
   async convertSectionToTag(file, h) {
     const text = await this.app.vault.read(file);
     const list = headingList(text);
@@ -2715,7 +2668,7 @@ const renameMethods = {
         if (!tgt || tgt.path !== file.path) return null;
         if (!p.range || !p.range.startsWith("#")) return null;
         const titles = p.range.replace(/^#+\s*/, "").split("#").map((s) => s.trim()).filter(Boolean);
-        if (titles.length !== 1) { skipped++; return null; } // ścieżek zagnieżdżonych tag nie wyrazi
+        if (titles.length !== 1) { skipped++; return null; }
         if (normTitle(titles[0]) !== h.norm) return null;
         const inner = p.range.startsWith("##");
         const sp = this.nameSpan(ref, p);
@@ -2728,7 +2681,6 @@ const renameMethods = {
     });
   },
 
-  // ---------- odwołanie / tag pod kursorem ----------
   refAtCursor(editor) {
     const cur = editor.getCursor(), text = editor.getLine(cur.line), re = REF_RE();
     let m;
@@ -2746,7 +2698,7 @@ const renameMethods = {
     const re = /<(\/?)([A-Za-z_][\w:.\-]*)>/g;
     let m;
     while ((m = re.exec(text)) !== null) {
-      if (!m[1] && m.index > 0 && text[m.index - 1] === "<") continue; // drugi znak "<<"
+      if (!m[1] && m.index > 0 && text[m.index - 1] === "<") continue;
       const lineStart = text.lastIndexOf("\n", m.index) + 1;
       if (/^\s*(```|~~~)/.test(text.slice(lineStart, m.index))) continue;
       if (!m[1]) stack.push({ tag: m[2], from: m.index });

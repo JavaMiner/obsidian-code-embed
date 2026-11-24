@@ -2,6 +2,10 @@
 
 Run `npm run build`, `npm test`, and `node --check dist/main.js`. Keep shared UI translations in `CE_LOCALES` in `src/main.js`. Not all legacy strings have been migrated yet.
 
+## Code style
+
+Use descriptive English names for internal state and functions. Keep comments in English for non-obvious behavior, such as Obsidian rendering quirks or the timing of reference validation. Put user-facing labels in the locale dictionaries.
+
 ## Release checklist
 
 1. Update `package.json` version (SemVer), then run `npm run version:sync`.
