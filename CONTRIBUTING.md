@@ -1,6 +1,6 @@
 # Development
 
-Run `npm run build`, `npm test`, and `node --check dist/main.js`. Keep shared UI translations in `src/i18n/*.json` (inlined into `dist/main.js` during the build). Not all legacy strings have been migrated yet.
+Run `npm run build`, `npm test`, and `node --check dist/main.js`. Keep shared UI translations in `CE_LOCALES` in `src/main.js`. Not all legacy strings have been migrated yet.
 
 ## Code style
 
@@ -14,7 +14,3 @@ Use descriptive English names for internal state and functions. Keep comments in
 4. Record desktop and Android results separately using the [visual smoke note](examples/smoke-vault/Prompts/Test%20Code%20Embed.md). Use PASS, FAIL, or NIE URUCHOMIONO for each scenario. Verify the built assets before publishing.
 
 The project uses CC-BY-NC-4.0. GitHub currently reports NOASSERTION on the default branch. Keep the full license text and SPDX metadata consistent.
-
-## Install a development build
-
-Never install `src/main.js`: it is an unbundled source file. Run `node scripts/install.cjs "/absolute/path/to/vault/.obsidian/plugins/code-embed"` to build and copy only the three distributable files. All seven JSON locale dictionaries are embedded in `dist/main.js`; no locale files are loaded by Obsidian at runtime.

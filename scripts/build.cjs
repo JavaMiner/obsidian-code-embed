@@ -1,10 +1,10 @@
 const fs = require("node:fs");
-const assert = require("node:assert/strict");
-const locales = require("../src/i18n/index.js");
-const source = fs.readFileSync("src/main.js", "utf8");
-const importLine = 'const CE_LOCALES = require("./i18n");';
-assert.equal(source.split(importLine).length - 1, 1);
-const bundled = source.replace(importLine, () => "const CE_LOCALES = " + JSON.stringify(locales, null, 2) + ";");
+
 fs.mkdirSync("dist", { recursive: true });
-fs.writeFileSync("dist/main.js", bundled);
-for (const file of ["manifest.json", "styles.css"]) fs.copyFileSync(file, "dist/" + file);
+for (const [source, name] of [
+  ["src/main.js", "main.js"],
+  ["manifest.json", "manifest.json"],
+  ["styles.css", "styles.css"]
+]) {
+  fs.copyFileSync(source, "dist/" + name);
+}
