@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3 — localized folder actions
+
+- Match the seven guide languages for package controls, confirmation dialogs and shared command labels. Prefer the Obsidian interface language.
+
 ## 0.2.2 — folder actions
 
 - Show a labelled root action beside folder names and tint marked folders.

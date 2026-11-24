@@ -6,7 +6,7 @@
 
 ## Define a fragment
 
-In the command palette choose **Insert XML tag** or **Insert Markdown section**. Enter a name and tap OK. A blank name gives you a `var` pair or selects `Nazwa fragmentu` for editing. Selected text becomes the body. Confirm `_xvar` or `_mvar` with **Expand shortcut**.
+In the command palette choose **Insert XML tag** or **Insert Markdown section**. Enter a name and tap OK. A blank name gives you a `var` pair or selects `Fragment name` for editing. Selected text becomes the body. Confirm `_xvar` or `_mvar` with **Expand shortcut**.
 
 Put these equivalent definitions in separate notes or end the section with another heading of the same level.
 

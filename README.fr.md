@@ -6,7 +6,7 @@
 
 ## Définir un fragment
 
-Dans la palette, choisir **Insert XML tag** ou **Insert Markdown section**. Saisir un nom et toucher OK. Un nom vide crée une paire `var` ou sélectionne `Nazwa fragmentu` pour le remplacer. Le texte sélectionné devient le contenu. Confirmer `_xvar` ou `_mvar` avec **Expand shortcut**.
+Dans la palette, choisir **Insérer une balise XML** ou **Insérer une section Markdown**. Saisir un nom et toucher OK. Un nom vide crée une paire `var` ou sélectionne `Nom du fragment` pour le remplacer. Le texte sélectionné devient le contenu. Confirmer `_xvar` ou `_mvar` avec **Développer le raccourci**.
 
 Placer ces définitions équivalentes dans deux notes, ou terminer la section par un autre titre de même niveau.
 
@@ -52,11 +52,11 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Prévisualiser et copier
 
-Les blocs `ce` et `codeembed` affichent la structure. Pour `md` ou `xml`, toucher View. Copy+ copie le texte développé. Le langage du bloc règle la présentation.
+Les blocs `ce` et `codeembed` affichent la structure. Pour `md` ou `xml`, toucher Aperçu. Copy+ copie le texte développé. Le langage du bloc règle la présentation.
 
 ## Limiter la recherche à un paquet
 
-Toucher **+ Root** ou **◆ Root** à côté du dossier, ouvrir le menu par appui long ou choisir le dossier dans la palette. Toucher son nom le déplie. Le marquage crée le fichier indiqué ci-dessous. Confirmer son chemin pour le retirer.
+Toucher **+ Racine** ou **◆ Racine** à côté du dossier, ouvrir le menu par appui long ou choisir le dossier dans la palette. Toucher son nom le déplie. Le marquage crée le fichier indiqué ci-dessous. Confirmer son chemin pour le retirer.
 
 ```text
 Prompts/

@@ -6,7 +6,7 @@
 
 ## Fragment definieren
 
-Über die Befehlspalette **Insert XML tag** oder **Insert Markdown section** wählen. Namen eingeben und auf OK tippen. Ein leerer Name erzeugt ein `var`-Paar oder markiert `Nazwa fragmentu` zum Ersetzen. Markierter Text wird zum Inhalt. `_xvar` und `_mvar` mit **Expand shortcut** bestätigen.
+Über die Befehlspalette **XML-Tag einfügen** oder **Markdown-Abschnitt einfügen** wählen. Namen eingeben und auf OK tippen. Ein leerer Name erzeugt ein `var`-Paar oder markiert `Fragmentname` zum Ersetzen. Markierter Text wird zum Inhalt. `_xvar` und `_mvar` mit **Kürzel erweitern** bestätigen.
 
 Diese gleichwertigen Definitionen in getrennten Notizen anlegen oder den Abschnitt mit einer weiteren Überschrift derselben Ebene abschließen.
 
@@ -52,11 +52,11 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Vorschau und Kopieren
 
-`ce` und `codeembed` öffnen die Strukturansicht. Bei `md` und `xml` auf View tippen. Copy+ kopiert den aufgelösten Text. Die Blocksprache bestimmt die Darstellung.
+`ce` und `codeembed` öffnen die Strukturansicht. Bei `md` und `xml` auf Ansicht tippen. Copy+ kopiert den aufgelösten Text. Die Blocksprache bestimmt die Darstellung.
 
 ## Suche auf ein Paket begrenzen
 
-Auf **+ Root** oder **◆ Root** neben dem Ordner tippen, das Kontextmenü durch langes Drücken öffnen oder den Ordner über die Befehlspalette wählen. Ein Tipp auf den Namen klappt den Ordner auf. Die Markierung erzeugt die unten genannte Datei. Zum Entfernen den Pfad bestätigen.
+Auf **+ Wurzel** oder **◆ Wurzel** neben dem Ordner tippen, das Kontextmenü durch langes Drücken öffnen oder den Ordner über die Befehlspalette wählen. Ein Tipp auf den Namen klappt den Ordner auf. Die Markierung erzeugt die unten genannte Datei. Zum Entfernen den Pfad bestätigen.
 
 ```text
 Prompts/

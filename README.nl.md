@@ -6,7 +6,7 @@
 
 ## Een fragment definiëren
 
-Kies **Insert XML tag** of **Insert Markdown section** in het opdrachtenpalet. Vul een naam in en tik op OK. Zonder naam krijg je een `var`-tagpaar of wordt `Nazwa fragmentu` geselecteerd om te vervangen. Geselecteerde tekst vormt de inhoud. Bevestig `_xvar` of `_mvar` met **Expand shortcut**.
+Kies **XML-tag invoegen** of **Markdown-sectie invoegen** in het opdrachtenpalet. Vul een naam in en tik op OK. Zonder naam krijg je een `var`-tagpaar of wordt `Fragmentnaam` geselecteerd om te vervangen. Geselecteerde tekst vormt de inhoud. Bevestig `_xvar` of `_mvar` met **Afkorting uitwerken**.
 
 Zet deze gelijkwaardige definities in aparte notities of sluit de sectie af met een volgende kop van hetzelfde niveau.
 
@@ -52,11 +52,11 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Bekijken en kopiëren
 
-`ce` en `codeembed` tonen de structuur. Tik bij `md` of `xml` op View. Copy+ kopieert de uitgewerkte tekst. De bloktaal bepaalt de weergave.
+`ce` en `codeembed` tonen de structuur. Tik bij `md` of `xml` op Voorbeeld. Copy+ kopieert de uitgewerkte tekst. De bloktaal bepaalt de weergave.
 
 ## Zoeken binnen een pakket
 
-Tik op **+ Root** of **◆ Root** naast de map, houd de map ingedrukt voor het menu of kies een map in het opdrachtenpalet. Tik op de naam om de map uit te klappen. Markeren maakt onderstaand bestand aan. Bevestig het pad om de markering te verwijderen.
+Tik op **+ Hoofdmap** of **◆ Hoofdmap** naast de map, houd de map ingedrukt voor het menu of kies een map in het opdrachtenpalet. Tik op de naam om de map uit te klappen. Markeren maakt onderstaand bestand aan. Bevestig het pad om de markering te verwijderen.
 
 ```text
 Prompts/

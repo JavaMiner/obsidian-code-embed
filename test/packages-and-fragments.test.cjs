@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 const Base = class {};
 const ctx = { module: { exports: {} }, require: () => new Proxy({}, {
-  get: (_, key) => key === "StateEffect" ? { define: () => ({}) } : Base
+  get: (_, key) => key === "getLanguage" ? undefined : key === "StateEffect" ? { define: () => ({}) } : Base
 }) };
 vm.runInNewContext(fs.readFileSync("dist/main.js", "utf8") +
   "\nglobalThis.api = { parseRef, REF_RE, rewriteText, formatEmbed, insertFragment };", ctx);
@@ -60,7 +60,7 @@ test("insertion preserves selection and positions the caret or title selection",
   }
   for (const [kind, name, output, selection] of [
     ["xml", "style", "<style>abc</style>", [7, 7]],
-    ["markdown", "", "## Nazwa fragmentu\nabc", [3, 18]],
+    ["markdown", "", "## Fragment name\nabc", [3, 16]],
     ["markdown", "Ton", "## Ton\nabc", [7, 7]]
   ]) {
     const ed = editor("abc", 0, 3);

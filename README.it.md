@@ -6,7 +6,7 @@
 
 ## Definire un frammento
 
-Nella tavolozza scegli **Insert XML tag** o **Insert Markdown section**. Inserisci un nome e tocca OK. Un nome vuoto crea una coppia `var` oppure seleziona `Nazwa fragmentu` da sostituire. Il testo selezionato diventa il contenuto. Conferma `_xvar` o `_mvar` con **Expand shortcut**.
+Nella tavolozza scegli **Inserisci tag XML** o **Inserisci sezione Markdown**. Inserisci un nome e tocca OK. Un nome vuoto crea una coppia `var` oppure seleziona `Nome del frammento` da sostituire. Il testo selezionato diventa il contenuto. Conferma `_xvar` o `_mvar` con **Espandi abbreviazione**.
 
 Inserisci queste definizioni equivalenti in note separate oppure termina la sezione con un’altra intestazione dello stesso livello.
 
@@ -52,11 +52,11 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Visualizzare e copiare
 
-`ce` e `codeembed` mostrano la struttura. In `md` o `xml` tocca View. Copy+ copia il testo espanso. Il linguaggio del blocco controlla la presentazione.
+`ce` e `codeembed` mostrano la struttura. In `md` o `xml` tocca Anteprima. Copy+ copia il testo espanso. Il linguaggio del blocco controlla la presentazione.
 
 ## Limitare la ricerca a un pacchetto
 
-Tocca **+ Root** o **◆ Root** accanto alla cartella, tieni premuto per il menu o scegli la cartella dalla tavolozza. Tocca il nome per espanderla. Il contrassegno crea il file indicato sotto. Conferma il percorso per rimuoverlo.
+Tocca **+ Radice** o **◆ Radice** accanto alla cartella, tieni premuto per il menu o scegli la cartella dalla tavolozza. Tocca il nome per espanderla. Il contrassegno crea il file indicato sotto. Conferma il percorso per rimuoverlo.
 
 ```text
 Prompts/

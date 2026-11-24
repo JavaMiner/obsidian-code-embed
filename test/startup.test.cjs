@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const vm = require("node:vm");
 
-function loadPlugin(path, locale) {
+function loadPlugin(path, locale, appLocale) {
   const commands = new Map();
   const noop = () => {};
   class Plugin {
@@ -13,7 +13,7 @@ function loadPlugin(path, locale) {
   for (const method of ["addRibbonIcon", "addSettingTab", "register", "registerEvent",
     "registerDomEvent", "registerView", "registerEditorExtension", "registerEditorSuggest",
     "registerMarkdownPostProcessor"]) Plugin.prototype[method] = noop;
-  const obsidian = { Plugin };
+  const obsidian = { Plugin, getLanguage: () => appLocale };
   for (const type of ["PluginSettingTab", "Modal", "ItemView", "EditorSuggest", "TFolder"]) obsidian[type] = class {};
   const modules = {
     obsidian,
@@ -32,7 +32,7 @@ function loadPlugin(path, locale) {
 }
 
 for (const path of ["src/main.js", "dist/main.js"]) {
-  for (const [locale, command] of [["pl-PL", "Wstaw tag XML"], ["fr-FR", "Insert XML tag"]]) {
+  for (const [locale, command] of [["pl-PL", "Wstaw tag XML"], ["fr-FR", "Insérer une balise XML"], ["sv-SE", "Insert XML tag"]]) {
     test(path + " registers translated commands on startup for " + locale, async () => {
       const { plugin, commands } = loadPlugin(path, locale);
       await plugin.onload();
@@ -123,4 +123,33 @@ test("folder action survives late mounting and recycled rows, preserves folder c
   assert.ok(files.has(folder.path));
   assert.equal(classes.size, 0);
   assert.equal(attached.textContent, "+ Korzeń");
+});
+
+test("app language determines folder labels for every documented locale", () => {
+  const roots = { en: "Root", pl: "Korzeń", de: "Wurzel", fr: "Racine", es: "Raíz", nl: "Hoofdmap", it: "Radice" };
+  const guides = fs.readdirSync(".").filter(name => /^README(?:\.[a-z]+)?\.md$/.test(name));
+  const documented = guides.map(name => name === "README.md" ? "en" : name.split(".")[1]).sort();
+  assert.deepEqual(documented, Object.keys(roots).sort());
+  for (const [lang, root] of Object.entries(roots)) {
+    const { context, plugin } = loadPlugin("dist/main.js", "sv", lang.toUpperCase() + "_XX");
+    context.moment = { locale: () => "sv" };
+    const dictionaries = vm.runInNewContext("CE_LOCALES", context);
+    assert.deepEqual(Object.keys(dictionaries).sort(), documented);
+    const labels = dictionaries[lang];
+    const guide = fs.readFileSync(lang === "en" ? "README.md" : "README." + lang + ".md", "utf8");
+    const button = { dataset: {}, setAttribute(key, value) { this[key] = value; } };
+    const row = { classList: { toggle() {} }, querySelector: () => button };
+    const folder = { path: "My $& folder" };
+    for (const marked of [false, true]) {
+      plugin.app.vault.getAbstractFileByPath = () => marked ? {name: "_code-embed-root.md"} : null;
+      plugin.decorateFolder(row, folder);
+      assert.equal(button.textContent, (marked ? "◆ " : "+ ") + root);
+      assert.ok(guide.includes(button.textContent));
+      assert.equal(button.title, marked ? labels.unmarkFolder : labels.markFolder);
+      assert.equal(button["aria-label"], button.title + " — " + folder.path);
+    }
+    const confirm = vm.runInNewContext('t("confirmUnmark", {path: "My $& folder/_code-embed-root.md"})', context);
+    assert.equal(confirm, labels.confirmUnmark.replace("{path}", () => folder.path + "/_code-embed-root.md"));
+    assert.ok(confirm.includes(folder.path));
+  }
 });

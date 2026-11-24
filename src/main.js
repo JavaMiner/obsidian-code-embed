@@ -2,7 +2,7 @@
 // Rozwija ![…] w blokach kodu, Drzewo/View dla xml/md, panele powiązań,
 // rename (plik / tag XML / sekcja / odnośnik) z konwersją tag <-> nagłówek.
 'use strict';
-const { Plugin, PluginSettingTab, Setting, Modal, ItemView, MarkdownRenderer, MarkdownView, Notice, Component, MarkdownRenderChild, editorInfoField, editorLivePreviewField, FuzzySuggestModal, EditorSuggest, TFolder } = require("obsidian");
+const { Plugin, PluginSettingTab, Setting, Modal, ItemView, MarkdownRenderer, MarkdownView, Notice, Component, MarkdownRenderChild, editorInfoField, editorLivePreviewField, FuzzySuggestModal, EditorSuggest, TFolder, getLanguage } = require("obsidian");
 const { ViewPlugin, EditorView, Decoration, WidgetType } = require("@codemirror/view");
 const { RangeSetBuilder, StateEffect, StateField } = require("@codemirror/state");
 
@@ -27,7 +27,17 @@ const CE_LOCALES = {
     "rootSet": "+ Root",
     "rootActive": "◆ Root",
     "markFolder": "Set folder as Code Embed root",
-    "unmarkFolder": "Remove Code Embed root marker"
+    "unmarkFolder": "Remove Code Embed root marker",
+    "rootColor": "Package folder color",
+    "rootColorHelp": "Color used to highlight Code Embed root folders.",
+    "restoreDefault": "Restore default",
+    "confirmUnmark": "Remove the marker {path}?",
+    "removeMarker": "Remove {path}",
+    "markerIsFolder": "The marker path is a folder: {path}",
+    "cancel": "Cancel",
+    "fragmentName": "Fragment name",
+    "invalidTag": "Enter a valid tag name.",
+    "invalidTitle": "The title contains an invalid character."
   },
   "pl": {
     "view": "Podgląd",
@@ -49,14 +59,185 @@ const CE_LOCALES = {
     "rootSet": "+ Korzeń",
     "rootActive": "◆ Korzeń",
     "markFolder": "Ustaw katalog jako korzeń Code Embed",
-    "unmarkFolder": "Usuń oznaczenie korzenia Code Embed"
+    "unmarkFolder": "Usuń oznaczenie korzenia Code Embed",
+    "rootColor": "Kolor katalogu pakietu",
+    "rootColorHelp": "Kolor oznaczenia korzenia Code Embed.",
+    "restoreDefault": "Przywróć domyślny",
+    "confirmUnmark": "Usunąć znacznik {path}?",
+    "removeMarker": "Usuń {path}",
+    "markerIsFolder": "Ścieżka znacznika jest katalogiem: {path}",
+    "cancel": "Anuluj",
+    "fragmentName": "Nazwa fragmentu",
+    "invalidTag": "Podaj poprawną nazwę tagu.",
+    "invalidTitle": "Tytuł zawiera niedozwolony znak."
+  },
+  "de": {
+    "view": "Ansicht",
+    "code": "Code",
+    "copy": "Copy+",
+    "copied": "Kopiert",
+    "panel": "Code Embed: Verknüpfungen und Fehler",
+    "openPanel": "Code-Embed-Übersicht öffnen",
+    "empty": "Keine.",
+    "copyBlock": "Erweiterten Codeblock an der Cursorposition kopieren",
+    "notInBlock": "Der Cursor befindet sich außerhalb eines Codeblocks.",
+    "blockCopied": "Erweiterter Block kopiert.",
+    "backlinks": "Rückverweise",
+    "support": "Code Embed unterstützen",
+    "insertXml": "XML-Tag einfügen",
+    "insertMarkdown": "Markdown-Abschnitt einfügen",
+    "expandShortcut": "Kürzel erweitern",
+    "chooseFolder": "Paketordner auswählen",
+    "rootSet": "+ Wurzel",
+    "rootActive": "◆ Wurzel",
+    "markFolder": "Ordner als Code-Embed-Paketwurzel festlegen",
+    "unmarkFolder": "Markierung als Paketwurzel entfernen",
+    "rootColor": "Farbe des Paketordners",
+    "rootColorHelp": "Farbe zur Kennzeichnung von Paketwurzeln.",
+    "restoreDefault": "Standard wiederherstellen",
+    "confirmUnmark": "Markierungsdatei {path} entfernen?",
+    "removeMarker": "{path} entfernen",
+    "markerIsFolder": "Der Markierungspfad ist ein Ordner: {path}",
+    "cancel": "Abbrechen",
+    "fragmentName": "Fragmentname",
+    "invalidTag": "Gib einen gültigen Tag-Namen ein.",
+    "invalidTitle": "Der Titel enthält ein unzulässiges Zeichen."
+  },
+  "fr": {
+    "view": "Aperçu",
+    "code": "Code",
+    "copy": "Copy+",
+    "copied": "Copié",
+    "panel": "Code Embed : liens et erreurs",
+    "openPanel": "Ouvrir le panneau Code Embed",
+    "empty": "Aucun.",
+    "copyBlock": "Copier le bloc de code développé au niveau du curseur",
+    "notInBlock": "Le curseur est en dehors d’un bloc de code.",
+    "blockCopied": "Bloc développé copié.",
+    "backlinks": "Liens entrants",
+    "support": "Soutenir Code Embed",
+    "insertXml": "Insérer une balise XML",
+    "insertMarkdown": "Insérer une section Markdown",
+    "expandShortcut": "Développer le raccourci",
+    "chooseFolder": "Choisir le dossier du paquet",
+    "rootSet": "+ Racine",
+    "rootActive": "◆ Racine",
+    "markFolder": "Définir ce dossier comme racine Code Embed",
+    "unmarkFolder": "Retirer le marqueur de racine Code Embed",
+    "rootColor": "Couleur du dossier du paquet",
+    "rootColorHelp": "Couleur utilisée pour repérer les dossiers racines.",
+    "restoreDefault": "Rétablir la valeur par défaut",
+    "confirmUnmark": "Retirer le marqueur {path} ?",
+    "removeMarker": "Retirer {path}",
+    "markerIsFolder": "Le chemin du marqueur désigne un dossier : {path}",
+    "cancel": "Annuler",
+    "fragmentName": "Nom du fragment",
+    "invalidTag": "Saisissez un nom de balise valide.",
+    "invalidTitle": "Le titre contient un caractère non autorisé."
+  },
+  "es": {
+    "view": "Vista previa",
+    "code": "Código",
+    "copy": "Copy+",
+    "copied": "Copiado",
+    "panel": "Code Embed: enlaces y errores",
+    "openPanel": "Abrir el panel de Code Embed",
+    "empty": "Ninguno.",
+    "copyBlock": "Copiar el bloque de código expandido en el cursor",
+    "notInBlock": "El cursor está fuera de un bloque de código.",
+    "blockCopied": "Bloque expandido copiado.",
+    "backlinks": "Enlaces entrantes",
+    "support": "Apoyar a Code Embed",
+    "insertXml": "Insertar etiqueta XML",
+    "insertMarkdown": "Insertar sección Markdown",
+    "expandShortcut": "Expandir abreviatura",
+    "chooseFolder": "Elegir carpeta del paquete",
+    "rootSet": "+ Raíz",
+    "rootActive": "◆ Raíz",
+    "markFolder": "Establecer la carpeta como raíz de Code Embed",
+    "unmarkFolder": "Quitar el marcador de raíz de Code Embed",
+    "rootColor": "Color de la carpeta del paquete",
+    "rootColorHelp": "Color para resaltar las carpetas raíz.",
+    "restoreDefault": "Restablecer el valor predeterminado",
+    "confirmUnmark": "¿Quitar el marcador {path}?",
+    "removeMarker": "Quitar {path}",
+    "markerIsFolder": "La ruta del marcador es una carpeta: {path}",
+    "cancel": "Cancelar",
+    "fragmentName": "Nombre del fragmento",
+    "invalidTag": "Introduce un nombre de etiqueta válido.",
+    "invalidTitle": "El título contiene un carácter no válido."
+  },
+  "nl": {
+    "view": "Voorbeeld",
+    "code": "Code",
+    "copy": "Copy+",
+    "copied": "Gekopieerd",
+    "panel": "Code Embed: koppelingen en fouten",
+    "openPanel": "Code Embed-paneel openen",
+    "empty": "Geen.",
+    "copyBlock": "Uitgewerkt codeblok bij de cursor kopiëren",
+    "notInBlock": "De cursor staat buiten een codeblok.",
+    "blockCopied": "Uitgewerkt blok gekopieerd.",
+    "backlinks": "Terugverwijzingen",
+    "support": "Code Embed steunen",
+    "insertXml": "XML-tag invoegen",
+    "insertMarkdown": "Markdown-sectie invoegen",
+    "expandShortcut": "Afkorting uitwerken",
+    "chooseFolder": "Pakketmap kiezen",
+    "rootSet": "+ Hoofdmap",
+    "rootActive": "◆ Hoofdmap",
+    "markFolder": "Map instellen als hoofdmap van Code Embed",
+    "unmarkFolder": "Markering als hoofdmap verwijderen",
+    "rootColor": "Kleur van de pakketmap",
+    "rootColorHelp": "Kleur voor het markeren van hoofdmappen.",
+    "restoreDefault": "Standaardwaarde herstellen",
+    "confirmUnmark": "Markeringsbestand {path} verwijderen?",
+    "removeMarker": "{path} verwijderen",
+    "markerIsFolder": "Het markeringspad verwijst naar een map: {path}",
+    "cancel": "Annuleren",
+    "fragmentName": "Fragmentnaam",
+    "invalidTag": "Voer een geldige tagnaam in.",
+    "invalidTitle": "De titel bevat een ongeldig teken."
+  },
+  "it": {
+    "view": "Anteprima",
+    "code": "Codice",
+    "copy": "Copy+",
+    "copied": "Copiato",
+    "panel": "Code Embed: collegamenti ed errori",
+    "openPanel": "Apri il pannello di Code Embed",
+    "empty": "Nessuno.",
+    "copyBlock": "Copia il blocco di codice espanso in corrispondenza del cursore",
+    "notInBlock": "Il cursore è fuori da un blocco di codice.",
+    "blockCopied": "Blocco espanso copiato.",
+    "backlinks": "Collegamenti in entrata",
+    "support": "Sostieni Code Embed",
+    "insertXml": "Inserisci tag XML",
+    "insertMarkdown": "Inserisci sezione Markdown",
+    "expandShortcut": "Espandi abbreviazione",
+    "chooseFolder": "Scegli la cartella del pacchetto",
+    "rootSet": "+ Radice",
+    "rootActive": "◆ Radice",
+    "markFolder": "Imposta la cartella come radice di Code Embed",
+    "unmarkFolder": "Rimuovi il marcatore di radice di Code Embed",
+    "rootColor": "Colore della cartella del pacchetto",
+    "rootColorHelp": "Colore usato per evidenziare le cartelle radice.",
+    "restoreDefault": "Ripristina il valore predefinito",
+    "confirmUnmark": "Rimuovere il marcatore {path}?",
+    "removeMarker": "Rimuovi {path}",
+    "markerIsFolder": "Il percorso del marcatore è una cartella: {path}",
+    "cancel": "Annulla",
+    "fragmentName": "Nome del frammento",
+    "invalidTag": "Inserisci un nome di tag valido.",
+    "invalidTitle": "Il titolo contiene un carattere non valido."
   }
 };
 
-function t(key) {
-  const locale = globalThis.moment?.locale?.() || globalThis.navigator?.language || "en";
+function t(key, values = {}) {
+  const locale = getLanguage?.() || globalThis.moment?.locale?.() || globalThis.navigator?.language || "en";
   const language = locale.toLowerCase().split(/[-_]/)[0];
-  return CE_LOCALES[language]?.[key] ?? CE_LOCALES.en[key] ?? key;
+  const message = CE_LOCALES[language]?.[key] ?? CE_LOCALES.en[key] ?? key;
+  return message.replace(/\{(\w+)\}/g, (token, name) => values[name] ?? token);
 }
 
 const PANES = ["outgoing-link", "backlink"];
@@ -620,7 +801,7 @@ class CodeEmbedSettings extends PluginSettingTab {
   color(el, key, name, desc) {
     new Setting(el).setName(name).setDesc(desc)
       .addColorPicker((c) => c.setValue(this.plugin.settings[key] || COLOR_FALLBACK[key]).onChange((v) => this.set(key, v)))
-      .addExtraButton((b) => b.setIcon("rotate-ccw").setTooltip("Domyślny").onClick(async () => {
+      .addExtraButton((b) => b.setIcon("rotate-ccw").setTooltip(t("restoreDefault")).onClick(async () => {
         await this.set(key, "");
         this.display();
       }));
@@ -630,7 +811,7 @@ class CodeEmbedSettings extends PluginSettingTab {
     const { containerEl: el } = this;
     el.empty();
 
-    this.color(el, "packageColor", "Kolor katalogu pakietu", "Kolor oznaczenia korzenia Code Embed.");
+    this.color(el, "packageColor", t("rootColor"), t("rootColorHelp"));
     new Setting(el).setName("Rozwijanie odwołań").setHeading();
     this.slider(el, "maxDepth", "Maksymalna głębokość zagnieżdżeń",
       "Limit zagnieżdżonych ![…]. Wpływa na rozwijanie, panele i sprawdzanie odwołań.", 1, 10, 1);
@@ -1117,7 +1298,7 @@ class CodeEmbedPlugin extends Plugin {
     const chooseFolder = async () => {
       const folders = [this.app.vault.getRoot(), ...this.app.vault.getAllLoadedFiles().filter(f =>
         f instanceof TFolder && f !== this.app.vault.getRoot())];
-      const choice = await pickOne(this.app, "Wybierz katalog", folders.map(folder =>
+      const choice = await pickOne(this.app, t("chooseFolder"), folders.map(folder =>
         ({ folder, label: folder.path + " — " + action(folder) })));
       if (choice) await this.toggleFolder(choice.folder);
     };
@@ -1194,9 +1375,9 @@ class CodeEmbedPlugin extends Plugin {
     const path = markerPath(folder.path), existing = this.app.vault.getAbstractFileByPath(path);
     try {
       if (!existing) { await this.app.vault.create(path, ""); return; }
-      if (existing instanceof TFolder) { new Notice("Ścieżka jest katalogiem: " + path); return; }
-      const choice = await pickOne(this.app, "Usunąć znacznik " + path + "?",
-        [{ label: "Anuluj" }, { label: "Usuń " + path, remove: true }]);
+      if (existing instanceof TFolder) { new Notice(t("markerIsFolder", { path })); return; }
+      const choice = await pickOne(this.app, t("confirmUnmark", { path }),
+        [{ label: t("cancel") }, { label: t("removeMarker", { path }), remove: true }]);
       if (choice?.remove && existing.path === path && this.app.vault.getAbstractFileByPath(path) === existing)
         await this.app.vault.trash(existing, true);
     } catch (error) { new Notice(error.message); }
@@ -1990,7 +2171,7 @@ function insertFragment(editor, kind, name, trigger = "") {
     suffix = "</" + tag + ">";
     selectionStart = selectionEnd = prefix.length;
   } else {
-    const title = name || "Nazwa fragmentu";
+    const title = name || t("fragmentName");
     const newline = editor.getLine(from.line).slice(0, from.ch - trigger.length).length ? "\n" : "";
     prefix = newline + "## " + title + "\n";
     suffix = editor.getLine(to.line).slice(to.ch) ? "\n" : "";
@@ -2012,8 +2193,8 @@ async function promptFragment(app, editor, kind, trigger = "") {
   const to = editor.posToOffset(editor.getCursor("to"));
   const xml = kind === "xml";
   const name = await askText(app, xml ? t("insertXml") : t("insertMarkdown"), "",
-    value => xml && value && !/^[A-Za-z_][\w.:\-]*$/.test(value) ? "Podaj poprawną nazwę tagu." :
-      !xml && value && badSectionName(value) ? "Tytuł zawiera niedozwolony znak." : null);
+    value => xml && value && !/^[A-Za-z_][\w.:\-]*$/.test(value) ? t("invalidTag") :
+      !xml && value && badSectionName(value) ? t("invalidTitle") : null);
   if (name === null || editor.getValue() !== before) return;
   editor.focus();
   editor.setSelection(editor.offsetToPos(from), editor.offsetToPos(to));
@@ -2037,7 +2218,7 @@ function askText(app, title, initial, validate) {
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); submit(); } });
     new Setting(modal.contentEl)
       .addButton((b) => b.setButtonText("OK").setCta().onClick(submit))
-      .addButton((b) => b.setButtonText("Anuluj").onClick(() => modal.close()));
+      .addButton((b) => b.setButtonText(t("cancel")).onClick(() => modal.close()));
     modal.onClose = () => { modal.contentEl.empty(); if (!done) resolve(null); };
     modal.open();
     setTimeout(() => { input.focus(); input.select(); }, 30);
