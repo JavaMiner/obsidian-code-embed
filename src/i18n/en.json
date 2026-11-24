@@ -10,5 +10,11 @@
   "notInBlock": "The cursor is not in a code block.",
   "blockCopied": "Expanded block copied.",
   "backlinks": "Backlinks",
-  "support": "Support Code Embed"
+  "support": "Support Code Embed",
+  "insertXml": "Insert XML tag",
+  "insertMarkdown": "Insert Markdown section",
+  "expandShortcut": "Expand shortcut",
+  "chooseFolder": "Choose package folder",
+  "markFolder": "Set folder as Code Embed root",
+  "unmarkFolder": "Remove Code Embed root marker"
 }

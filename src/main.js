@@ -1,8 +1,8 @@
 // main.js — Code Embed
-// Rozwija ![[…]] w blokach kodu, Drzewo/View dla xml/md, panele powiązań,
+// Rozwija ![…] w blokach kodu, Drzewo/View dla xml/md, panele powiązań,
 // rename (plik / tag XML / sekcja / odnośnik) z konwersją tag <-> nagłówek.
 'use strict';
-const { Plugin, PluginSettingTab, Setting, Modal, ItemView, MarkdownRenderer, MarkdownView, Notice, Component, MarkdownRenderChild, editorInfoField, editorLivePreviewField, FuzzySuggestModal } = require("obsidian");
+const { Plugin, PluginSettingTab, Setting, Modal, ItemView, MarkdownRenderer, MarkdownView, Notice, Component, MarkdownRenderChild, editorInfoField, editorLivePreviewField, FuzzySuggestModal, EditorSuggest, TFolder } = require("obsidian");
 const { ViewPlugin, EditorView, Decoration, WidgetType } = require("@codemirror/view");
 const { RangeSetBuilder, StateEffect, StateField } = require("@codemirror/state");
 
@@ -13,6 +13,7 @@ const REF_RE = () => /(?<esc>\\)?(?<all>(?=[!$]\[\[?(?<ref>[^\[\]\r\n]+)\])(?:!\
 const hasEmbed = (text) => text.includes('![') || text.includes('$[');
 
 const DEFAULTS = {
+  packageColor: "#498b78",
   maxDepth: 5,
   livePreview: true,
   viewTree: true,
@@ -44,6 +45,7 @@ const DEFAULTS = {
 };
 
 const COLOR_FALLBACK = {
+  packageColor: "#498b78",
   cWidgetBorder: "#1c0020",
   cWidgetBg: "#17101d",
   cErrBorder: "#e5484d",
@@ -135,6 +137,7 @@ function fenceAware(lines) {
 
 // Parser odwołania: "x:<tag>", "x:<<tag>>", "x:10-20", "x#sekcja", "x##sekcja", "x#H1#H2", z opcjonalnym "(args)".
 function parseRef(ref) {
+  if (/^\d+-(?:-\d+|\d*)$/.test(ref.trim())) ref = ".:" + ref.trim();
   if (/^\s*[:<#]/.test(ref)) ref = '.:' + ref.trimStart().replace(/^:/, '');
   const hashAt = ref.indexOf("#"), colAt = ref.indexOf(":");
   let name, range = "", heading = false;
@@ -160,6 +163,22 @@ function parseRef(ref) {
 
 // Natywnie obsługiwane przez Obsidiana: x#sekcja (ale nie x##sekcja).
 const isNativeHeading = (p) => p.heading && !p.range.startsWith("##") && p.args === null && p.name !== "." && p.name !== "";
+
+function argumentSuffix(ref, parsed) {
+  return parsed.args === null ? "" : ref.slice(ref.indexOf("(", ref.indexOf(parsed.range) + parsed.range.length));
+}
+
+function formatEmbed(ref) {
+  const p = parseRef(ref);
+  const source = p.name === "." ? "" : p.name;
+  return "![" + source + (source && p.range ? ":" : "") + p.range + argumentSuffix(ref, p) + "]";
+}
+
+function ownsWikiEmbed(p, ref = "") {
+  if (/^\s*#(?!#)/.test(ref)) return false;
+  return Boolean(p.range && !isNativeHeading(p) && !p.range.startsWith("#^")) ||
+    p.name === "." && !p.range.startsWith("#^");
+}
 
 const normTitle = (s) => s.replace(/[*_`]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
 
@@ -451,7 +470,7 @@ function makeMarkdownEditorExt(plugin) {
       if (/^(?: {4}|\t)/.test(text)) continue;
       const re = REF_RE(); let m;
       while ((m = re.exec(text)) !== null) {
-        if (m.groups.esc || (!m.groups.all.startsWith("![[") ? false : !plugin.handlesMarkdownRef(m.groups.ref, path))) continue;
+        if (m.groups.esc || (m.groups.all.startsWith("![[") && !plugin.handlesMarkdownRef(m.groups.ref, path))) continue;
         // Nie interpretuj odwołań wewnątrz `inline code`.
         const prefix = text.slice(0, m.index);
         let tick = null;
@@ -483,7 +502,7 @@ function makeMarkdownEditorExt(plugin) {
   });
 }
 
-// Nawigacja Ctrl/Cmd+klik po NIE-natywnych odnośnikach [[…]] / ![[…]] w Live Preview
+// Nawigacja Ctrl/Cmd+klik po NIE-natywnych odnośnikach [[…]] / ![…] w Live Preview
 // (np. [[x:<<tag>>]]) – Obsidian sam ich nie obsługuje.
 function makeLinkNavExt(plugin) {
   return EditorView.domEventHandlers({
@@ -558,11 +577,12 @@ class CodeEmbedSettings extends PluginSettingTab {
     const { containerEl: el } = this;
     el.empty();
 
+    this.color(el, "packageColor", "Kolor katalogu pakietu", "Kolor oznaczenia korzenia Code Embed.");
     new Setting(el).setName("Rozwijanie odwołań").setHeading();
     this.slider(el, "maxDepth", "Maksymalna głębokość zagnieżdżeń",
-      "Limit zagnieżdżonych ![[…]]. Wpływa na rozwijanie, panele i sprawdzanie odwołań.", 1, 10, 1);
+      "Limit zagnieżdżonych ![…]. Wpływa na rozwijanie, panele i sprawdzanie odwołań.", 1, 10, 1);
     this.toggle(el, "livePreview", "Widżety w edytorze",
-      "Podmienia ![[... …]] w blokach kodu na rozwiniętą treść, gdy kursor nie jest w danej linii.");
+      "Podmienia ![... …] w blokach kodu na rozwiniętą treść, gdy kursor nie jest w danej linii.");
 
     new Setting(el).setName("Tryb View").setHeading();
     this.toggle(el, "viewTree", "Drzewo znaczników",
@@ -572,9 +592,9 @@ class CodeEmbedSettings extends PluginSettingTab {
     this.slider(el, "treeOpenDepth", "Domyślne rozwinięcie drzewa",
       "Do jakiej głębokości węzły są domyślnie otwarte (0 = wszystko zwinięte).", 0, 10, 1);
     this.slider(el, "inlineMax", "Zwijanie krótkich importów (znaki)",
-      "Import ![[…]], którego rozwinięcie jest jedną krótką linią (jak zmienna), jest domyślnie zwinięty do chipa z wartością. 0 = zawsze rozwinięte.", 0, 200, 10);
+      "Import ![…], którego rozwinięcie jest jedną krótką linią (jak zmienna), jest domyślnie zwinięty do chipa z wartością. 0 = zawsze rozwinięte.", 0, 200, 10);
     this.toggle(el, "buttonsOnPlain", "Przyciski na blokach bez importów",
-      "Pokazuje View i Copy+ także na blokach md i xml, które nie zawierają ![[…]].");
+      "Pokazuje View i Copy+ także na blokach md i xml, które nie zawierają ![…].");
 
     new Setting(el).setName("Panele boczne").setHeading();
     this.toggle(el, "showPanels", "Sekcja Code Embed w panelach natywnych",
@@ -590,17 +610,17 @@ class CodeEmbedSettings extends PluginSettingTab {
 
     new Setting(el).setName("Zmiana nazw").setHeading();
     this.toggle(el, "autoRenameFile", "Aktualizuj odwołania po zmianie nazwy pliku",
-      "Po zmianie nazwy notatki przepisuje osadzenia ![[…]] (w blokach kodu i z zakresem). Ręczne polecenia Rename działają zawsze.");
+      "Po zmianie nazwy notatki przepisuje osadzenia ![…] (w blokach kodu i z zakresem). Ręczne polecenia Rename działają zawsze.");
     this.toggle(el, "autoRenameTag", "Aktualizuj odwołania po zmianie nazwy tagu",
-      "Wykrywa zmianę nazwy pary <tag>…</tag> w notatce i przepisuje ![[x:<tag>]] / ![[x:<<tag>>]].");
+      "Wykrywa zmianę nazwy pary <tag>…</tag> w notatce i przepisuje ![x:<tag>] / ![x:<<tag>>].");
     this.toggle(el, "autoRenameSection", "Aktualizuj odwołania po zmianie nazwy sekcji",
-      "Wykrywa zmianę tekstu nagłówka i przepisuje ![[x:#Sekcja]], ![[x:##Sekcja]] oraz ![[x#Sekcja]].");
+      "Wykrywa zmianę tekstu nagłówka i przepisuje ![x:#Sekcja], ![x:##Sekcja].");
     this.toggle(el, "renameNotice", "Pokazuj podsumowanie zmian",
       "Po automatycznej lub ręcznej zmianie nazwy wyświetla liczbę poprawionych odwołań.");
 
     new Setting(el).setName("Ostrzeżenia").setHeading();
     this.toggle(el, "warnBroken", "Ostrzegaj o zerwanych odwołaniach",
-      "Po zmianie nazwy pliku, tagu lub sekcji pokazuje okno z listą odwołań ![[…]], które przestały działać. Wyciszane automatycznie podczas operacji Rename.");
+      "Po zmianie nazwy pliku, tagu lub sekcji pokazuje okno z listą odwołań ![…], które przestały działać. Wyciszane automatycznie podczas operacji Rename.");
     this.slider(el, "validateDelay", "Opóźnienie sprawdzania (ms)",
       "Czas od ostatniej zmiany, po którym wtyczka sprawdza odwołania.", 500, 10000, 500);
 
@@ -636,7 +656,7 @@ class BrokenModal extends Modal {
     for (const b of this.list) {
       const row = box.createDiv({ cls: "ce-broken-row" });
       row.createDiv({ cls: "ce-broken-path", text: b.file.path + " : L" + (b.line + 1) });
-      row.createEl("code", { text: "![[" + b.ref + "]]" });
+      row.createEl("code", { text: formatEmbed(b.ref) });
       row.createDiv({ cls: "ce-broken-why", text: b.why });
       row.onclick = () => { this.close(); this.plugin.goTo(b.file, b.line, b.ch); };
     }
@@ -658,6 +678,96 @@ class BrokenModal extends Modal {
 // =====================================================================
 // Plugin
 // =====================================================================
+
+class EmbedSuggest extends EditorSuggest {
+  constructor(app, plugin) { super(app); this.plugin = plugin; }
+  onTrigger(cursor, editor, file) {
+    if (!file) return null;
+    const line = editor.getLine(cursor.line), before = line.slice(0, cursor.ch);
+    const m = /(?:^|[^\\\\])!\[([^\[\]]*)$/.exec(before);
+    if (!m || /^\]\s*[([]/.test(line.slice(cursor.ch))) return null;
+    return { start: { line: cursor.line, ch: cursor.ch - m[1].length - 2 },
+      end: { line: cursor.line, ch: cursor.ch + Number(line[cursor.ch] === "]") }, query: m[1] };
+  }
+  async getSuggestions({ file, query }) {
+    const index = this.plugin.packages(), root = index.root(file.path);
+    const pos = query.indexOf(":"), local = /^[#<]/.test(query);
+    if (pos < 0 && !local) {
+      const files = root === null ? this.app.vault.getMarkdownFiles() : index.groups.get(root) || [];
+      return files.filter(f => f.extension === "md" && f.name !== MARKER &&
+        f.path.toLowerCase().includes(query.toLowerCase())).map(f => {
+        const short = this.plugin.findFile(f.basename, file.path) === f;
+        const name = short ? f.basename : root === null ? f.path : relativeTo(root, f.path);
+        return formatEmbed(name);
+      }).slice(0, 80);
+    }
+    const name = local ? "" : query.slice(0, pos), prefix = local ? query : query.slice(pos + 1);
+    const target = this.plugin.findFile(name, file.path);
+    if (!target) return [];
+    const body = await this.plugin.read(target);
+    const selectors = [...headingsOf(body, true).flatMap(h => ["#" + h, "##" + h]),
+      ...tagsOf(body).flatMap(tag => ["<" + tag + ">", "<<" + tag + ">>"])];
+    return selectors.filter(s => s.toLowerCase().startsWith(prefix.toLowerCase()))
+      .map(s => formatEmbed((name ? name + ":" : "") + s)).slice(0, 80);
+  }
+  renderSuggestion(value, el) { el.setText(value); }
+  selectSuggestion(value) {
+    const { editor, start, end } = this.context;
+    editor.replaceRange(value, start, end);
+    editor.setCursor({ line: start.line, ch: start.ch + value.length });
+  }
+}
+
+const MARKER = "_code-embed-root.md";
+const folderOf = path => path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "";
+const relativeTo = (root, path) => root ? path.slice(root.length + 1) : path;
+const markerPath = root => (root && root !== "/" ? root + "/" : "") + MARKER;
+
+class PackageIndex {
+  constructor(files) {
+    this.roots = new Set(files.filter(f => f.name === MARKER).map(f => folderOf(f.path)));
+    this.groups = new Map();
+    for (const file of files) {
+      if (file.name === MARKER) continue;
+      const root = this.root(file.path);
+      if (root === null) continue;
+      if (!this.groups.has(root)) this.groups.set(root, []);
+      this.groups.get(root).push(file);
+    }
+  }
+
+  root(path) {
+    let folder = folderOf(path);
+    while (!this.roots.has(folder)) {
+      if (!folder) return null;
+      folder = folderOf(folder);
+    }
+    return folder;
+  }
+
+  lookup(name, root) {
+    const available = this.groups.get(root) || [];
+    const safe = !name.includes("\\") && name.split("/").every(s => s && s !== "." && s !== "..");
+    let hits = [];
+    if (safe && name.includes("/")) {
+      hits = available.filter(f => {
+        const rel = relativeTo(root, f.path);
+        return rel === name || rel === name + ".md";
+      });
+    } else if (safe) {
+      hits = available.filter(f => f.name === name || f.extension === "md" && f.basename === name);
+      // A root-level duplicate can be selected by its complete filename.
+      if (hits.length > 1 && name.endsWith(".md")) {
+        const exact = hits.find(f => relativeTo(root, f.path) === name);
+        if (exact) hits = [exact];
+      }
+    }
+    if (hits.length === 1 && this.root(hits[0].path) === root) return { file: hits[0] };
+    const where = " (pakiet: " + (root || "/") + ")";
+    return { error: hits.length > 1 ? "nazwa niejednoznaczna w pakiecie: " + name + where + " — " +
+      hits.map(f => relativeTo(root, f.path)).sort().join(", ") : "nie znaleziono w pakiecie: " + name + where };
+  }
+}
 
 class CodeEmbedPlugin extends Plugin {
   async onload() {
@@ -683,7 +793,14 @@ class CodeEmbedPlugin extends Plugin {
     this.applyColors();
     const funding = this.manifest.fundingUrl;
     const link = typeof funding === "string" ? funding : Object.values(funding || {})[0];
-    if (link && /^https:\/\//i.test(link)) this.addCommand({id:"support",name:t("support"),callback:()=>window.open(link,"_blank","noopener,noreferrer")});
+    if (link && /^https:\/\//i.test(link)) this.addCommand({
+      id: "support", name: t("support"), callback: async () => {
+        const links = typeof funding === "string" ? [[t("support"), funding]] : Object.entries(funding);
+        const options = links.filter(([, url]) => /^https:\/\//i.test(url)).map(([label, url]) => ({ label, url }));
+        const choice = options.length === 1 ? options[0] : await pickOne(this.app, t("support"), options);
+        if (choice) window.open(choice.url, "_blank", "noopener,noreferrer");
+      }
+    });
 
     this.registerView(VIEW_TYPE, (leaf) => new CEPanel(leaf, this));
     this.addRibbonIcon("link", t("panel"), () => this.openPanel());
@@ -711,8 +828,23 @@ class CodeEmbedPlugin extends Plugin {
 
     const ws = this.app.workspace, v = this.app.vault;
     this.registerEvent(v.on("modify", (f) => { this.refIndex.delete(f.path); this.rawIndex.delete(f.path); this.invalidate(); this.scheduleInject(); this.scheduleValidate(); }));
-    this.registerEvent(v.on("rename", () => { this.refIndex.clear(); this.rawIndex.clear(); this.invalidate(); this.scheduleInject(); this.scheduleValidate(); }));
-    this.registerEvent(v.on("delete", () => { this.refIndex.clear(); this.rawIndex.clear(); this.invalidate(); this.scheduleInject(); this.scheduleValidate(); }));
+    const refreshFiles = () => {
+      this.packageIndex = null;
+      this.cache.clear();
+      this.refIndex.clear();
+      this.rawIndex.clear();
+      this.invalidate();
+      this.scheduleInject();
+      this.scheduleValidate();
+      this.scheduleFolders();
+      this.suggest?.close();
+    };
+    this.registerEvent(v.on("create", refreshFiles));
+    this.registerEvent(v.on("delete", refreshFiles));
+    this.registerEvent(v.on("rename", (file, oldPath) => {
+      refreshFiles();
+      this.trackMovedSources(file, oldPath).catch(console.error);
+    }));
 
     this.registerEvent(ws.on("file-open", () => this.scheduleInject()));
     this.registerEvent(ws.on("active-leaf-change", () => this.scheduleInject()));
@@ -722,6 +854,20 @@ class CodeEmbedPlugin extends Plugin {
       setTimeout(() => this.validate(true), 3000);
     });
 
+    for (const [kind, name] of [["xml", t("insertXml")], ["markdown", t("insertMarkdown")]]) {
+      this.addCommand({ id: "insert-" + kind, name,
+        editorCallback: editor => promptFragment(this.app, editor, kind) });
+    }
+    this.addCommand({ id: "expand-shortcut", name: t("expandShortcut"),
+      editorCheckCallback: (checking, editor) => {
+        const trigger = triggerAt(editor);
+        if (!trigger) return false;
+        if (!checking) promptFragment(this.app, editor, trigger === "_xvar" ? "xml" : "markdown", trigger);
+        return true;
+      } });
+    this.setupFolders();
+    this.suggest = new EmbedSuggest(this.app, this);
+    this.registerEditorSuggest(this.suggest);
     this.setupRename();
     this.registerDomEvent(document, "click", (e) => this.onClick(e), true);
   }
@@ -748,6 +894,7 @@ class CodeEmbedPlugin extends Plugin {
     setv("--ce-err-border", s.cErrBorder);
     setv("--ce-err-bg", s.cErrBg ? rgba(s.cErrBg, s.cErrBgAlpha) : "");
     setv("--ce-err-text", s.cErrText);
+    setv("--ce-package-color", s.packageColor);
     setv("--ce-tag", s.cTreeTag);
     setv("--ce-import", s.cTreeImport);
     setv("--ce-chip", s.cChip);
@@ -802,7 +949,7 @@ class CodeEmbedPlugin extends Plugin {
       while ((m = re.exec(line)) !== null) {
         if (m.groups.esc) continue;
         const p = parseRef(m.groups.ref);
-        if (!inF && !(p.range && !isNativeHeading(p)) && p.name !== "." && p.name !== "") continue;
+        if (!inF && m.groups.all.startsWith("![[") && !ownsWikiEmbed(p, m.groups.ref)) continue;
         out.push({ ref: m.groups.ref, p, line: idx, ch: m.index, local: inF ? block : null });
       }
     }
@@ -816,19 +963,14 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   async checkItem(it, file) {
-    const p = it.p;
-    const target = this.findFile(p.name, file.path);
-    if (target && target.path === file.path && it.local != null) {
-      try { slice(it.local, p.range); return null; } catch (e) { /* próbuj plik */ }
-    }
-    if (!target) return 'brak notatki "' + p.name + '"';
-    try { slice(await this.read(target), p.range); } catch (e) { return e.message; }
-    return null;
+    const expanded = await this.resolve(it.ref, file.path, [], false, it.local);
+    return /\[błąd: ([^\]]*)\]/.exec(expanded)?.[1] || null;
   }
 
   async collectErrors() {
     const out = [];
     for (const f of this.app.vault.getMarkdownFiles()) {
+      if (f.name === MARKER) continue;
       for (const it of await this.rawOf(f)) {
         const why = await this.checkItem(it, f);
         if (why) out.push({ file: f, line: it.line, ch: it.ch, ref: it.ref, why });
@@ -884,7 +1026,124 @@ class CodeEmbedPlugin extends Plugin {
     return t;
   }
 
+  async trackMovedSources(item, oldPath) {
+    const files = this.app.vault.getFiles();
+    const moved = files.filter(f => f.path === item.path || f.path.startsWith(item.path + "/"));
+    const oldPaths = new Map(moved.map(f => [f, oldPath + f.path.slice(item.path.length)]));
+    const previous = new PackageIndex(files.map(f => oldPaths.has(f) ?
+      { path: oldPaths.get(f), name: oldPaths.get(f).split("/").pop(), extension: f.extension,
+        basename: oldPaths.get(f).split("/").pop().replace(/\.md$/i, ""), actual: f } : f));
+    const guards = this.settings.movedReferences ||= Object.create(null);
+    let changed = false;
+    for (const file of moved) {
+      if (file.extension !== "md" || file.name === MARKER) continue;
+      const before = oldPaths.get(file), oldRoot = previous.root(before);
+      const root = this.packages().root(file.path);
+      const names = new Map(Object.entries(guards[before] || {}));
+      if (guards[before]) { delete guards[before]; changed = true; }
+      if (oldRoot !== null && oldRoot !== root) {
+        for (const { p } of this.rawRefs(await this.app.vault.cachedRead(file))) {
+          if (p.name === ".") continue;
+          const prior = previous.lookup(p.name, oldRoot).file;
+          const next = this.lookupWithin(p.name, file.path, root).file;
+          if (prior && (prior.actual || prior) !== next) names.set(p.name, prior.actual?.path || prior.path);
+        }
+      }
+      if (names.size) { guards[file.path] = Object.fromEntries(names); changed = true; }
+    }
+    if (changed) { await this.saveData(this.settings); this.invalidate(); this.scheduleValidate(); }
+  }
+
+  setupFolders() {
+    const action = folder => this.app.vault.getAbstractFileByPath(markerPath(folder.path))
+      ? t("unmarkFolder") : t("markFolder");
+    this.registerEvent(this.app.workspace.on("file-menu", (menu, file) => {
+      if (file instanceof TFolder) menu.addItem(i => i.setTitle(action(file)).setIcon("package")
+        .onClick(() => this.toggleFolder(file)));
+    }));
+    this.addCommand({ id: "choose-package-folder", name: t("chooseFolder"), callback: async () => {
+      const folders = [this.app.vault.getRoot(), ...this.app.vault.getAllLoadedFiles().filter(f =>
+        f instanceof TFolder && f !== this.app.vault.getRoot())];
+      const choice = await pickOne(this.app, "Wybierz katalog", folders.map(folder =>
+        ({ folder, label: folder.path + " — " + action(folder) })));
+      if (choice) await this.toggleFolder(choice.folder);
+    } });
+    const observer = new MutationObserver(records => {
+      if (records.some(r => r.type === "attributes" || [...r.addedNodes].some(n =>
+        n.nodeType === 1 && (n.matches(".nav-folder-title") || n.querySelector(".nav-folder-title"))))) this.scheduleFolders();
+    });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-path"] });
+    this.register(() => {
+      observer.disconnect();
+      cancelAnimationFrame(this.folderFrame);
+      document.querySelectorAll(".ce-folder-action").forEach(el => el.remove());
+      document.querySelectorAll(".ce-package-folder").forEach(el => el.classList.remove("ce-package-folder"));
+      document.body.style.removeProperty("--ce-package-color");
+    });
+    this.scheduleFolders();
+  }
+
+  scheduleFolders() {
+    cancelAnimationFrame(this.folderFrame);
+    this.folderFrame = requestAnimationFrame(() => {
+      for (const row of document.querySelectorAll(".nav-folder-title[data-path]")) {
+        const folder = this.app.vault.getAbstractFileByPath(row.dataset.path);
+        if (!(folder instanceof TFolder)) continue;
+        const marked = this.packages().roots.has(folder.path === "/" ? "" : folder.path);
+        row.classList.toggle("ce-package-folder", marked);
+        let button = row.querySelector(".ce-folder-action");
+        if (!button) {
+          button = row.createEl("button", { cls: "ce-folder-action" });
+          button.addEventListener("click", event => {
+            event.stopPropagation();
+            const current = this.app.vault.getAbstractFileByPath(row.dataset.path);
+            if (current instanceof TFolder) this.toggleFolder(current);
+          });
+        }
+        button.textContent = marked ? "◆ CE" : "+ CE";
+        button.title = marked ? t("unmarkFolder") : t("markFolder");
+        button.setAttribute("aria-label", button.title + " — " + folder.path);
+      }
+    });
+  }
+
+  async toggleFolder(folder) {
+    const path = markerPath(folder.path), existing = this.app.vault.getAbstractFileByPath(path);
+    try {
+      if (!existing) { await this.app.vault.create(path, ""); return; }
+      if (existing instanceof TFolder) { new Notice("Ścieżka jest katalogiem: " + path); return; }
+      const choice = await pickOne(this.app, "Usunąć znacznik " + path + "?",
+        [{ label: "Anuluj" }, { label: "Usuń " + path, remove: true }]);
+      if (choice?.remove && existing.path === path && this.app.vault.getAbstractFileByPath(path) === existing)
+        await this.app.vault.trash(existing, true);
+    } catch (error) { new Notice(error.message); }
+  }
+
+  packages() {
+    return this.packageIndex ||= new PackageIndex(this.app.vault.getFiles());
+  }
+
+  lookup(name, sourcePath, root = this.packages().root(sourcePath)) {
+    const result = this.lookupWithin(name, sourcePath, root);
+    const bindings = this.settings.movedReferences?.[sourcePath];
+    if (bindings && Object.prototype.hasOwnProperty.call(bindings, name) && result.file?.path !== bindings[name])
+      return { error: "Odwołanie utraciło cel po przeniesieniu: " + name + " (pakiet: " + (root ?? "poza pakietem") + ")" };
+    return result;
+  }
+
+  lookupWithin(name, sourcePath, root) {
+    if (name !== "." && name && root !== null) return this.packages().lookup(name, root);
+    const file = this.unscopedFile(name, sourcePath);
+    if (!file || file.name === MARKER || root !== null && this.packages().root(file.path) !== root)
+      return { error: 'brak notatki "' + name + '"' + (root === null ? "" : " (pakiet: " + (root || "/") + ")") };
+    return { file };
+  }
+
   findFile(name, sourcePath) {
+    return this.lookup(name, sourcePath).file || null;
+  }
+
+  unscopedFile(name, sourcePath) {
     if (name === "." || name === "") {
       const f = this.app.vault.getAbstractFileByPath(sourcePath);
       return f && f.extension ? f : null;
@@ -900,14 +1159,14 @@ class CodeEmbedPlugin extends Plugin {
     return null;
   }
 
-  async expand(text, sourcePath, stack = [], mark = false, local = null) {
+  async expand(text, sourcePath, stack = [], mark = false, local = null, root = this.packages().root(sourcePath)) {
     const re = REF_RE();
     const parts = [];
     let last = 0, m;
     while ((m = re.exec(text)) !== null) {
       parts.push(text.slice(last, m.index));
       if (m.groups.esc) parts.push(m.groups.all);
-      else parts.push(await this.resolve(m.groups.ref, sourcePath, stack, mark, local));
+      else parts.push(await this.resolve(m.groups.ref, sourcePath, stack, mark, local, root));
       last = re.lastIndex;
     }
     parts.push(text.slice(last));
@@ -916,37 +1175,38 @@ class CodeEmbedPlugin extends Plugin {
 
   // Odwołanie do własnej notatki ("." lub jej nazwa): najpierw bieżący blok, potem cały plik
   // (sekcja poza blokami kodu -> sekcja wewnątrz bloków kodu). Zawsze bierzemy PIERWSZĄ pasującą sekcję.
-  async resolve(ref, sourcePath, stack, mark = false, local = null) {
+  async resolve(ref, sourcePath, stack = [], mark = false, local = null, root = this.packages().root(sourcePath)) {
     const p = parseRef(ref);
     const range = p.range;
-    const file = this.findFile(p.name, sourcePath);
+    const { file, error } = this.lookup(p.name, sourcePath, root);
+    const scope = root === null ? "" : " (pakiet: " + (root || "/") + ")";
     let text = null, outPath = sourcePath, outLocal = null, key;
 
     const self = !!file && file.path === sourcePath;
     let localErr = null;
     if (self && local != null) {
-      try { text = slice(local, range); key = "|" + range; outLocal = local; }
+      try { text = slice(local, range); key = file.path + "|block|" + range; outLocal = local; }
       catch (e) { text = null; localErr = e; }
     }
     if (text === null) {
-      if (!file) return '[błąd: brak notatki "' + p.name + '"]';
+      if (!file) return "[błąd: " + error + "]";
       key = file.path + "|" + range;
     }
 
-    if (stack.length >= this.settings.maxDepth) return "[błąd: zbyt głębokie zagnieżdżenie (max " + this.settings.maxDepth + ")]";
-    if (stack.includes(key)) return "[błąd: cykl: " + [...stack, key].join(" -> ") + "]";
+    if (stack.length >= this.settings.maxDepth) return "[błąd: zbyt głębokie zagnieżdżenie (max " + this.settings.maxDepth + ")" + scope + "]";
+    if (stack.includes(key)) return "[błąd: cykl: " + [...stack, key].join(" -> ") + scope + "]";
 
     if (text === null) {
       try { text = slice(await this.read(file), range); }
       catch (e) {
         const where = localErr ? " (szukano w bloku kodu i w pliku " + file.path + ")" : "";
-        return "[błąd: " + e.message.replace(/\]/g, ")") + where + "]";
+        return "[błąd: " + e.message.replace(/\]/g, ")") + where + scope + "]";
       }
       outPath = file.path;
     }
 
     text = applyArgs(text, p.args || [], !!p.args);
-    const out = await this.expand(text, outPath, [...stack, key], mark, outLocal);
+    const out = await this.expand(text, outPath, [...stack, key], mark, outLocal, root);
     return mark ? "\u0001" + ref.replace(/[\u0001-\u0003]/g, "") + "\u0002" + out + "\u0003" : out;
   }
 
@@ -957,8 +1217,8 @@ class CodeEmbedPlugin extends Plugin {
     const re = /(!?)\[\[([^\]]+)\]\]/g;
     lines.forEach((line, idx) => {
       for (const m of line.matchAll(REF_RE())) {
-        if (!m.groups.esc && m.groups.all.startsWith('$[')) {
-          out.push({ ref: m.groups.ref, embed: true, line: off + idx, ch: m.index, fence: fence[idx] });
+        if (!m.groups.esc && !m.groups.all.startsWith('![[')) {
+          out.push({ ref: m.groups.ref, codeEmbed: true, embed: true, line: off + idx, ch: m.index, fence: fence[idx] });
         }
       }
       if (!line.includes('[[')) return;
@@ -971,14 +1231,14 @@ class CodeEmbedPlugin extends Plugin {
     return out;
   }
 
-  resolveRefs(raw, srcPath) {
+  resolveRefs(raw, srcPath, root = this.packages().root(srcPath)) {
     const out = [];
     for (const r of raw) {
       const p = parseRef(r.ref);
       if (!p.name) continue;
-      const target = this.findFile(p.name, srcPath);
+      const target = this.lookup(p.name, srcPath, root).file;
       if (!target) continue;
-      out.push({ target, range: p.range, heading: p.heading, native: isNativeHeading(p), line: r.line, ch: r.ch, fence: r.fence, embed: r.embed });
+      out.push({ target, codeEmbed: r.codeEmbed, range: p.range, heading: p.heading, native: isNativeHeading(p), line: r.line, ch: r.ch, fence: r.fence, embed: r.embed });
     }
     return out;
   }
@@ -988,12 +1248,12 @@ class CodeEmbedPlugin extends Plugin {
     if (hit) return hit;
     const text = await this.read(file);
     const all = this.resolveRefs(this.scanText(text, 0), file.path);
-    const out = all.filter((r) => (r.range && !r.native) || r.fence);
+    const out = all.filter((r) => r.codeEmbed || (r.range && !r.native) || r.fence);
     this.refIndex.set(file.path, out);
     return out;
   }
 
-  async buildNodes(src, refs, depth, stack, limit) {
+  async buildNodes(src, refs, depth, stack, limit, root = this.packages().root(src.path)) {
     if (limit === undefined) limit = this.settings.maxDepth;
     const groups = new Map();
     for (const r of refs) {
@@ -1009,8 +1269,8 @@ class CodeEmbedPlugin extends Plugin {
         const frag = slice(full, g.range);
         const p = frag ? full.indexOf(frag) : -1;
         const off = p > 0 ? countNl(full.slice(0, p)) : 0;
-        const kids = this.resolveRefs(this.scanText(frag, off), g.file.path).filter((r) => r.embed);
-        g.children = await this.buildNodes(g.file, kids, depth + 1, [...stack, g.key], limit);
+        const kids = this.resolveRefs(this.scanText(frag, off), g.file.path, root).filter((r) => r.embed);
+        g.children = await this.buildNodes(g.file, kids, depth + 1, [...stack, g.key], limit, root);
       } catch (e) {
         if (g.file.path !== g.occ[0].file.path) g.error = e.message;
       }
@@ -1031,6 +1291,7 @@ class CodeEmbedPlugin extends Plugin {
   async incoming(file) {
     const res = [];
     for (const f of this.app.vault.getMarkdownFiles()) {
+      if (f.name === MARKER) continue;
       const refs = await this.refsOf(f);
       if (!refs.length) continue;
       const nodes = await this.buildNodes(f, refs, 0, [], this.panelLimit());
@@ -1290,7 +1551,7 @@ class CodeEmbedPlugin extends Plugin {
       for (const e of g.list) {
         const row = kids.createDiv({ cls: "ce-native-row ce-error-row" });
         row.createSpan({ cls: "ce-chip", text: "L" + (e.line + 1) });
-        row.createEl("code", { text: "![[" + e.ref + "]]" });
+        row.createEl("code", { text: formatEmbed(e.ref) });
         row.createSpan({ cls: "ce-err", text: e.why });
         row.onclick = () => this.goTo(e.file, e.line, e.ch);
       }
@@ -1475,11 +1736,7 @@ class CodeEmbedPlugin extends Plugin {
 
   handlesMarkdownRef(ref, path) {
     const p = parseRef(ref);
-    if (p.range) return !p.range.startsWith("#^");
-    // Istniejące natywne osadzenia całych notatek i mediów pozostają natywne.
-    if (!p.name || p.name === ".") return true;
-    if (/\.(?:png|jpe?g|gif|webp|svg|bmp|avif|pdf|mp[34]|wav|ogg|webm|mov|flac)(?:\||$)/i.test(p.name)) return false;
-    return !this.findFile(p.name, path);
+    return ownsWikiEmbed(p, ref);
   }
 
   async renderMarkdownRef(el, ref, path, ctx) {
@@ -1529,7 +1786,7 @@ class CodeEmbedPlugin extends Plugin {
       const text = textNode.nodeValue, re = REF_RE(), frag = document.createDocumentFragment();
       const pending = []; let last = 0, m;
       while ((m = re.exec(text)) !== null) {
-        if (m.groups.esc || (!m.groups.all.startsWith("![[") ? false : !this.handlesMarkdownRef(m.groups.ref, path))) continue;
+        if (m.groups.esc || (m.groups.all.startsWith("![[") && !this.handlesMarkdownRef(m.groups.ref, path))) continue;
         frag.append(document.createTextNode(text.slice(last, m.index)));
         const host = document.createElement("span");
         frag.append(host);
@@ -1586,14 +1843,14 @@ class CodeEmbedPlugin extends Plugin {
 
 // =====================================================================
 // RENAME: zmiana nazwy pliku / tagu / sekcji + konwersja tag <-> nagłówek.
-// Wszystkie odwołania ![[…]] są przepisywane; alerty "zerwane odwołanie"
+// Wszystkie odwołania ![…] są przepisywane; alerty "zerwane odwołanie"
 // są wyciszane na czas operacji (rnMute).
 // =====================================================================
 
 const RN_TAG_RE = /^[\w:.\-]+$/;
 const rnEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Przepisuje odwołania ![[…]] w tekście. fn(ref, inFence) -> nowy ref albo null.
+// Przepisuje odwołania ![…] w tekście. fn(ref, inFence) -> nowy ref albo null.
 function rewriteText(text, fn) {
   const lines = text.split("\n");
   let inF = false, count = 0;
@@ -1603,13 +1860,13 @@ function rewriteText(text, fn) {
     if (!hasEmbed(line)) continue;
     lines[i] = line.replace(REF_RE(), (all, esc, _all, ref) => {
       if (esc) return all;
-      const shorthand = _all.startsWith('$[') && /^\s*[:<#]/.test(ref);
-      const canonical = shorthand ? '.:' + ref.trimStart().replace(/^:/, '') : ref;
-      const nr = fn(canonical, inF);
-      if (nr == null || nr === canonical) return all;
+      const p = parseRef(ref);
+      if (!inF && _all.startsWith("![[") && !ownsWikiEmbed(p, ref)) return all;
+      const normalized = p.name + (p.range ? ":" + p.range : "") + argumentSuffix(ref, p);
+      const nr = fn(normalized, inF);
+      if (nr == null || nr === normalized) return all;
       count++;
-      if (_all.startsWith('$[')) return '$[' + (shorthand ? nr.replace(/^\.\s*:/, '') : nr) + ']';
-      return '![[' + nr + ']]';
+      return formatEmbed(nr);
     });
   }
   return { text: lines.join("\n"), count };
@@ -1631,13 +1888,54 @@ function headingList(text) {
 }
 
 function tagsOf(text) {
-  const t = stripFrontmatter(text).replace(/!\[\[[^\]\n]*\]\]/g, "");
+  const t = stripFrontmatter(text).replace(REF_RE(), "");
   const opens = new Set(), closes = new Set();
   for (const m of t.matchAll(/<(\/?)([\w:.\-]+)>/g)) (m[1] ? closes : opens).add(m[2]);
   return [...opens].filter((x) => closes.has(x));
 }
 
 const badSectionName = (s) => !s || /[#(^|\]\[\n]/.test(s);
+
+function insertFragment(editor, kind, name, trigger = "") {
+  const from = editor.getCursor("from"), to = editor.getCursor("to");
+  const start = editor.posToOffset(from) - trigger.length;
+  const selected = editor.getSelection();
+  let prefix, suffix, selectionStart, selectionEnd;
+  if (kind === "xml") {
+    const tag = name || "var";
+    prefix = "<" + tag + ">";
+    suffix = "</" + tag + ">";
+    selectionStart = selectionEnd = prefix.length;
+  } else {
+    const title = name || "Nazwa fragmentu";
+    const newline = editor.getLine(from.line).slice(0, from.ch - trigger.length).length ? "\n" : "";
+    prefix = newline + "## " + title + "\n";
+    suffix = editor.getLine(to.line).slice(to.ch) ? "\n" : "";
+    selectionStart = name ? prefix.length : newline.length + 3;
+    selectionEnd = name ? selectionStart : selectionStart + title.length;
+  }
+  editor.replaceRange(prefix + selected + suffix, editor.offsetToPos(start), to);
+  editor.setSelection(editor.offsetToPos(start + selectionStart), editor.offsetToPos(start + selectionEnd));
+}
+
+function triggerAt(editor) {
+  if (editor.getSelection()) return "";
+  const cur = editor.getCursor();
+  return /(?:^|\s)(_xvar|_mvar)$/.exec(editor.getLine(cur.line).slice(0, cur.ch))?.[1] || "";
+}
+
+async function promptFragment(app, editor, kind, trigger = "") {
+  const before = editor.getValue(), from = editor.posToOffset(editor.getCursor("from"));
+  const to = editor.posToOffset(editor.getCursor("to"));
+  const xml = kind === "xml";
+  const name = await askText(app, xml ? t("insertXml") : t("insertMarkdown"), "",
+    value => xml && value && !/^[A-Za-z_][\w.:\-]*$/.test(value) ? "Podaj poprawną nazwę tagu." :
+      !xml && value && badSectionName(value) ? "Tytuł zawiera niedozwolony znak." : null);
+  if (name === null || editor.getValue() !== before) return;
+  editor.focus();
+  editor.setSelection(editor.offsetToPos(from), editor.offsetToPos(to));
+  insertFragment(editor, kind, name, trigger);
+}
 
 function askText(app, title, initial, validate) {
   return new Promise((resolve) => {
@@ -1891,6 +2189,7 @@ const renameMethods = {
   async rewriteAll(mapper) {
     let files = 0, refs = 0;
     for (const f of this.app.vault.getMarkdownFiles()) {
+      if (f.name === MARKER) continue;
       const raw = await this.app.vault.cachedRead(f);
       if (!hasEmbed(raw)) continue;
       if (rewriteText(raw, (r, inF) => mapper(r, inF, f)).count === 0) continue;
@@ -1919,28 +2218,32 @@ const renameMethods = {
   // ---------- plik ----------
   async renameFileRefs(file, oldPath) {
     await this.withRenameMute(async () => {
-      const oldNo = oldPath.replace(/\.md$/i, ""), oldBase = oldNo.split("/").pop();
-      const newNo = file.path.replace(/\.md$/i, "");
-      const clash = this.app.vault.getMarkdownFiles().some((f) => f !== file && f.basename === oldBase);
-      const res = await this.rewriteAll((ref, inF) => {
+      if (file.name === MARKER || oldPath.split("/").pop() === MARKER) return;
+      const index = this.packages(), oldRoot = index.root(oldPath);
+      if (index.root(file.path) !== oldRoot) return;
+      const oldName = oldPath.split("/").pop();
+      const oldFile = { path: oldPath, name: oldName, basename: oldName.replace(/\.md$/i, ""), extension: "md" };
+      const previous = new PackageIndex(this.app.vault.getFiles().map(f => f === file ? oldFile : f));
+      const res = await this.rewriteAll((ref, inF, src) => {
         const p = parseRef(ref);
-        if (!p.name || p.name === ".") return null;
-        // poza blokami kodu natywne odwołania aktualizuje sam Obsidian
-        if (!inF && (!p.range || isNativeHeading(p))) return null;
-        const hasExt = /\.md$/i.test(p.name), nm = p.name.replace(/\.md$/i, "");
-        let repl;
-        if (nm.includes("/")) {
-          if (nm === oldNo) repl = newNo;
-          else if (oldNo.endsWith("/" + nm)) repl = newNo.split("/").slice(-nm.split("/").length).join("/");
-          else return null;
+        if (p.name === "." || !p.name || index.root(src.path) !== oldRoot) return null;
+        let next;
+        if (oldRoot !== null) {
+          if (previous.lookup(p.name, oldRoot).file !== oldFile) return null;
+          next = p.name.includes("/") ? relativeTo(oldRoot, file.path) : file.basename;
+          if (index.lookup(next, oldRoot).file !== file) next = relativeTo(oldRoot, file.path);
         } else {
-          if (nm !== oldBase || clash) return null;
-          repl = file.basename;
+          const old = p.name.replace(/\.md$/i, "");
+          if (old !== oldPath.replace(/\.md$/i, "") && old !== oldFile.basename) return null;
+          if (this.findFile(p.name, src.path)) return null;
+          next = this.findFile(file.basename, src.path) === file ? file.basename : file.path;
         }
-        if (repl === nm) return null;
-        const sp = this.nameSpan(ref, p);
-        if (!sp) return null;
-        return ref.slice(0, sp[0]) + repl + (hasExt ? ".md" : "") + ref.slice(sp[1]);
+        if (!p.name.endsWith(".md") && next.endsWith(".md")) {
+          const short = next.slice(0, -3);
+          if (this.findFile(short, src.path) === file) next = short;
+        }
+        if (next === p.name) return null;
+        return next + ref.slice(p.name.length);
       });
       this.rnNotice("plik " + oldPath + " → " + file.path, res);
     });
@@ -2198,7 +2501,7 @@ const renameMethods = {
 
   async cmdRenameAtCursor(editor, srcFile) {
     const at = this.refAtCursor(editor);
-    if (!at) { new Notice("Kursor nie jest na odwołaniu ![[…]]."); return; }
+    if (!at) { new Notice("Kursor nie jest na odwołaniu ![…]."); return; }
     const p = parseRef(at.ref);
     const target = this.findFile(p.name, srcFile.path);
     if (!target || target.extension !== "md") { new Notice("Nie znaleziono notatki docelowej."); return; }

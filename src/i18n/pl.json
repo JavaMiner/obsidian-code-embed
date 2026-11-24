@@ -10,5 +10,11 @@
   "notInBlock": "Kursor nie jest w bloku kodu.",
   "blockCopied": "Skopiowano rozwinięty blok.",
   "backlinks": "Zwrotne",
-  "support": "Wesprzyj Code Embed"
+  "support": "Wesprzyj Code Embed",
+  "insertXml": "Wstaw tag XML",
+  "insertMarkdown": "Wstaw sekcję Markdown",
+  "expandShortcut": "Rozwiń skrót",
+  "chooseFolder": "Wybierz katalog pakietu",
+  "markFolder": "Ustaw katalog jako korzeń Code Embed",
+  "unmarkFolder": "Usuń oznaczenie korzenia Code Embed"
 }

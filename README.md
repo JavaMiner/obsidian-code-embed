@@ -1,72 +1,93 @@
-# Code Embed for Obsidian
+# Code Embed · Development version guide
 
-New syntax on `main`: `![x]` embeds a note, `![<tag>]` the local tag, `![<<tag>>]` its contents, `![#Heading]` a local section with its heading, and `![##Heading]` its body. `$#Heading` is not embed syntax. `![[x]]` is native Obsidian notation.
+[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![License](https://img.shields.io/badge/license-CC_BY--NC_4.0-blue)](LICENSE)
 
-[Deutsch](README.de.md) · [Français](README.fr.md) · [Español](README.es.md) · [Nederlands](README.nl.md) · [Italiano](README.it.md) · [Revolut](https://revolut.me/jakubwt6)
+[PL](README.pl.md) · [EN](README.md) · [DE](README.de.md) · [FR](README.fr.md) · [ES](README.es.md) · [NL](README.nl.md) · [IT](README.it.md)
 
-[Polski](README.pl.md) · [Releases](../../releases) · [Buy me a coffee (Wise)](https://wise.com/pay/me/jakubw238)
+## Define a fragment
 
-Assemble prompts from reusable note fragments instead of copying the same instructions into several notes. Copy+ copies the expanded block; View lets you inspect its structure without changing the source.
+In the command palette choose **Insert XML tag** or **Insert Markdown section**. Enter a name and tap OK. A blank name gives you a `var` pair or selects `Nazwa fragmentu` for editing. Selected text becomes the body. Confirm `_xvar` or `_mvar` with **Expand shortcut**.
 
-## Installation
+Put these equivalent definitions in separate notes or end the section with another heading of the same level.
 
-Download `main.js`, `manifest.json`, and `styles.css` from a release. Copy them to `.obsidian/plugins/code-embed/` inside your vault and enable Code Embed in Community plugins. To build locally, run `npm run build` and `npm test`, then use the files in `dist/`.
-
-## Embed reference
-
-| Syntax | Result |
-| --- | --- |
-| `![Notes]` | Whole note, without frontmatter |
-| `![Notes:#Rules]` | Section including its heading |
-| `![Notes:##Rules]` | Section body only |
-| `![Notes:##Chapter#Rules]` | Nested section body |
-| `![Notes:1-100]` | Lines 1–100, inclusive |
-| `![Notes:5-]` | Line 5 through the end |
-| `![Notes:1--1]` | All but the last line |
-| `![Notes:<rules>]` | All lines from opening to closing tag |
-| `![Notes:<<rules>>]` | Inner tag content |
-| `![.:<<rules>>]` | Local tag content |
-
-- Note names resolve like Obsidian links. Prefer unique basenames to full paths. A whole-note alias after `|` is ignored; do not use `|` in ranges. Line numbers start at 1, include frontmatter, and must be within the file.
-- H1–H6 headings use the first case-insensitive match. Asterisks, underscores and backticks are ignored. A section ends at the next heading of the same or higher level. Avoid `#`, `(`, and `^` in a section name; block IDs are not supported.
-- Tag extraction requires the exact `<tag>` opener without attributes and a matching `</tag>`. The first occurrence wins. Tag names use ASCII letters, digits, `_`, `:`, `.`, and `-`. Inner extraction removes one leading and one trailing newline and trims single-line values.
-- `.` checks the current code block before the note. Embeds can nest up to 5 levels by default. Cycles, missing targets, invalid ranges and depth errors appear as `[błąd: …]`. A backslash before an embed makes it literal.
-
-## Arguments
-
-In `Snippets.md`, define `<rating>topic: $1; rating: ${2:good}</rating>`. `![Snippets:<<rating>>(recovery)]` expands to `topic: recovery; rating: good`.
-
-- `$1`–`$9` are positional; `$*` joins arguments with `, `. `${n:text}` supplies a value for a missing or empty argument; its text cannot contain `}`.
-- Use commas between arguments. `![Snippets:<<rating>>(recovery, "good, but variable")]` passes two arguments. Double quotes or backticks group values and are removed; quote escaping is not supported.
-- Without parentheses, only defaults are substituted. A missing `$3` without a default stays literal. `\$` gives a literal dollar when the call has parentheses, including `()`.
-- Arguments work on tags and sections, not whole notes or line ranges. Forward a value to another fragment with `![Other:<<tag>>($1)]`.
-
-## Preview, navigation and rename
-
-- `ce` and `codeembed` start in structured View with Copy+ only. `xml`, `md`, and `markdown` show regular code with a separate View button. Live Preview shows the reference again while you edit its line. Short single-line imports can display as compact chips; set the threshold to 0 to disable this.
-- The Code Embed panel reports broken references and shows incoming and outgoing references. Panels can show nested dependencies or only direct references and can take you to the relevant source.
-- Rename commands update supported references after changing a note, XML tag, or heading. You can rename a target at the cursor and convert a tag to a heading or vice versa. Check nested paths and duplicate names after conversion. Automatic updates and broken-reference warnings can be switched off in settings.
-
-## Example: a prompt for writing prompts
-
-Keep shared instructions under `Style` in `Snippets.md`. The example uses single-bracket notation.
-
-~~~markdown
-```ce
-<obsidian_code_embed_prompt_writer>
-# Context
-I use Code Embed in Obsidian. Reference shared instructions instead of copying them.
-
-# Task
-When asked for a prompt, return one ce, md, or xml code fence. Use indentation for nested examples rather than inner fences.
-
-# Style
-![Snippets:##Style]
-
-# Embed rules
-Use unique note basenames. Prefix an embed with a backslash to show it literally, e.g. \![Snippets:##Style].
-</obsidian_code_embed_prompt_writer>
+```markdown
+## Instrukcje
+Odpowiedz po $1. Ton: ${2:rzeczowy}.
 ```
-~~~
 
-Author: Jakub Wajda. License: [CC BY-NC 4.0](LICENSE). Wise support is optional and does not unlock features.
+```xml
+<styl>Odpowiedz po $1. Ton: ${2:rzeczowy}.</styl>
+```
+
+## Embed it
+
+`![źródło:selektor(argumenty)]`
+
+Omit the source for the current note. Use a colon only between a source and a selector.
+
+- `![Szablony]` — Whole note
+- `![Szablony:3-8]` — Inclusive lines
+- `![Szablony:#Styl]` — Section with heading
+- `![Szablony:##Styl]` — Section body
+- `![Szablony:##Rozdział#Styl]` — Subsection body
+- `![Szablony:<styl>]` — Tag with delimiters
+- `![Szablony:<<styl>>]` — Tag body
+- `![#Styl]` · `![##Styl]` — Local section
+- `![<styl>]` · `![<<styl>>]` — Local tag
+
+## Pass arguments
+
+Both calls produce the result below. `$1`–`$9` select a value, `$*` joins all values, and `${2:rzeczowy}` supplies a missing or empty value. Quote arguments containing commas. Forward values explicitly to nested imports.
+
+```ce
+![##Instrukcje(polsku)]
+![<<styl>>(polsku)]
+```
+
+```text
+Odpowiedz po polsku. Ton: rzeczowy.
+```
+
+`![Wspólne:##Ton($1)]`
+
+## Preview and copy
+
+A `ce` or `codeembed` block opens in structured View. Tap View on `md` or `xml` blocks. Copy+ copies the expanded text. The block language controls presentation.
+
+## Limit lookup to a package
+
+Tap the CE button beside a folder, long-press for its menu, or choose a folder from the command palette. Tapping the name expands the folder. Marking it creates the file below. Confirm its path before removing the marker.
+
+```text
+Prompts/
+  _code-embed-root.md
+  Start.md
+  Wspólne/
+    Styl.md
+```
+
+`Prompts/Start.md` → `![Wspólne/Styl:##Ton]`
+
+The nearest marker bounds the entire expansion. Short names must be unique. For duplicates, use a path from the diagnostic. Paths with a slash start at the package root. Nested packages are separate. Move the folder with its marker to preserve references.
+
+## Compatibility and migration
+
+Inside code blocks the parser reads all the older forms below. Outside code blocks Obsidian handles native note, heading and image embeds. Rename writes changed embeds in canonical form.
+
+| Legacy | → |
+| --- | --- |
+| `![[Szablony:##Styl]]` | `![Szablony:##Styl]` |
+| `$[##Styl]` | `![##Styl]` |
+| `![.:<<styl>>]` | `![<<styl>>]` |
+| `![Szablony##Styl]` | `![Szablony:##Styl]` |
+
+## Install the development build
+
+```sh
+npm run build
+npm test
+```
+
+`dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
+
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363)

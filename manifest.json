@@ -1,7 +1,7 @@
 {
   "id": "code-embed",
   "name": "Code Embed",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "minAppVersion": "1.5.0",
   "description": "Expand reusable note fragments and preview structured prompts.",
   "author": "Jakub Wajda",
@@ -9,6 +9,7 @@
   "fundingUrl": {
     "Wise": "https://wise.com/pay/me/jakubw238",
     "Revolut": "https://revolut.me/jakubwt6",
-    "PayPal": "https://www.paypal.me/JakubWajda363"
+    "PayPal": "https://www.paypal.me/JakubWajda363",
+    "Buy me a coffee": "https://buymeacoffee.com/javaminer"
   }
 }

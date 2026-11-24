@@ -1,72 +1,93 @@
-# Code Embed do Obsidiana
+# Code Embed · Przewodnik po wersji rozwojowej
 
-Nowa składnia na gałęzi `main`: `![x]` osadza całą notatkę, `![<tag>]` cały lokalny tag, `![<<tag>>]` jego wnętrze, `![#Sekcja]` sekcję z nagłówkiem, a `![##Sekcja]` samą treść. `$#Sekcja` nie jest składnią osadzenia. `![[x]]` to natywny zapis Obsidiana.
+[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![License](https://img.shields.io/badge/license-CC_BY--NC_4.0-blue)](LICENSE)
 
-[Deutsch](README.de.md) · [Français](README.fr.md) · [Español](README.es.md) · [Nederlands](README.nl.md) · [Italiano](README.it.md) · [Revolut](https://revolut.me/jakubwt6)
+[PL](README.pl.md) · [EN](README.md) · [DE](README.de.md) · [FR](README.fr.md) · [ES](README.es.md) · [NL](README.nl.md) · [IT](README.it.md)
 
-[English](README.md) · [Wydania](../../releases) · [Postaw mi kawę (Wise)](https://wise.com/pay/me/jakubw238)
+## Zdefiniuj fragment
 
-Zamiast kopiować instrukcje do wielu promptów, trzymaj je w notatkach i składaj z fragmentów. Copy+ kopiuje rozwiniętą treść bloku, a View pozwala obejrzeć strukturę bez zmiany źródła.
+W palecie poleceń wybierz **Wstaw tag XML** lub **Wstaw sekcję Markdown**. Wpisz nazwę i stuknij OK. Pusta nazwa daje parę `var` albo zaznaczony tytuł `Nazwa fragmentu`. Zaznaczony wcześniej tekst trafia do środka. Skróty `_xvar` i `_mvar` zatwierdza polecenie **Rozwiń skrót**.
 
-## Instalacja
+Umieść te równoważne definicje w oddzielnych notatkach lub zakończ sekcję kolejnym nagłówkiem tego samego poziomu.
 
-Pobierz `main.js`, `manifest.json` i `styles.css` jako osobne załączniki wydania. Włóż je do `.obsidian/plugins/code-embed/` w swoim skarbcu i włącz Code Embed w Community plugins. Do lokalnego buildu uruchom `npm run build`, `npm test` i użyj plików z `dist/`.
-
-## Składnia osadzeń
-
-| Zapis | Wynik |
-| --- | --- |
-| `![x]` | Cała notatka bez frontmattera |
-| `![x:#Sekcja]` | Sekcja razem z nagłówkiem |
-| `![x:##Sekcja]` | Sama treść sekcji |
-| `![x:##Rozdział#Podrozdział]` | Treść zagnieżdżonej sekcji |
-| `![x:1-100]` | Linie 1–100 włącznie |
-| `![x:5-]` | Od linii 5 do końca |
-| `![x:1--1]` | Wszystkie linie oprócz ostatniej |
-| `![x:<tag>]` | Całe linie od otwarcia do zamknięcia tagu |
-| `![x:<<tag>>]` | Wnętrze tagu |
-| `![.:<<tag>>]` | Wnętrze tagu w bieżącej notatce |
-
-- Nazwa notatki jest rozwiązywana jak link Obsidiana. Przy unikalnych nazwach używaj samej nazwy pliku. Alias całej notatki po `|` jest ignorowany; nie używaj `|` w zakresie. Numeracja linii zaczyna się od 1 i obejmuje frontmatter. Zakres poza plikiem jest błędem.
-- Sekcje H1–H6: pierwsze dopasowanie bez względu na wielkość liter; ignorowane są `*`, `_` i backticki. Sekcja kończy się przed następnym nagłówkiem tego samego lub wyższego poziomu. Nie używaj `#`, `(` ani `^` w nazwie; kotwice bloków nie są obsługiwane.
-- Tagi: dokładne `<tag>` bez atrybutów i pasujące `</tag>`. Wygrywa pierwsze wystąpienie. Dozwolone są litery ASCII, cyfry, `_`, `:`, `.` i `-`. Wnętrze usuwa po jednym skrajnym znaku nowej linii; tekst jednoliniowy jest dodatkowo przycinany.
-- `.` szuka najpierw w bieżącym bloku kodu, a potem w notatce. Osadzenia można zagnieżdżać; domyślny limit to 5 poziomów. Cykle, brak celu, zły zakres i przekroczenie limitu zwracają `[błąd: …]`. Backslash przed osadzeniem pozostawia je dosłownie.
-
-## Argumenty
-
-Zdefiniuj w `Fragmenty.md`: `<ocena>temat: $1; ocena: ${2:dobra}</ocena>`. Wywołanie `![Fragmenty:<<ocena>>(regeneracja)]` daje `temat: regeneracja; ocena: dobra`.
-
-- `$1`–`$9` to pozycje, `$*` łączy argumenty przez `, `. `${n:tekst}` działa przy pustym lub pominiętym argumencie; tekst domyślny nie może zawierać `}`.
-- Przecinek rozdziela argumenty. `![Fragmenty:<<ocena>>(regeneracja, "dobra, ale nierówna")]` przekazuje dwa argumenty. Podwójne cudzysłowy lub backticki grupują argument i nie trafiają do wyniku; nie można ich escapować.
-- Bez nawiasów podstawiają się tylko wartości domyślne. Brakujący `$3` bez wartości domyślnej pozostaje dosłowny. `\$` oznacza dosłowny dolar w wywołaniu z nawiasami, nawet pustymi `()`.
-- Argumenty działają dla tagów i sekcji, nie dla całych notatek ani zakresów linii. Przekazanie argumentu dalej: `![Inne:<<tag>>($1)]` wewnątrz parametryzowanego fragmentu.
-
-## Podgląd, nawigacja i zmiana nazw
-
-- `ce` i `codeembed` otwierają podgląd od razu oraz pokazują tylko Copy+. `xml`, `md` i `markdown` mają zwykły podgląd kodu i osobny View. W Live Preview odwołanie znowu widać, gdy edytujesz jego linię. Krótkie jednoliniowe importy w drzewie mogą być zwinięte do chipa; ustawienie 0 wyłącza to zwijanie.
-- Panel Code Embed pokazuje błędy i odwołania; integracja z panelami Obsidiana pokazuje odwołania wychodzące i zwrotne. Możesz wyłączyć pokazywanie zagnieżdżonych zależności i przejść do wystąpienia lub celu z panelu.
-- Polecenia Rename zmieniają nazwę notatki, tagu lub nagłówka i aktualizują obsługiwane odwołania. Można wywołać Rename na celu pod kursorem i konwertować tag XML na nagłówek lub odwrotnie. Po konwersji sprawdź ścieżki wielopoziomowe i powtarzające się nazwy. Automatyczne aktualizacje i ostrzeżenia o zerwanych odwołaniach można wyłączyć w ustawieniach.
-
-## Przykład: prompt do pisania promptów
-
-Zapisz reguły ogólne w notatce `Fragmenty`, pod nagłówkiem `Styl`. Przykład poniżej jest skróconą adaptacją promptu i używa pojedynczych nawiasów.
-
-~~~markdown
-```ce
-<obsidian_code_embed_prompt_writer>
-# Kontekst
-Piszę w Obsidianie z Code Embed. Zamiast kopiować wspólne instrukcje, odwołuj się do gotowych fragmentów.
-
-# Zadanie
-Gdy proszę o prompt, zwróć jeden blok kodu `ce`, `md` albo `xml`. Nie wstawiaj wewnątrz niego kolejnych ogrodzeń kodu; przykłady zapisuj wcięciem.
-
-# Styl
-![Fragmenty:##Styl]
-
-# Reguły osadzeń
-Używaj nazwy notatki bez pełnej ścieżki, jeżeli jest unikalna. Aby pokazać zapis dosłownie, użyj `\![Fragmenty:##Styl]`.
-</obsidian_code_embed_prompt_writer>
+```markdown
+## Instrukcje
+Odpowiedz po $1. Ton: ${2:rzeczowy}.
 ```
-~~~
 
-Autor: Jakub Wajda. Licencja: [CC BY-NC 4.0](LICENSE). Wsparcie przez Wise jest dobrowolne i nie odblokowuje funkcji.
+```xml
+<styl>Odpowiedz po $1. Ton: ${2:rzeczowy}.</styl>
+```
+
+## Osadź fragment
+
+`![źródło:selektor(argumenty)]`
+
+Pomiń źródło dla bieżącej notatki. Dwukropek wpisz tylko między źródłem a selektorem.
+
+- `![Szablony]` — Cała notatka
+- `![Szablony:3-8]` — Linie włącznie
+- `![Szablony:#Styl]` — Sekcja z nagłówkiem
+- `![Szablony:##Styl]` — Treść sekcji
+- `![Szablony:##Rozdział#Styl]` — Treść podsekcji
+- `![Szablony:<styl>]` — Zewnętrzny tag z treścią
+- `![Szablony:<<styl>>]` — Wnętrze tagu
+- `![#Styl]` · `![##Styl]` — Sekcja lokalna
+- `![<styl>]` · `![<<styl>>]` — Tag lokalny
+
+## Przekaż argumenty
+
+Oba wywołania dają poniższy wynik. `$1`–`$9` wybierają argument, `$*` łączy wszystkie, a `${2:rzeczowy}` zastępuje brakującą lub pustą wartość. Argument zawierający przecinek ujmij w cudzysłów. Do kolejnego importu przekaż wartość jawnie.
+
+```ce
+![##Instrukcje(polsku)]
+![<<styl>>(polsku)]
+```
+
+```text
+Odpowiedz po polsku. Ton: rzeczowy.
+```
+
+`![Wspólne:##Ton($1)]`
+
+## Podejrzyj i skopiuj
+
+W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuknij Podgląd. Copy+ kopiuje rozwinięty tekst. Język bloku zmienia prezentację.
+
+## Ogranicz wyszukiwanie do pakietu
+
+Stuknij przycisk CE przy katalogu, użyj menu po przytrzymaniu albo wybierz katalog z palety poleceń. Stuknięcie nazwy rozwija drzewo. Oznaczenie tworzy plik poniżej. Zdjęcie oznaczenia wymaga potwierdzenia ścieżki znacznika.
+
+```text
+Prompts/
+  _code-embed-root.md
+  Start.md
+  Wspólne/
+    Styl.md
+```
+
+`Prompts/Start.md` → `![Wspólne/Styl:##Ton]`
+
+Najbliższy znacznik wyznacza granicę całego rozwinięcia. Krótka nazwa musi być jednoznaczna. Przy duplikacie wybierz ścieżkę podaną w błędzie. Ścieżki z ukośnikiem zaczynają się w korzeniu. Zagnieżdżone pakiety są odrębne. Przenieś katalog razem ze znacznikiem, aby zachować odwołania.
+
+## Zgodność i migracja
+
+W bloku kodu parser czyta wszystkie poniższe starsze zapisy. Poza blokiem natywne osadzenia notatek, nagłówków i obrazów obsługuje Obsidian. Rename zapisuje zmieniane osadzenia w formie kanonicznej.
+
+| Legacy | → |
+| --- | --- |
+| `![[Szablony:##Styl]]` | `![Szablony:##Styl]` |
+| `$[##Styl]` | `![##Styl]` |
+| `![.:<<styl>>]` | `![<<styl>>]` |
+| `![Szablony##Styl]` | `![Szablony:##Styl]` |
+
+## Instalacja wersji rozwojowej
+
+```sh
+npm run build
+npm test
+```
+
+`dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
+
+[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363)
