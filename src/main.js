@@ -857,10 +857,12 @@ class CodeEmbedPlugin extends Plugin {
         const trigger = triggerAt(editor);
         if (!trigger) return false;
         if (!checking) {
-          if (trigger.startsWith("_xvar") && trigger !== "_xvar") {
-            insertFragment(editor, "xml", trigger.slice("_xvar".length), trigger);
+          const xml = trigger.slice(1, 5) === "xvar";
+          const tagName = trigger.slice(5);
+          if (xml && tagName) {
+            insertFragment(editor, "xml", tagName, trigger);
           } else {
-            promptFragment(this.app, editor, trigger === "_xvar" ? "xml" : "markdown", trigger);
+            promptFragment(this.app, editor, xml ? "xml" : "markdown", trigger);
           }
         }
         return true;
@@ -1960,7 +1962,7 @@ function insertFragment(editor, kind, name, trigger = "") {
 function triggerAt(editor) {
   if (editor.getSelection()) return "";
   const cur = editor.getCursor();
-  return /(?:^|\s)(_xvar(?:[A-Za-z_][\w.:\-]*)?|_mvar)$/.exec(editor.getLine(cur.line).slice(0, cur.ch))?.[1] || "";
+  return /(?:^|\s)([!_]xvar(?:[A-Za-z_][\w.:\-]*)?|[!_]mvar)$/.exec(editor.getLine(cur.line).slice(0, cur.ch))?.[1] || "";
 }
 
 async function promptFragment(app, editor, kind, trigger = "") {

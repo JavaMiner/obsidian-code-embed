@@ -8,7 +8,7 @@
 
 Conservez la consigne finale de plusieurs prompts dans `Szablony`. Une modification sera prise en compte à la prochaine copie de chaque prompt.
 
-1. Tapez `_xvarZMIENNA` et laissez le curseur après la dernière lettre, sans espace.
+1. Tapez `!xvarZMIENNA` et laissez le curseur après la dernière lettre, sans espace.
 2. Choisissez **Développer le raccourci**. La commande insère les deux balises et place le curseur entre elles. Écrivez-y la consigne.
 
 ```xml
@@ -21,7 +21,7 @@ Insérez le bloc suivant dans une autre note. Touchez **Copy+** et collez le ré
 ![Szablony:<<ZMIENNA>>]
 ```
 
-Dans la palette, choisir **Insérer une balise XML** ou **Insérer une section Markdown**. Saisir un nom et toucher OK. Un nom vide crée une paire `var` ou sélectionne `Nom du fragment` pour le remplacer. Le texte sélectionné devient le contenu. Confirmer `_xvar` ou `_mvar` avec **Développer le raccourci**.
+Dans la palette, choisir **Insérer une balise XML** ou **Insérer une section Markdown**. Saisir un nom et toucher OK. Un nom vide crée une paire `var` ou sélectionne `Nom du fragment` pour le remplacer. Le texte sélectionné devient le contenu. Confirmer `!xvar` (`_xvar`) ou `!mvar` (`_mvar`) avec **Développer le raccourci**.
 
 Placer ces définitions équivalentes dans deux notes, ou terminer la section par un autre titre de même niveau.
 

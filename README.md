@@ -8,7 +8,7 @@
 
 Keep the closing instruction for several prompts in one note, `Szablony`. Edit it once and the next Copy+ in each prompt picks up the change.
 
-1. Type `_xvarZMIENNA` and leave the cursor after the final letter without a trailing space.
+1. Type `!xvarZMIENNA` and leave the cursor after the final letter without a trailing space.
 2. Choose **Expand shortcut**. The command inserts both tags and places the cursor between them. Type your instruction there.
 
 ```xml
@@ -21,7 +21,7 @@ In another note insert the block below. Tap **Copy+** and paste the result: `Pod
 ![Szablony:<<ZMIENNA>>]
 ```
 
-In the command palette choose **Insert XML tag** or **Insert Markdown section**. Enter a name and tap OK. A blank name gives you a `var` pair or selects `Fragment name` for editing. Selected text becomes the body. Confirm `_xvar` or `_mvar` with **Expand shortcut**.
+In the command palette choose **Insert XML tag** or **Insert Markdown section**. Enter a name and tap OK. A blank name gives you a `var` pair or selects `Fragment name` for editing. Selected text becomes the body. Confirm `!xvar` (`_xvar`) or `!mvar` (`_mvar`) with **Expand shortcut**.
 
 Put these equivalent definitions in separate notes or end the section with another heading of the same level.
 

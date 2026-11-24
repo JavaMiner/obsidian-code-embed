@@ -130,21 +130,25 @@ test("the expand shortcut command inserts a named XML pair with the cursor betwe
     setSelection(start, end) { assert.equal(start.ch, end.ch); cursor = start.ch; }
   };
   const expand = commands.get("expand-shortcut").editorCheckCallback;
-  assert.equal(expand(true, editor), true);
-  assert.equal(value, "_xvarZMIENNA");
-  assert.equal(expand(false, editor), true);
-  assert.equal(value, "<ZMIENNA></ZMIENNA>");
-  assert.equal(cursor, "<ZMIENNA>".length);
+  for (const trigger of ["_xvarZMIENNA", "!xvarZMIENNA"]) {
+    value = trigger;
+    cursor = value.length;
+    assert.equal(expand(true, editor), true);
+    assert.equal(value, trigger);
+    assert.equal(expand(false, editor), true);
+    assert.equal(value, "<ZMIENNA></ZMIENNA>");
+    assert.equal(cursor, "<ZMIENNA>".length);
+  }
 
   const prompts = [];
   context.recordPrompt = (...args) => prompts.push(args);
   vm.runInNewContext("promptFragment = (_app, _editor, kind, trigger) => recordPrompt(kind, trigger)", context);
-  for (const trigger of ["_xvar", "_mvar", "_mvarZMIENNA"]) {
+  for (const trigger of ["_xvar", "_mvar", "!xvar", "!mvar", "_mvarZMIENNA"]) {
     value = trigger;
     cursor = value.length;
     assert.equal(expand(false, editor), trigger !== "_mvarZMIENNA");
   }
-  assert.deepEqual(prompts, [["xml", "_xvar"], ["markdown", "_mvar"]]);
+  assert.deepEqual(prompts, [["xml", "_xvar"], ["markdown", "_mvar"], ["xml", "!xvar"], ["markdown", "!mvar"]]);
 });
 
 test("app language determines folder labels for every documented locale", () => {
