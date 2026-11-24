@@ -159,5 +159,5 @@
   "rootCreated": "Racine Code Embed définie : {path}",
   "rootRemoved": "Marqueur de racine retiré : {path}",
   "showAllFolderActions": "Afficher les actions sur tous les dossiers",
-  "showAllFolderActionsHelp": "Affiche « + Racine » sur les dossiers sans marqueur et « ◆ Racine » sur chaque racine de paquet."
+  "showAllFolderActionsHelp": "Chaque dossier marqué affiche toujours sa couleur et ◆ Racine. L’option, désactivée par défaut, affiche + Racine sur les autres dossiers."
 }

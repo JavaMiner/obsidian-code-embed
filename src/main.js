@@ -1085,8 +1085,6 @@ class CodeEmbedPlugin extends Plugin {
     this.addRibbonIcon("folder-cog", t("chooseFolder"), chooseFolder);
     this.app.workspace.onLayoutReady(() => this.scheduleFolders());
     this.registerEvent(this.app.workspace.on("layout-change", () => this.scheduleFolders()));
-    this.registerEvent(this.app.workspace.on("file-open", () => this.scheduleFolders()));
-    this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.scheduleFolders()));
     const observer = new MutationObserver(records => {
       if (records.some(r => r.type === "attributes" || r.target.matches?.(".nav-folder-title") && !r.target.querySelector(".ce-folder-action") || [...r.addedNodes].some(n =>
         n.nodeType === 1 && (n.matches(".nav-folder, .nav-folder-title, .workspace-leaf-content[data-type=file-explorer]") || n.querySelector(".nav-folder-title") || n.parentElement?.closest(".nav-folder-title") && !n.matches(".ce-folder-action"))))) this.scheduleFolders();
@@ -1106,12 +1104,6 @@ class CodeEmbedPlugin extends Plugin {
     if (this.folderFrame != null) return;
     this.folderFrame = requestAnimationFrame(() => {
       this.folderFrame = null;
-      const workspace = this.app.workspace;
-      const explorerFocused = workspace.activeLeaf?.view.getViewType() === "file-explorer";
-      const activeFile = workspace.getActiveFile() ?? (explorerFocused
-        ? workspace.getMostRecentLeaf(workspace.rootSplit)?.view.file
-        : null);
-      const activeRoot = activeFile?.extension === "md" ? this.packages().root(activeFile.path) : null;
       for (const leaf of this.app.workspace.getLeavesOfType("file-explorer")) {
         const view = leaf.view;
         // Some explorer versions keep the file on the tree item rather than the title element.
@@ -1129,15 +1121,15 @@ class CodeEmbedPlugin extends Plugin {
           const folder = path && this.app.vault.getAbstractFileByPath(path);
           if (isVaultFolder(folder)) rows.set(row, folder);
         }
-        for (const [row, folder] of rows) this.decorateFolder(row, folder, activeRoot);
+        for (const [row, folder] of rows) this.decorateFolder(row, folder);
       }
     });
   }
 
-  decorateFolder(row, folder, activeRoot) {
+  decorateFolder(row, folder) {
     const folderPath = folder.path === "/" ? "" : folder.path;
     const showAll = this.settings.showAllFolderActions;
-    const marked = showAll ? this.packages().roots.has(folderPath) : activeRoot === folderPath;
+    const marked = this.packages().roots.has(folderPath);
     row.classList.toggle("ce-package-folder", marked);
     let button = row.querySelector(".ce-folder-action");
     if (!showAll && !marked) {

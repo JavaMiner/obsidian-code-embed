@@ -71,7 +71,7 @@ Les blocs `ce` et `codeembed` affichent la structure. Pour `md` ou `xml`, touche
 
 ## Limiter la recherche à un paquet
 
-Ouvrez le menu du dossier par clic droit ou appui long, ou choisissez un dossier dans la palette. Confirmez le chemin du marqueur avant de le retirer. **◆ Racine** apparaît seulement à côté de la racine la plus proche de la note active.
+Ouvrez le menu du dossier par clic droit ou appui long, ou choisissez un dossier dans la palette. Confirmez le chemin du marqueur avant de le retirer. Chaque dossier marqué affiche toujours sa couleur et **◆ Racine**. L’option, désactivée par défaut, affiche **+ Racine** sur les autres dossiers.
 
 **Afficher les actions sur tous les dossiers** — Affiche « + Racine » sur les dossiers sans marqueur et « ◆ Racine » sur chaque racine de paquet.
 

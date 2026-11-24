@@ -159,5 +159,5 @@
   "rootCreated": "Code Embed root set: {path}",
   "rootRemoved": "Root marker removed: {path}",
   "showAllFolderActions": "Show actions on all folders",
-  "showAllFolderActionsHelp": "Show “+ Root” on unmarked folders and “◆ Root” on every package root."
+  "showAllFolderActionsHelp": "Every marked folder always shows its color and ◆ Root. Enable the setting to show + Root on unmarked folders. It defaults to off."
 }

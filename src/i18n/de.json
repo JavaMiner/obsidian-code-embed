@@ -159,5 +159,5 @@
   "rootCreated": "Code-Embed-Paketwurzel festgelegt: {path}",
   "rootRemoved": "Wurzelmarkierung entfernt: {path}",
   "showAllFolderActions": "Aktionen bei allen Ordnern anzeigen",
-  "showAllFolderActionsHelp": "Zeigt „+ Wurzel“ bei unmarkierten Ordnern und „◆ Wurzel“ bei allen Paketwurzeln."
+  "showAllFolderActionsHelp": "Jeder markierte Ordner zeigt immer seine Farbe und ◆ Wurzel. Die standardmäßig deaktivierte Option zeigt + Wurzel bei unmarkierten Ordnern."
 }

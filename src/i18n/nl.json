@@ -159,5 +159,5 @@
   "rootCreated": "Code Embed-hoofdmap ingesteld: {path}",
   "rootRemoved": "Hoofdmapmarkering verwijderd: {path}",
   "showAllFolderActions": "Acties bij alle mappen tonen",
-  "showAllFolderActionsHelp": "Toont ‘+ Hoofdmap’ bij ongemarkeerde mappen en ‘◆ Hoofdmap’ bij elke pakketmap."
+  "showAllFolderActionsHelp": "Elke gemarkeerde map toont altijd de kleur en ◆ Hoofdmap. De standaard uitgeschakelde optie toont + Hoofdmap bij de overige mappen."
 }

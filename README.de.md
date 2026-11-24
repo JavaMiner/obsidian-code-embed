@@ -71,7 +71,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Suche auf ein Paket begrenzen
 
-Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. **◆ Wurzel** erscheint nur an der nächsten Paketwurzel der aktiven Notiz.
+Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. Jeder markierte Ordner zeigt immer seine Farbe und **◆ Wurzel**. Die standardmäßig deaktivierte Option zeigt **+ Wurzel** bei unmarkierten Ordnern.
 
 **Aktionen bei allen Ordnern anzeigen** — Zeigt „+ Wurzel“ bei unmarkierten Ordnern und „◆ Wurzel“ bei allen Paketwurzeln.
 

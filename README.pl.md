@@ -71,7 +71,7 @@ W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuk
 
 ## Ogranicz wyszukiwanie do pakietu
 
-Otwórz menu folderu prawym kliknięciem lub długim przytrzymaniem albo wybierz folder z palety poleceń. Przy zdejmowaniu oznaczenia potwierdź ścieżkę znacznika. **◆ Korzeń** pojawia się tylko przy najbliższym korzeniu aktywnej notatki.
+Otwórz menu folderu prawym kliknięciem lub długim przytrzymaniem albo wybierz folder z palety poleceń. Przy zdejmowaniu oznaczenia potwierdź ścieżkę znacznika. Każdy oznaczony folder zawsze ma kolor i **◆ Korzeń**. Przełącznik pokazuje **+ Korzeń** przy pozostałych folderach. Domyślnie jest wyłączony.
 
 **Pokaż akcje przy wszystkich folderach** — Wyświetla „+ Korzeń” przy nieoznaczonych folderach i „◆ Korzeń” przy wszystkich korzeniach.
 

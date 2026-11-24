@@ -51,7 +51,7 @@ test("all bundled languages define the English translation keys", () => {
     assert.deepEqual(Object.keys(labels).sort(), Object.keys(languages.en).sort());
 });
 
-test("folder badge follows the closest active root across note switches", () => {
+test("marked folders stay visible across note switches and only unmarked actions depend on settings", () => {
   const { plugin, context } = loadPlugin("dist/main.js", "pl");
   const events = new Map();
   plugin.app.workspace.on = (name, callback) => events.set(name, callback);
@@ -83,10 +83,10 @@ test("folder badge follows the closest active root across note switches", () => 
   plugin.setupFolders();
   function check(path, root, event) {
     activeFile = path ? { path, extension: "md" } : null;
-    events.get(event)();
+    plugin.scheduleFolders();
     frame();
-    assert.deepEqual(rows.filter(row => row.querySelector()).map(row => row.folder.path), root ? [root] : []);
-    assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), root ? [root] : []);
+    assert.deepEqual(rows.filter(row => row.querySelector()).map(row => row.folder.path), roots);
+    assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), roots);
     for (const row of rows.filter(row => row.querySelector())) assert.equal(row.querySelector().textContent, "◆ Korzeń");
   }
   check("Prompts/Nested/Note.md", "Prompts/Nested", "file-open");
@@ -162,7 +162,8 @@ test("app language determines folder labels for every documented locale", () => 
     const button = { dataset: {}, setAttribute(key, value) { this[key] = value; } };
     const row = { classList: { toggle() {} }, querySelector: () => button };
     const folder = { path: "My $& folder" };
-    plugin.decorateFolder(row, folder, folder.path);
+    plugin.packages = () => ({ roots: new Set([folder.path]) });
+    plugin.decorateFolder(row, folder);
     assert.equal(button.textContent, "◆ " + root);
     assert.ok(guide.includes(button.textContent));
     assert.equal(button.title, labels.unmarkFolder);

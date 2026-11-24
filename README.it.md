@@ -71,7 +71,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Limitare la ricerca a un pacchetto
 
-Apri il menu della cartella con un clic destro o una pressione prolungata, oppure scegli una cartella nella tavolozza. Conferma il percorso del marcatore per rimuoverlo. **◆ Radice** compare solo accanto alla radice più vicina alla nota attiva.
+Apri il menu della cartella con un clic destro o una pressione prolungata, oppure scegli una cartella nella tavolozza. Conferma il percorso del marcatore per rimuoverlo. Ogni cartella contrassegnata mostra sempre il colore e **◆ Radice**. L’opzione, disattivata per impostazione predefinita, mostra **+ Radice** sulle altre cartelle.
 
 **Mostra le azioni su tutte le cartelle** — Mostra «+ Radice» sulle cartelle senza marcatore e «◆ Radice» su tutte le radici dei pacchetti.
 

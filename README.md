@@ -71,7 +71,7 @@ A `ce` or `codeembed` block opens in structured View. Tap View on `md` or `xml` 
 
 ## Limit lookup to a package
 
-Open the folder context menu with a right click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. **◆ Root** appears only beside the nearest root of the active note.
+Open the folder context menu with a right click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. Every marked folder always shows its color and **◆ Root**. Enable the setting to show **+ Root** on unmarked folders. It defaults to off.
 
 **Show actions on all folders** — Show “+ Root” on unmarked folders and “◆ Root” on every package root.
 

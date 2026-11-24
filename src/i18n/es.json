@@ -159,5 +159,5 @@
   "rootCreated": "Raíz de Code Embed establecida: {path}",
   "rootRemoved": "Marcador de raíz eliminado: {path}",
   "showAllFolderActions": "Mostrar acciones en todas las carpetas",
-  "showAllFolderActionsHelp": "Muestra «+ Raíz» en las carpetas sin marcador y «◆ Raíz» en todas las raíces de paquete."
+  "showAllFolderActionsHelp": "Cada carpeta marcada conserva su color y ◆ Raíz. La opción, desactivada por defecto, muestra + Raíz en las demás carpetas."
 }

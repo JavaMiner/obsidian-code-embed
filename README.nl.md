@@ -71,7 +71,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Zoeken binnen een pakket
 
-Open het mapmenu met een rechtermuisklik of door de map ingedrukt te houden. Je kunt ook een map kiezen via het opdrachtenpalet. Bevestig het markeringspad bij het verwijderen. **◆ Hoofdmap** staat alleen bij de dichtstbijzijnde pakketmap van de actieve notitie.
+Open het mapmenu met een rechtermuisklik of door de map ingedrukt te houden. Je kunt ook een map kiezen via het opdrachtenpalet. Bevestig het markeringspad bij het verwijderen. Elke gemarkeerde map toont altijd de kleur en **◆ Hoofdmap**. De standaard uitgeschakelde optie toont **+ Hoofdmap** bij de overige mappen.
 
 **Acties bij alle mappen tonen** — Toont ‘+ Hoofdmap’ bij ongemarkeerde mappen en ‘◆ Hoofdmap’ bij elke pakketmap.
 

@@ -71,7 +71,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Limitar la búsqueda a un paquete
 
-Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta. Confirma la ruta del marcador al quitarlo. **◆ Raíz** solo aparece junto a la raíz más cercana a la nota activa.
+Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta. Confirma la ruta del marcador al quitarlo. Cada carpeta marcada conserva su color y **◆ Raíz**. La opción, desactivada por defecto, muestra **+ Raíz** en las demás carpetas.
 
 **Mostrar acciones en todas las carpetas** — Muestra «+ Raíz» en las carpetas sin marcador y «◆ Raíz» en todas las raíces de paquete.
 

@@ -159,5 +159,5 @@
   "rootCreated": "Radice di Code Embed impostata: {path}",
   "rootRemoved": "Marcatore di radice rimosso: {path}",
   "showAllFolderActions": "Mostra le azioni su tutte le cartelle",
-  "showAllFolderActionsHelp": "Mostra «+ Radice» sulle cartelle senza marcatore e «◆ Radice» su tutte le radici dei pacchetti."
+  "showAllFolderActionsHelp": "Ogni cartella contrassegnata mostra sempre il colore e ◆ Radice. L’opzione, disattivata per impostazione predefinita, mostra + Radice sulle altre cartelle."
 }
