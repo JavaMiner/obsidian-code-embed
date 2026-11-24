@@ -8,8 +8,8 @@
 
 Piszesz kilka promptów, które mają kończyć się takim samym poleceniem. Zapisz je raz w notatce `Szablony`. Gdy zmienisz tekst w tej notatce, kolejne użycie Copy+ w każdym z promptów uwzględni poprawkę.
 
-1. W `Szablony` wpisz w pustym wierszu dokładnie `_xvar`. Zostaw kursor tuż za `r`, bez spacji i zaznaczenia. `_xvarZMIENNA` nie uruchamia skrótu.
-2. Otwórz paletę i wybierz **Rozwiń skrót**. Dopiero w oknie nazwy wpisz `ZMIENNA` i stuknij OK. Między utworzonymi tagami wpisz treść, jak poniżej.
+1. Wpisz `_xvarZMIENNA` i zostaw kursor za ostatnią literą, bez spacji.
+2. Wybierz **Rozwiń skrót**. Polecenie wstawi oba tagi i ustawi kursor między nimi. Wpisz tam instrukcję.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -71,7 +71,7 @@ W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuk
 
 ## Ogranicz wyszukiwanie do pakietu
 
-Stuknij przycisk **+ Korzeń** lub **◆ Korzeń** przy katalogu, użyj menu po przytrzymaniu albo wybierz katalog z palety poleceń. Stuknięcie nazwy rozwija drzewo. Oznaczenie tworzy plik poniżej. Zdjęcie oznaczenia wymaga potwierdzenia ścieżki znacznika.
+Otwórz menu folderu prawym kliknięciem lub długim przytrzymaniem albo wybierz folder z palety poleceń. Przy zdejmowaniu oznaczenia potwierdź ścieżkę znacznika. **◆ Korzeń** pojawia się tylko przy najbliższym korzeniu aktywnej notatki.
 
 Wtyczka używa języka interfejsu Obsidiana. W ustawieniach Code Embed znajdziesz numer wersji, odnośnik do polskiego przewodnika i przycisk **Wybierz katalog pakietu**. Aby ręcznie oznaczyć katalog, utwórz w nim notatkę `_code-embed-root` (pełna nazwa pliku to `_code-embed-root.md`).
 

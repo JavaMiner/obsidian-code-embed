@@ -8,8 +8,8 @@
 
 Speichere die gemeinsame Schlussanweisung mehrerer Prompts in `Szablony`. Eine Änderung gilt beim nächsten Kopieren mit Copy+ für alle.
 
-1. Tippe in einer leeren Zeile genau `_xvar`. Lass den Cursor hinter dem `r`, ohne Leerzeichen oder Auswahl. `_xvarZMIENNA` löst nichts aus.
-2. Wähle **Kürzel erweitern** in der Befehlspalette. Gib erst im Namensfeld `ZMIENNA` ein, tippe auf OK und schreibe die Anweisung zwischen die Tags.
+1. Tippe `_xvarZMIENNA` und lass den Cursor ohne Leerzeichen hinter dem letzten Buchstaben.
+2. Wähle **Kürzel erweitern**. Der Befehl fügt beide Tags ein und setzt den Cursor dazwischen. Schreibe dort die Anweisung.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -71,7 +71,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Suche auf ein Paket begrenzen
 
-Auf **+ Wurzel** oder **◆ Wurzel** neben dem Ordner tippen, das Kontextmenü durch langes Drücken öffnen oder den Ordner über die Befehlspalette wählen. Ein Tipp auf den Namen klappt den Ordner auf. Die Markierung erzeugt die unten genannte Datei. Zum Entfernen den Pfad bestätigen.
+Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. **◆ Wurzel** erscheint nur an der nächsten Paketwurzel der aktiven Notiz.
 
 Code Embed verwendet die Oberflächensprache von Obsidian. Die Einstellungen zeigen die installierte Version, den Link zur deutschen Anleitung und **Paketordner auswählen**. Zum manuellen Markieren im Ordner eine Notiz namens `_code-embed-root` anlegen (Dateiname `_code-embed-root.md`).
 

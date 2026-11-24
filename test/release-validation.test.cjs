@@ -17,7 +17,15 @@ test("release metadata, funding and build output", () => {
   assert.equal(manifest.fundingUrl["Buy me a coffee"], "https://buymeacoffee.com/javaminer");
   for (const url of Object.values(manifest.fundingUrl)) assert.ok(read(".github/FUNDING.yml").includes(url));
   for (const path of ["styles.css", "manifest.json"]) assert.equal(read("dist/" + path), read(path));
-  assert.equal(read("dist/main.js"), read("src/main.js"));
+  const built = read("dist/main.js");
+  assert.doesNotMatch(built, /(?:require\s*\(|import\s*(?:\(|.*?from\s*)?)[\"']\.\/i18n/);
+  const bundled = /^const CE_LOCALES = (.+);$/m.exec(built);
+  assert.ok(bundled, "dist/main.js bundles the locale dictionary");
+  const locales = JSON.parse(bundled[1]);
+  const languages = ["de", "en", "es", "fr", "it", "nl", "pl"];
+  assert.deepEqual(Object.keys(locales).sort(), languages);
+  for (const language of languages)
+    assert.deepEqual(locales[language], JSON.parse(read("src/i18n/" + language + ".json")));
 });
 
 test("seven guides share examples, with legacy syntax confined to migration", () => {

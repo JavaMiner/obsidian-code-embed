@@ -8,8 +8,8 @@
 
 Conservez la consigne finale de plusieurs prompts dans `Szablony`. Une modification sera prise en compte à la prochaine copie de chaque prompt.
 
-1. Sur une ligne vide, tapez exactement `_xvar`. Laissez le curseur après le `r`, sans espace ni sélection. `_xvarZMIENNA` ne déclenche rien.
-2. Choisissez **Développer le raccourci** dans la palette. Saisissez `ZMIENNA` dans le champ du nom, touchez OK et écrivez la consigne entre les balises.
+1. Tapez `_xvarZMIENNA` et laissez le curseur après la dernière lettre, sans espace.
+2. Choisissez **Développer le raccourci**. La commande insère les deux balises et place le curseur entre elles. Écrivez-y la consigne.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -71,7 +71,7 @@ Les blocs `ce` et `codeembed` affichent la structure. Pour `md` ou `xml`, touche
 
 ## Limiter la recherche à un paquet
 
-Toucher **+ Racine** ou **◆ Racine** à côté du dossier, ouvrir le menu par appui long ou choisir le dossier dans la palette. Toucher son nom le déplie. Le marquage crée le fichier indiqué ci-dessous. Confirmer son chemin pour le retirer.
+Ouvrez le menu du dossier par clic droit ou appui long, ou choisissez un dossier dans la palette. Confirmez le chemin du marqueur avant de le retirer. **◆ Racine** apparaît seulement à côté de la racine la plus proche de la note active.
 
 Code Embed utilise la langue de l’interface d’Obsidian. Ses réglages affichent la version installée, un lien vers le guide français et **Choisir le dossier du paquet**. Pour marquer un dossier à la main, créez-y une note `_code-embed-root` (fichier `_code-embed-root.md`).
 

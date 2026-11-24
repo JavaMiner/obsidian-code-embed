@@ -8,8 +8,8 @@
 
 Guarda la instrucción final de varios prompts en `Szablony`. Al editarla una vez, la siguiente copia de cada prompt incluirá el cambio.
 
-1. En una línea vacía escribe exactamente `_xvar`. Deja el cursor tras la `r`, sin espacio ni selección. `_xvarZMIENNA` no se expande.
-2. Elige **Expandir abreviatura** en la paleta. Introduce `ZMIENNA` en el campo del nombre, toca OK y escribe la instrucción entre las etiquetas.
+1. Escribe `_xvarZMIENNA` y deja el cursor detrás de la última letra, sin espacio.
+2. Elige **Expandir abreviatura**. El comando inserta ambas etiquetas y coloca el cursor entre ellas. Escribe ahí la instrucción.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -71,7 +71,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Limitar la búsqueda a un paquete
 
-Toca **+ Raíz** o **◆ Raíz** junto a la carpeta, mantén pulsado para abrir el menú o elige la carpeta en la paleta. Toca su nombre para desplegarla. Al marcarla se crea el archivo indicado abajo. Confirma su ruta para eliminar el marcador.
+Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta. Confirma la ruta del marcador al quitarlo. **◆ Raíz** solo aparece junto a la raíz más cercana a la nota activa.
 
 Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar la carpeta manualmente, crea dentro una nota `_code-embed-root` (archivo `_code-embed-root.md`).
 

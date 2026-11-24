@@ -8,8 +8,8 @@
 
 Bewaar de gedeelde slotinstructie van meerdere prompts in `Szablony`. Wijzig die één keer en elke prompt gebruikt de nieuwe tekst bij de volgende Copy+.
 
-1. Typ op een lege regel precies `_xvar`. Laat de cursor direct na de `r` staan, zonder spatie of selectie. `_xvarZMIENNA` wordt niet uitgewerkt.
-2. Kies **Afkorting uitwerken** in het opdrachtenpalet. Vul in het naamveld `ZMIENNA` in, tik op OK en schrijf de instructie tussen de tags.
+1. Typ `_xvarZMIENNA` en laat de cursor na de laatste letter staan, zonder spatie.
+2. Kies **Afkorting uitwerken**. De opdracht voegt beide tags in en plaatst de cursor ertussen. Typ daar de instructie.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -71,7 +71,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Zoeken binnen een pakket
 
-Tik op **+ Hoofdmap** of **◆ Hoofdmap** naast de map, houd de map ingedrukt voor het menu of kies een map in het opdrachtenpalet. Tik op de naam om de map uit te klappen. Markeren maakt onderstaand bestand aan. Bevestig het pad om de markering te verwijderen.
+Open het mapmenu met een rechtermuisklik of door de map ingedrukt te houden. Je kunt ook een map kiezen via het opdrachtenpalet. Bevestig het markeringspad bij het verwijderen. **◆ Hoofdmap** staat alleen bij de dichtstbijzijnde pakketmap van de actieve notitie.
 
 Code Embed volgt de interfacetaal van Obsidian. In de instellingen staan de geïnstalleerde versie, een link naar de Nederlandse handleiding en **Pakketmap kiezen**. Maak voor handmatige markering in de map de notitie `_code-embed-root` (bestandsnaam `_code-embed-root.md`).
 

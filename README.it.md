@@ -8,8 +8,8 @@
 
 Salva in `Szablony` l’istruzione finale comune a più prompt. Modificala una volta e la prossima copia di ogni prompt includerà la modifica.
 
-1. Su una riga vuota digita esattamente `_xvar`. Lascia il cursore dopo la `r`, senza spazi o selezioni. `_xvarZMIENNA` non si espande.
-2. Scegli **Espandi abbreviazione** nella tavolozza dei comandi. Inserisci `ZMIENNA` nel campo del nome, tocca OK e scrivi l’istruzione tra i tag.
+1. Digita `_xvarZMIENNA` e lascia il cursore dopo l’ultima lettera, senza spazi.
+2. Scegli **Espandi abbreviazione**. Il comando inserisce entrambi i tag e posiziona il cursore tra di essi. Scrivi lì l’istruzione.
 
 ```xml
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
@@ -71,7 +71,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Limitare la ricerca a un pacchetto
 
-Tocca **+ Radice** o **◆ Radice** accanto alla cartella, tieni premuto per il menu o scegli la cartella dalla tavolozza. Tocca il nome per espanderla. Il contrassegno crea il file indicato sotto. Conferma il percorso per rimuoverlo.
+Apri il menu della cartella con un clic destro o una pressione prolungata, oppure scegli una cartella nella tavolozza. Conferma il percorso del marcatore per rimuoverlo. **◆ Radice** compare solo accanto alla radice più vicina alla nota attiva.
 
 Code Embed usa la lingua dell’interfaccia di Obsidian. Le impostazioni mostrano la versione installata, il collegamento alla guida italiana e **Scegli la cartella del pacchetto**. Per contrassegnare una cartella manualmente, crea al suo interno una nota `_code-embed-root` (file `_code-embed-root.md`).
 
