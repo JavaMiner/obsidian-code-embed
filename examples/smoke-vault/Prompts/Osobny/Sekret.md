@@ -1,1 +1,0 @@
-Sekret z osobnego pakietu.
