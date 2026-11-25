@@ -1,99 +1,99 @@
 # Code Embed · Guía de la versión de desarrollo
 
-[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![License](https://img.shields.io/badge/license-CC_BY--NC_4.0-blue)](LICENSE)
+[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Versión](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![Licencia](https://img.shields.io/badge/license-CC_BY--NC_4.0-blue)](LICENSE)
 
 [PL](README.pl.md) · [EN](README.md) · [DE](README.de.md) · [FR](README.fr.md) · [ES](README.es.md) · [NL](README.nl.md) · [IT](README.it.md)
 
 ## Definir un fragmento
 
-Guarda la instrucción final de varios prompts en `Szablony`. Al editarla una vez, la siguiente copia de cada prompt incluirá el cambio.
+Guarda la instrucción final de varios prompts en una nota llamada `Plantillas`. Si la editas, la próxima copia de cada prompt incluirá el cambio.
 
 ```xml
-<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+<VARIABLE>Da tres ejemplos.</VARIABLE>
 ```
 
-Inserta el siguiente bloque en otra nota. Toca **Copy+** y pega el resultado: `Podaj trzy przykłady.` (Da tres ejemplos.)
+Inserta el siguiente bloque en otra nota. Pulsa **Copy+** y pega el resultado: `Da tres ejemplos.`
 
 ```ce
-![Szablony:<<ZMIENNA>>]
+![Plantillas:<<VARIABLE>>]
 ```
 
 Coloca estas definiciones equivalentes en notas distintas o termina la sección con otro encabezado del mismo nivel.
 
 ```markdown
-## Instrukcje
-Odpowiedz po $1. Ton: ${2:rzeczowy}.
+## Instrucciones
+Responde en $1. Tono: ${2:directo}.
 ```
 
 ```xml
-<styl>Odpowiedz po $1. Ton: ${2:rzeczowy}.</styl>
+<estilo>Responde en $1. Tono: ${2:directo}.</estilo>
 ```
 
 ## Insertar el fragmento
 
-`![źródło:selektor(argumenty)]`
+`![origen:selector(argumentos)]`
 
 Omite el origen para usar la nota actual. Los dos puntos solo separan el origen del selector.
 
-- `![Szablony]` — Nota completa
-- `![Szablony:3-8]` — Líneas, extremos incluidos
-- `![Szablony:#Styl]` — Sección con encabezado
-- `![Szablony:##Styl]` — Contenido de la sección
-- `![Szablony:##Rozdział#Styl]` — Contenido de la subsección
-- `![Szablony:<styl>]` — Elemento con etiquetas
-- `![Szablony:<<styl>>]` — Contenido del elemento
-- `![#Styl]` · `![##Styl]` — Sección local
-- `![<styl>]` · `![<<styl>>]` — Etiqueta local
+- `![Plantillas]` — Nota completa
+- `![Plantillas:3-8]` — Líneas, extremos incluidos
+- `![Plantillas:#Estilo]` — Sección con encabezado
+- `![Plantillas:##Estilo]` — Contenido de la sección
+- `![Plantillas:##Capitulo#Estilo]` — Contenido de la subsección
+- `![Plantillas:<estilo>]` — Elemento con sus etiquetas
+- `![Plantillas:<<estilo>>]` — Contenido del elemento
+- `![#Estilo]` · `![##Estilo]` — Sección local
+- `![<estilo>]` · `![<<estilo>>]` — Etiqueta local
 
 ## Pasar argumentos
 
-Ambas llamadas producen el resultado siguiente. `$1`–`$9` seleccionan un valor, `$*` los une y `${2:rzeczowy}` sustituye un valor ausente o vacío. Pon entre comillas los argumentos con comas. Pasa los valores explícitamente a las importaciones anidadas.
+Ambas llamadas producen el resultado siguiente. `$1`–`$9` seleccionan un valor, `$*` los une y `${2:directo}` sustituye un valor ausente o vacío. Pon entre comillas los argumentos que contengan comas. Pasa los valores explícitamente a las inserciones anidadas.
 
 ```ce
-![##Instrukcje(polsku)]
-![<<styl>>(polsku)]
+![##Instrucciones(español)]
+![<<estilo>>(español)]
 ```
 
 ```text
-Odpowiedz po polsku. Ton: rzeczowy.
+Responde en español. Tono: directo.
 ```
 
-`![Wspólne:##Ton($1)]`
+`![Compartido:##Tono($1)]`
 
 ## Previsualizar y copiar
 
-`ce` y `codeembed` muestran la estructura. En `md` o `xml`, toca Vista previa. Copy+ copia el texto expandido. El lenguaje del bloque controla la presentación.
+`ce` y `codeembed` muestran la estructura. En `md` o `xml`, pulsa Vista previa. Copy+ copia el texto expandido. El lenguaje del bloque controla la presentación.
 
 ## Limitar la búsqueda a un paquete
 
-Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta. Confirma la ruta del marcador al quitarlo. Cada carpeta marcada conserva su color y **◆ Raíz**. La opción, desactivada por defecto, muestra **+ Raíz** en las demás carpetas.
+Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta de comandos. Confirma la ruta del marcador al quitarlo. Cada carpeta marcada muestra su color y **◆ Raíz**. La opción, desactivada por defecto, muestra **+ Raíz** en las demás carpetas.
 
 **Mostrar acciones en todas las carpetas** — Muestra «+ Raíz» en las carpetas sin marcador y «◆ Raíz» en todas las raíces de paquete.
 
-Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar la carpeta manualmente, crea dentro una nota `_code-embed-root` (archivo `_code-embed-root.md`).
+Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar una carpeta manualmente, crea dentro una nota `_code-embed-root` (archivo `_code-embed-root.md`).
 
 ```text
 Prompts/
   _code-embed-root.md
-  Start.md
-  Wspólne/
-    Styl.md
+  Inicio.md
+  Compartido/
+    Estilo.md
 ```
 
-`Prompts/Start.md` → `![Wspólne/Styl:##Ton]`
+`Prompts/Inicio.md` → `![Compartido/Estilo:##Tono]`
 
-El marcador más cercano delimita toda la expansión. Los nombres cortos deben ser únicos. Si hay duplicados, utiliza una ruta del diagnóstico. Las rutas con barra parten de la raíz del paquete. Los paquetes anidados son independientes. Mueve la carpeta con su marcador para conservar las referencias.
+El marcador más cercano delimita toda la expansión. Los nombres cortos deben ser únicos. Si hay duplicados, utiliza una ruta indicada en el mensaje de error. Las rutas con barra parten de la raíz del paquete. Los paquetes anidados son independientes. Mueve la carpeta con su marcador para conservar las referencias.
 
 ## Compatibilidad y migración
 
-Dentro de un bloque de código se reconocen todas las formas antiguas siguientes. Fuera del bloque, Obsidian gestiona las inserciones nativas de notas, encabezados e imágenes. Rename guarda las referencias modificadas en forma canónica.
+Dentro de los bloques de código se reconocen las formas antiguas de la tabla. Fuera de ellos, Obsidian gestiona las inserciones nativas de notas, encabezados e imágenes. Al cambiar un nombre, Code Embed guarda las referencias que actualiza en la forma canónica.
 
-| Legacy | → |
+| Sintaxis anterior | Sintaxis canónica |
 | --- | --- |
-| `![[Szablony:##Styl]]` | `![Szablony:##Styl]` |
-| `$[##Styl]` | `![##Styl]` |
-| `![.:<<styl>>]` | `![<<styl>>]` |
-| `![Szablony##Styl]` | `![Szablony:##Styl]` |
+| `![[Plantillas:##Estilo]]` | `![Plantillas:##Estilo]` |
+| `$[##Estilo]` | `![##Estilo]` |
+| `![.:<<estilo>>]` | `![<<estilo>>]` |
+| `![Plantillas##Estilo]` | `![Plantillas:##Estilo]` |
 
 ## Instalar la versión de desarrollo
 
@@ -102,6 +102,6 @@ npm run build
 npm test
 ```
 
-`dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
+Copia `dist/{main.js,manifest.json,styles.css}` a `.obsidian/plugins/code-embed/`.
 
-[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+[Versiones](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
