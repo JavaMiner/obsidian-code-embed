@@ -1,19 +1,15 @@
-# Vault and clipboard access
+# Privacy
 
-Code Embed enumerates Markdown files to find references across the vault for backlinks, broken-reference checks, and reference updates when renaming. It reads individual notes to resolve embedded fragments. These operations use local Obsidian APIs.
+[Polski](PRIVACY.pl.md)
 
-Copy+ and the expanded-copy command write the selected block's expanded text to the system clipboard when invoked. They do not read the clipboard.
+## Vault access
 
-# Dostęp do skarbca i schowka
+Code Embed lists local file paths to find package markers and distinguish matching candidates. The folder picker lists folders in the vault. Backlinks, broken-reference checks, and reference updates during renaming may read Markdown notes across the vault. The plugin reads individual notes to resolve embedded fragments. When expanding a fragment within a package, it selects targets within that package. These operations use local Obsidian APIs.
 
-Code Embed listuje pliki Markdown, aby znajdować odwołania na potrzeby linków zwrotnych, sprawdzania zerwanych odwołań i ich aktualizacji przy zmianie nazw. Odczytuje pojedyncze notatki, aby rozwijać osadzane fragmenty. Te operacje korzystają z lokalnego API Obsidiana.
+## Clipboard access
 
-Copy+ i polecenie kopiowania rozwiniętego bloku zapisują jego treść do schowka na żądanie. Nie odczytują schowka.
+When you invoke Copy+ or the expanded-copy command, Code Embed writes the expanded text of the selected block to the system clipboard. It does not read the clipboard.
 
-## Package discovery
+## External links
 
-The package index enumerates local file paths to locate markers and compare candidates. Folder selection lists vault folders. Reference validation, backlinks and Rename can read Markdown notes across the vault. Expansion inside a package selects targets within its boundary. Copy+ uses `navigator.clipboard.writeText` after a user action. The support command opens the chosen payment provider in an external browser.
-
-## Wykrywanie pakietów
-
-Indeks odczytuje lokalne ścieżki, aby znaleźć znaczniki i rozróżnić pliki o tej samej nazwie. Polecenie wyboru katalogu wyświetla katalogi skarbca. Walidacja, linki zwrotne i Rename mogą odczytywać notatki Markdown w całym skarbcu. Rozwijanie w pakiecie wybiera cele w jego granicach. Polecenie wsparcia otwiera wybraną stronę płatności w przeglądarce.
+The support command opens the selected payment provider in an external browser.
