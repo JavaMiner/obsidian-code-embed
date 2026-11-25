@@ -84,17 +84,6 @@ Prompts/
 
 Najbliższy znacznik wyznacza granicę całego rozwinięcia. Krótka nazwa musi być jednoznaczna. Przy duplikacie wybierz ścieżkę podaną w błędzie. Ścieżki z ukośnikiem zaczynają się w korzeniu. Zagnieżdżone pakiety są odrębne. Przenieś katalog razem ze znacznikiem, aby zachować odwołania.
 
-## Zgodność i migracja
-
-W bloku kodu parser czyta wszystkie poniższe starsze zapisy. Poza blokiem natywne osadzenia notatek, nagłówków i obrazów obsługuje Obsidian. Rename zapisuje zmieniane osadzenia w formie kanonicznej.
-
-| Legacy | → |
-| --- | --- |
-| `![[Szablony:##Styl]]` | `![Szablony:##Styl]` |
-| `$[##Styl]` | `![##Styl]` |
-| `![.:<<styl>>]` | `![<<styl>>]` |
-| `![Szablony##Styl]` | `![Szablony:##Styl]` |
-
 ## Instalacja wersji rozwojowej
 
 ```sh

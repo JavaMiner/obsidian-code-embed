@@ -82,17 +82,6 @@ Prompts/
 
 Le marqueur le plus proche délimite toute la résolution. Un nom court doit être unique. En cas d’ambiguïté, choisissez un chemin proposé dans le message d’erreur. Un chemin contenant une barre oblique part de la racine du paquet. Les paquets imbriqués sont distincts. Déplacez le dossier avec son marqueur pour conserver les références.
 
-## Compatibilité et migration
-
-Dans les blocs de code, l’analyseur reconnaît les anciennes formes du tableau. En dehors de ces blocs, Obsidian gère les inclusions natives de notes, de titres et d’images. Lors d’un renommage, Code Embed enregistre les références mises à jour sous leur forme canonique.
-
-| Ancienne syntaxe | Syntaxe canonique |
-| --- | --- |
-| `![[Modèles:##Style]]` | `![Modèles:##Style]` |
-| `$[##Style]` | `![##Style]` |
-| `![.:<<style>>]` | `![<<style>>]` |
-| `![Modèles##Style]` | `![Modèles:##Style]` |
-
 ## Installer la version de développement
 
 ```sh

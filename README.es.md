@@ -84,17 +84,6 @@ Prompts/
 
 El marcador más cercano delimita toda la expansión. Los nombres cortos deben ser únicos. Si hay duplicados, utiliza una ruta indicada en el mensaje de error. Las rutas con barra parten de la raíz del paquete. Los paquetes anidados son independientes. Mueve la carpeta con su marcador para conservar las referencias.
 
-## Compatibilidad y migración
-
-Dentro de los bloques de código se reconocen las formas antiguas de la tabla. Fuera de ellos, Obsidian gestiona las inserciones nativas de notas, encabezados e imágenes. Al cambiar un nombre, Code Embed guarda las referencias que actualiza en la forma canónica.
-
-| Sintaxis anterior | Sintaxis canónica |
-| --- | --- |
-| `![[Plantillas:##Estilo]]` | `![Plantillas:##Estilo]` |
-| `$[##Estilo]` | `![##Estilo]` |
-| `![.:<<estilo>>]` | `![<<estilo>>]` |
-| `![Plantillas##Estilo]` | `![Plantillas:##Estilo]` |
-
 ## Instalar la versión de desarrollo
 
 ```sh

@@ -82,17 +82,6 @@ Prompts/
 
 The nearest marker bounds the entire expansion. Short names must be unique. If a name is ambiguous, choose a path from the error message. Paths with a slash start at the package root. Nested packages are separate. Move the folder with its marker to preserve references.
 
-## Compatibility and migration
-
-Inside code blocks the parser recognizes the older forms below. Outside code blocks Obsidian handles native embeds of notes, headings, and images. When renaming, Code Embed writes updated references in canonical form.
-
-| Older syntax | Canonical syntax |
-| --- | --- |
-| `![[Templates:##Style]]` | `![Templates:##Style]` |
-| `$[##Style]` | `![##Style]` |
-| `![.:<<style>>]` | `![<<style>>]` |
-| `![Templates##Style]` | `![Templates:##Style]` |
-
 ## Install the development build
 
 ```sh

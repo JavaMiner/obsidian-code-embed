@@ -34,17 +34,16 @@ test("release metadata, funding and build output", () => {
     assert.deepEqual(locales[language], JSON.parse(read("src/i18n/" + language + ".json")));
 });
 
-test("seven guides share examples, with legacy syntax confined to migration", () => {
+test("seven guides share examples, using only canonical syntax", () => {
   let expected;
   for (const suffix of ["", ".pl", ".de", ".fr", ".es", ".nl", ".it"]) {
     const guide = read("README" + suffix + ".md");
     const sections = guide.replace(/```[^\n]*\n[\s\S]*?```/g, "").split(/^## /m);
-    assert.equal(sections.length, 8);
+    assert.equal(sections.length, 7);
     const samples = [...guide.matchAll(/`(!\[[^`]*?\]|\$\[[^`]*?\])`/g)].map(m => m[1].replace(/[\p{L}\p{M}]+/gu, "word"));
     if (expected) assert.deepEqual(samples, expected);
     expected = samples;
-    assert.doesNotMatch(sections.slice(1, 6).join("\n"), /!\[\[|\$\[|!\[\.:/);
-    assert.match(sections[6], /`!\[\[[^\]:]+:##[^\]]+\]\]`/);
+    assert.doesNotMatch(sections.join("\n"), /!\[\[|\$\[|!\[\.:|!\[[\p{L}]+#/u);
   }
 });
 

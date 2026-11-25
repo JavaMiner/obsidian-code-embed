@@ -82,17 +82,6 @@ Prompts/
 
 Die nächstgelegene Markierungsdatei begrenzt die gesamte Auflösung. Kurznamen müssen eindeutig sein. Wähle bei Mehrdeutigkeit einen Pfad aus der Fehlermeldung. Pfade mit Schrägstrich beginnen an der Paketwurzel. Verschachtelte Pakete sind eigenständig. Verschiebe den Ordner zusammen mit seiner Markierung, damit Verweise erhalten bleiben.
 
-## Kompatibilität und Migration
-
-In Codeblöcken erkennt der Parser die älteren Formen in der Tabelle. Außerhalb von Codeblöcken verarbeitet Obsidian native Einbettungen von Notizen, Überschriften und Bildern. Beim Umbenennen speichert Code Embed aktualisierte Verweise in kanonischer Form.
-
-| Ältere Syntax | Kanonische Syntax |
-| --- | --- |
-| `![[Vorlagen:##Stil]]` | `![Vorlagen:##Stil]` |
-| `$[##Stil]` | `![##Stil]` |
-| `![.:<<stil>>]` | `![<<stil>>]` |
-| `![Vorlagen##Stil]` | `![Vorlagen:##Stil]` |
-
 ## Entwicklungsversion installieren
 
 ```sh
