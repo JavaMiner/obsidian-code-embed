@@ -1084,7 +1084,8 @@ class CodeEmbedPlugin extends Plugin {
       observer.disconnect();
       cancelAnimationFrame(this.folderFrame);
       document.querySelectorAll(".ce-folder-action").forEach(el => el.remove());
-      document.querySelectorAll(".ce-package-folder").forEach(el => el.classList.remove("ce-package-folder"));
+      document.querySelectorAll(".ce-package-folder, .ce-folder-with-action").forEach(el =>
+        el.classList.remove("ce-package-folder", "ce-folder-with-action"));
       document.body.style.removeProperty("--ce-package-color");
     });
     this.scheduleFolders();
@@ -1121,6 +1122,7 @@ class CodeEmbedPlugin extends Plugin {
     const showAll = this.settings.showAllFolderActions;
     const marked = this.packages().roots.has(folderPath);
     row.classList.toggle("ce-package-folder", marked);
+    row.classList.toggle("ce-folder-with-action", marked || showAll);
     let button = row.querySelector(".ce-folder-action");
     if (!showAll && !marked) {
       button?.remove();

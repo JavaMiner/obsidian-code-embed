@@ -86,6 +86,7 @@ test("marked folders stay visible across note switches and only unmarked actions
     plugin.scheduleFolders();
     frame();
     assert.deepEqual(rows.filter(row => row.querySelector()).map(row => row.folder.path), roots);
+    assert.deepEqual(rows.filter(row => row.classes.has("ce-folder-with-action")).map(row => row.folder.path), roots);
     assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), roots);
     for (const row of rows.filter(row => row.querySelector())) assert.equal(row.querySelector().textContent, "◆ Korzeń");
   }
@@ -110,6 +111,7 @@ test("marked folders stay visible across note switches and only unmarked actions
   plugin.settings.showAllFolderActions = true;
   plugin.scheduleFolders();
   frame();
+  assert.ok(rows.every(row => row.classes.has("ce-folder-with-action")));
   assert.deepEqual(rows.map(row => row.querySelector().textContent), ["◆ Korzeń", "◆ Korzeń", "◆ Korzeń", "+ Korzeń"]);
   assert.deepEqual(rows.filter(row => row.classes.has("ce-package-folder")).map(row => row.folder.path), roots);
   plugin.settings.showAllFolderActions = false;
