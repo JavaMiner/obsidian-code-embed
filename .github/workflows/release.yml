@@ -28,6 +28,16 @@ jobs:
             dist/main.js
             dist/manifest.json
             dist/styles.css
-      - run: gh release create "$GITHUB_REF_NAME" dist/main.js dist/manifest.json dist/styles.css --verify-tag --generate-notes --draft
+      - name: Stage release assets
+        run: gh release create "$GITHUB_REF_NAME" dist/main.js dist/manifest.json dist/styles.css --verify-tag --generate-notes --draft
         env:
           GH_TOKEN: ${{ github.token }}
+      - name: Verify uploaded assets and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$GITHUB_REF_NAME" --dir "$RUNNER_TEMP/release-assets"
+          for file in main.js manifest.json styles.css; do
+            cmp "dist/$file" "$RUNNER_TEMP/release-assets/$file"
+          done
+          gh release edit "$GITHUB_REF_NAME" --draft=false --latest
