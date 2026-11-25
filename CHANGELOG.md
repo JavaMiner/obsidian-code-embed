@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.2.5 — package lookup and release verification
+## 0.2.6 â€” Apache 2.0 release
+
+- Publish the plugin from the Apache-2.0 source tree with the existing author attribution.
+
+## 0.2.5 ï¿½ package lookup and release verification
 
 - Resolve same-note XML embeds and includes across package subfolders.
 - Scope explorer row styling to folders with visible actions.
