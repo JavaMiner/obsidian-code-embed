@@ -150,3 +150,59 @@ test("shortened paths report duplicates and package-relative paths take priority
   assert.match(await plugin.expand("![common/style]", "P/Start.md"), /ambiguous.*A\/Common\/Style.md, B\/Common\/Style.md/);
   assert.equal(await plugin.expand("![P/Pick]", "P/Start.md"), "package path");
 });
+
+const products = [
+  "# Środki",
+  "- <bi>Bioderma Sensibio Gel Moussant</bi>",
+  "  (żel micelarny do skóry wrażliwej i nadwrażliwej, 500 ml): https://gemini.pl/bioderma",
+  "- <lon>L'Oréal Revitalift Laser</lon> krem na noc z retinolem i niacynamidem, 50 ml",
+  "- <lod>L'Oréal Paris Revitalift Clinical</lod> rozświetlający krem z witaminą C i SPF 50",
+  "",
+  "# Stosowanie",
+  "- ![<<bi>>] - najczęściej przed snem przed aplikacją ![[.:<<lon>>]]",
+  "- ![<<lon>>] - na noc, prawie codziennie"
+].join("\n");
+
+test("same-note list items expand both XML selector spellings in prose and bash blocks", async () => {
+  const path = "Prompts/Notes/Rutyna.md";
+  const expected = products.replace("![<<bi>>]", "Bioderma Sensibio Gel Moussant")
+    .replaceAll(/!\[\[\.:<<lon>>\]\]|!\[<<lon>>\]/g, "L'Oréal Revitalift Laser");
+  for (const marked of [false, true]) {
+    const notes = marked ? { "Prompts/_code-embed-root.md": "" } : {};
+    const { plugin } = fixture({ ...notes, [path]: products });
+    assert.equal(await plugin.expand(products, path), expected);
+    assert.equal(await plugin.expand(products, path, [], false, products), expected);
+    // A newly opened editor can provide its block before Obsidian exposes a file path.
+    assert.equal(await plugin.expand(products, "", [], false, products), expected);
+  }
+});
+
+test("reading view restores two XML selectors split by Markdown HTML processing", async () => {
+  const path = "Prompts/Notes/Rutyna.md";
+  const { plugin } = fixture({ [path]: products, "Prompts/_code-embed-root.md": "" });
+  ctx.NodeFilter = { SHOW_TEXT: 4 };
+  const parent = { closest: selector => selector.startsWith("p,") ? parent : null };
+  const nodes = ["- ![<", ">] - najczęściej przed snem", "- ![<", ">] - na noc"].map(data =>
+    ({ data, length: data.length, parentElement: parent }));
+  let index = 0;
+  const restored = [];
+  const root = { textContent: nodes.map(node => node.data).join(""), ownerDocument: {
+    createTreeWalker: () => ({ nextNode: () => nodes[index++] }),
+    createElement: () => ({}),
+    createRange: () => ({
+      setStart(node, offset) { this.start = [nodes.indexOf(node), offset]; },
+      setEnd(node, offset) { this.end = [nodes.indexOf(node), offset]; },
+      deleteContents() {},
+      insertNode(host) { host.start = this.start; host.end = this.end; }
+    })
+  } };
+  plugin.renderMarkdownRef = async (host, ref, sourcePath) => {
+    restored.push([host.start, host.end, await plugin.resolve(ref, sourcePath)]);
+  };
+  await plugin.restoreLocalTagEmbeds(root, path, { getSectionInfo: () => ({
+    text: products.split("\n").slice(-2).join("\n"), lineStart: 7, lineEnd: 8
+  }) });
+  assert.deepEqual(restored, [
+    [[2, 2], [3, 2], "L'Oréal Revitalift Laser"], [[0, 2], [1, 2], "Bioderma Sensibio Gel Moussant"]
+  ]);
+});

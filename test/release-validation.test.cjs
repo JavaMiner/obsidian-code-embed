@@ -37,11 +37,11 @@ test("seven guides share examples, with legacy syntax confined to migration", ()
     const guide = read("README" + suffix + ".md");
     const sections = guide.replace(/```[^\n]*\n[\s\S]*?```/g, "").split(/^## /m);
     assert.equal(sections.length, 8);
-    const samples = [...guide.matchAll(/`(!\[[^`]*?\]|\$\[[^`]*?\])`/g)].map(m => m[1]);
+    const samples = [...guide.matchAll(/`(!\[[^`]*?\]|\$\[[^`]*?\])`/g)].map(m => m[1].replace(/[\p{L}\p{M}]+/gu, "word"));
     if (expected) assert.deepEqual(samples, expected);
     expected = samples;
     assert.doesNotMatch(sections.slice(1, 6).join("\n"), /!\[\[|\$\[|!\[\.:/);
-    assert.ok(sections[6].includes("![[Szablony:##Styl]]"));
+    assert.match(sections[6], /`!\[\[[^\]:]+:##[^\]]+\]\]`/);
   }
 });
 

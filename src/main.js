@@ -1227,10 +1227,10 @@ class CodeEmbedPlugin extends Plugin {
     const scope = root === null ? "" : " (" + t("package") + ": " + (root || "/") + ")";
     let text = null, outPath = sourcePath, outLocal = null, key;
 
-    const self = !!file && file.path === sourcePath;
+    const self = p.name === "." || p.name === "" || file?.path === sourcePath;
     let localErr = null;
     if (self && local != null) {
-      try { text = slice(local, range); key = file.path + "|block|" + range; outLocal = local; }
+      try { text = slice(local, range); key = sourcePath + "|block|" + range; outLocal = local; }
       catch (e) { text = null; localErr = e; }
     }
     if (text === null) {
@@ -1710,7 +1710,7 @@ class CodeEmbedPlugin extends Plugin {
   async postProcess(el, ctx) {
     if (el.closest("[data-ce-rendered]")) return;
     const path = ctx.sourcePath;
-    for (const pre of Array.from(el.querySelectorAll("pre"))) {
+    for (const pre of (el.matches?.("pre") ? [el] : el.querySelectorAll("pre"))) {
       const code = pre.querySelector("code");
       if (!code || pre.dataset.ce) continue;
       const raw = code.textContent;
@@ -1799,6 +1799,74 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
+  async restoreLocalTagEmbeds(root, path, ctx) {
+    // Markdown treats <bi> inside ![<<bi>>] as inline HTML. After sanitization
+    // the name can be missing and the brackets can span several text nodes.
+    const lost = /(?:!\[\[\.:(?:<>)?\]\]|!\[(?:<>)?\])(?![\[(])/g;
+    if (!ctx?.getSectionInfo || !root.textContent.match(lost)) return;
+    const section = ctx.getSectionInfo(root);
+    if (!section) return;
+    const sourceLines = section.text.split("\n");
+    const lines = sourceLines.length > section.lineEnd - section.lineStart + 1 && section.lineEnd < sourceLines.length
+      ? sourceLines.slice(section.lineStart, section.lineEnd + 1) : sourceLines;
+    const fence = fenceAware(lines);
+    const originals = new Map();
+    for (const [index, line] of lines.entries()) {
+      if (fence[index]) continue;
+      const prose = line.replace(/(`+).*?\1/g, "");
+      for (const match of prose.matchAll(REF_RE())) {
+        if (match.groups.esc) continue;
+        const ref = match.groups.ref;
+        if (!/^(?:\.:)?(?:<[\w:.\-]+>|<<[\w:.\-]+>>)$/.test(ref)) continue;
+        const projected = match[0].replace(/<[\w:.\-]+>/, "");
+        if (!originals.has(projected)) originals.set(projected, []);
+        originals.get(projected).push(ref);
+      }
+    }
+
+    const ranges = new Map();
+    const document = root.ownerDocument;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let nodes = [], block;
+    const flush = () => {
+      const text = nodes.map(node => node.data).join("");
+      for (const match of text.matchAll(lost)) {
+        if (!originals.has(match[0])) continue;
+        const range = document.createRange();
+        let offset = 0;
+        for (const node of nodes) {
+          const end = offset + node.length;
+          if (match.index >= offset && match.index < end) range.setStart(node, match.index - offset);
+          const finish = match.index + match[0].length;
+          if (finish > offset && finish <= end) { range.setEnd(node, finish - offset); break; }
+          offset = end;
+        }
+        if (!ranges.has(match[0])) ranges.set(match[0], []);
+        ranges.get(match[0]).push(range);
+      }
+      nodes = [];
+    };
+    for (let node; (node = walker.nextNode());) {
+      const parent = node.parentElement;
+      const container = parent.closest("p, li, td, th, h1, h2, h3, h4, h5, h6") || root;
+      if (container !== block) flush();
+      block = container;
+      if (parent.closest("pre, code, a, .internal-embed, [data-ce-rendered]")) flush();
+      else nodes.push(node);
+    }
+    flush();
+    for (const [projected, matches] of ranges) {
+      const refs = originals.get(projected);
+      if (refs.length !== matches.length) continue;
+      for (let i = matches.length - 1; i >= 0; i--) {
+        const host = document.createElement("span");
+        matches[i].deleteContents();
+        matches[i].insertNode(host);
+        await this.renderMarkdownRef(host, refs[i], path, ctx);
+      }
+    }
+  }
+
   async processEmbeds(root, path, ctx) {
     if (root.closest("[data-ce-rendered]")) return;
     const embeds = [
@@ -1810,6 +1878,8 @@ class CodeEmbedPlugin extends Plugin {
       const src = el.getAttribute("src") || "";
       if (this.handlesMarkdownRef(src, path)) await this.renderMarkdownRef(el, src, path, ctx);
     }
+
+    await this.restoreLocalTagEmbeds(root, path, ctx);
 
     // Custom references can survive Markdown rendering as plain text nodes.
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
