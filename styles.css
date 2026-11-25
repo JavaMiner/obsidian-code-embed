@@ -24,7 +24,7 @@
 .is-mobile .nav-folder-title .ce-folder-action { min-height: 44px; min-width: 44px; }
 
 /* Keep the action visible even when a long folder name fills the sidebar. */
-.nav-folder-title:has(> .ce-folder-action) .nav-folder-title-content {
+.nav-folder-title.ce-folder-with-action .nav-folder-title-content {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
