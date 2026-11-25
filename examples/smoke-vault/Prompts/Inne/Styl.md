@@ -1,2 +1,0 @@
-## Ton
-Drugi styl.
