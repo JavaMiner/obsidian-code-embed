@@ -84,17 +84,6 @@ Prompts/
 
 De dichtstbijzijnde markering begrenst de volledige uitwerking. Een korte naam moet uniek zijn. Kies bij dubbele namen een pad uit de foutmelding. Paden met een schuine streep beginnen bij de hoofdmap van het pakket. Geneste pakketten staan op zichzelf. Verplaats de map samen met de markering om verwijzingen te behouden.
 
-## Compatibiliteit en migratie
-
-In codeblokken herkent de parser de oudere vormen in de tabel. Daarbuiten verwerkt Obsidian de ingebouwde insluitingen van notities, koppen en afbeeldingen. Wanneer je een naam wijzigt, slaat Code Embed de bijgewerkte verwijzingen op in de canonieke vorm.
-
-| Oude syntaxis | Canonieke syntaxis |
-| --- | --- |
-| `![[Sjablonen:##Stijl]]` | `![Sjablonen:##Stijl]` |
-| `$[##Stijl]` | `![##Stijl]` |
-| `![.:<<stijl>>]` | `![<<stijl>>]` |
-| `![Sjablonen##Stijl]` | `![Sjablonen:##Stijl]` |
-
 ## De ontwikkelversie installeren
 
 ```sh

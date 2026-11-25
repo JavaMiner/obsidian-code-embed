@@ -32,19 +32,23 @@ test("canonical forms, legacy input and native embeds", () => {
     assert.equal(formatEmbed(ref), "![" + ref + "]");
   }
   for (const raw of ["![[S:##Styl]]", "$[S:##Styl]", "![.:##Styl]", "![S##Styl]"])
-    assert.ok(REF_RE().test(raw));
+    assert.equal(REF_RE().test(raw), false);
   for (const raw of ["![alt](image.png)", "![alt][image]"]) assert.equal(REF_RE().test(raw), false);
   assert.equal(rewriteText("![[Note#Head]] ![[Image.png]]", () => "Other").count, 0);
   assert.equal(rewriteText("$[.:##Old(a)] ![S##Old(a)]", r => r.replace("Old", "New")).text,
-    "![##New(a)] ![S:##New(a)]");
+    "$[.:##Old(a)] ![S##Old(a)]");
 });
 
 test("Markdown and XML expand identically with explicit forwarding", async () => {
   const body = "Odpowiedz po $1. Ton: ${2:rzeczowy}.";
   const { plugin } = fixture({ "A.md": "## H\n" + body + "\n## Next\n<x>" + body + "</x>",
     "B.md": "## H\n![A:##H($1)]\n![A:<<x>>]" });
-  for (const raw of ["![##H(polsku)]", "![<<x>>(polsku)]", "$[.:##H(polsku)]", "![[A##H(polsku)]]"])
+  for (const raw of ["![##H(polsku)]", "![<<x>>(polsku)]"])
     assert.equal(await plugin.expand(raw, "A.md"), "Odpowiedz po polsku. Ton: rzeczowy.");
+  for (const raw of ["![[A:##H]]", "$[##H]", "![.:<<x>>]", "![A##H]"]) {
+    assert.equal(await plugin.expand(raw, "A.md"), raw);
+    assert.equal(plugin.rawRefs(raw).length, 0);
+  }
   assert.equal(await plugin.expand("![B:##H(polsku)]", "A.md"),
     "Odpowiedz po polsku. Ton: rzeczowy.\nOdpowiedz po $1. Ton: rzeczowy.");
 });
@@ -106,7 +110,7 @@ test("numbered and joined arguments are shared by XML and Markdown", async () =>
 
 test("package-aware Rename changes only references to the old target", async () => {
   const { plugin, files } = fixture({ "P/_code-embed-root.md": "", "Q/_code-embed-root.md": "",
-    "P/Start.md": "![Style#Tone] $[Sub/Style:##Tone] ![[Style]]",
+    "P/Start.md": "![Style:#Tone] ![Sub/Style:##Tone] ![[Style]]",
     "Q/Start.md": "![Style:##Tone]", "P/Sub/New.md": "## Tone\nP", "Q/Style.md": "Q" });
   plugin.app.vault.process = async (f, update) => { f.body = update(f.body); };
   plugin.withRenameMute = cb => cb();
@@ -163,10 +167,10 @@ const products = [
   "- ![<<lon>>] - na noc, prawie codziennie"
 ].join("\n");
 
-test("same-note list items expand both XML selector spellings in prose and bash blocks", async () => {
+test("same-note list items expand XML selectors in prose and bash blocks", async () => {
   const path = "Prompts/Notes/Rutyna.md";
   const expected = products.replace("![<<bi>>]", "Bioderma Sensibio Gel Moussant")
-    .replaceAll(/!\[\[\.:<<lon>>\]\]|!\[<<lon>>\]/g, "L'Oréal Revitalift Laser");
+    .replaceAll("![<<lon>>]", "L'Oréal Revitalift Laser");
   for (const marked of [false, true]) {
     const notes = marked ? { "Prompts/_code-embed-root.md": "" } : {};
     const { plugin } = fixture({ ...notes, [path]: products });
