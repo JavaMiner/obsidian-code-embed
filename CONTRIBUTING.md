@@ -1,6 +1,6 @@
 # Development
 
-Run `npm run build`, `npm test`, and `node --check dist/main.js`. Keep shared UI translations in `src/i18n/`. Not all legacy strings have been migrated yet.
+Install development dependencies with `npm ci`. Run `npm run build`, `npm test`, and `node --check dist/main.js`. The build type-checks the plugin, tools, and tests before bundling the CommonJS entry point for Obsidian. Keep shared UI translations in `src/i18n/`. Not all legacy strings have been migrated yet.
 
 ## Code style
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.7 — TypeScript migration
+
+- Migrate the plugin, development scripts and regression tests to TypeScript.
+- Bundle the plugin and all seven interface languages into the standard Obsidian release assets.
+
 ## 0.2.6 — Apache 2.0 release
 
 - Publish the plugin from the Apache-2.0 source tree with the existing author attribution.
