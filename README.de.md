@@ -1,99 +1,97 @@
 # Code Embed · Anleitung zur Entwicklungsversion
 
-[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![License](https://img.shields.io/badge/license-CC_BY--NC_4.0-blue)](LICENSE)
+[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Version](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![Lizenz](https://img.shields.io/badge/license-CC_BY--NC_4.0-blue)](LICENSE)
 
 [PL](README.pl.md) · [EN](README.md) · [DE](README.de.md) · [FR](README.fr.md) · [ES](README.es.md) · [NL](README.nl.md) · [IT](README.it.md)
 
 ## Fragment definieren
 
-Speichere die gemeinsame Schlussanweisung mehrerer Prompts in `Szablony`. Eine Änderung gilt beim nächsten Kopieren mit Copy+ für alle.
+Speichere die gemeinsame Schlussanweisung mehrerer Prompts in einer Notiz namens `Vorlagen`. Wenn du sie änderst, übernimmt Copy+ beim nächsten Kopieren den neuen Text.
 
 ```xml
-<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+<VARIABLE>Nenne drei Beispiele.</VARIABLE>
 ```
 
-Füge den folgenden Block in eine andere Notiz ein. Mit **Copy+** erhältst du `Podaj trzy przykłady.` (Nenne drei Beispiele.)
+Füge den folgenden Block in eine andere Notiz ein. Wähle **Copy+** und füge das Ergebnis ein: `Nenne drei Beispiele.`
 
 ```ce
-![Szablony:<<ZMIENNA>>]
+![Vorlagen:<<VARIABLE>>]
 ```
 
-Diese gleichwertigen Definitionen in getrennten Notizen anlegen oder den Abschnitt mit einer weiteren Überschrift derselben Ebene abschließen.
+Lege diese gleichwertigen Definitionen in getrennten Notizen an oder schließe den Abschnitt mit einer weiteren Überschrift derselben Ebene ab.
 
 ```markdown
-## Instrukcje
-Odpowiedz po $1. Ton: ${2:rzeczowy}.
+## Anweisungen
+Antworte auf $1. Ton: ${2:sachlich}.
 ```
 
 ```xml
-<styl>Odpowiedz po $1. Ton: ${2:rzeczowy}.</styl>
+<stil>Antworte auf $1. Ton: ${2:sachlich}.</stil>
 ```
 
 ## Fragment einbetten
 
-`![źródło:selektor(argumenty)]`
+`![Quelle:Selektor(Argumente)]`
 
-Für die aktuelle Notiz die Quelle weglassen. Der Doppelpunkt steht nur zwischen Quelle und Selektor.
+Lass die Quelle weg, um die aktuelle Notiz zu verwenden. Der Doppelpunkt steht nur zwischen Quelle und Selektor.
 
-- `![Szablony]` — Ganze Notiz
-- `![Szablony:3-8]` — Zeilen einschließlich beider Grenzen
-- `![Szablony:#Styl]` — Abschnitt mit Überschrift
-- `![Szablony:##Styl]` — Abschnittsinhalt
-- `![Szablony:##Rozdział#Styl]` — Inhalt des Unterabschnitts
-- `![Szablony:<styl>]` — Tag mit Begrenzern
-- `![Szablony:<<styl>>]` — Tag-Inhalt
-- `![#Styl]` · `![##Styl]` — Lokaler Abschnitt
-- `![<styl>]` · `![<<styl>>]` — Lokales Tag
+- `![Vorlagen]` — Ganze Notiz
+- `![Vorlagen:3-8]` — Zeilen einschließlich beider Grenzen
+- `![Vorlagen:#Stil]` — Abschnitt mit Überschrift
+- `![Vorlagen:##Stil]` — Abschnittsinhalt
+- `![Vorlagen:##Kapitel#Stil]` — Inhalt des Unterabschnitts
+- `![Vorlagen:<stil>]` — Element mit seinen Tags
+- `![Vorlagen:<<stil>>]` — Inhalt des Elements
+- `![#Stil]` · `![##Stil]` — Lokaler Abschnitt
+- `![<stil>]` · `![<<stil>>]` — Lokales Tag
 
 ## Argumente übergeben
 
-Beide Aufrufe liefern das folgende Ergebnis. `$1`–`$9` wählen einen Wert, `$*` verbindet alle Werte und `${2:rzeczowy}` ersetzt einen fehlenden oder leeren Wert. Argumente mit Komma in Anführungszeichen setzen. Werte ausdrücklich an weitere Importe übergeben.
+Beide Aufrufe liefern das folgende Ergebnis. `$1`–`$9` wählen ein Argument aus, `$*` verbindet alle Argumente und `${2:sachlich}` liefert einen Standardwert, wenn das zweite Argument fehlt oder leer ist. Setze Argumente mit Kommas in Anführungszeichen. Übergib Argumente ausdrücklich an verschachtelte Einbettungen.
 
 ```ce
-![##Instrukcje(polsku)]
-![<<styl>>(polsku)]
+![##Anweisungen(Deutsch)]
+![<<stil>>(Deutsch)]
 ```
 
 ```text
-Odpowiedz po polsku. Ton: rzeczowy.
+Antworte auf Deutsch. Ton: sachlich.
 ```
 
-`![Wspólne:##Ton($1)]`
+`![Gemeinsam:##Ton($1)]`
 
 ## Vorschau und Kopieren
 
-`ce` und `codeembed` öffnen die Strukturansicht. Bei `md` und `xml` auf Ansicht tippen. Copy+ kopiert den aufgelösten Text. Die Blocksprache bestimmt die Darstellung.
+`ce` und `codeembed` öffnen die Strukturansicht. Wähle bei `md` oder `xml` die Option Ansicht. Copy+ kopiert den aufgelösten Text. Die Blocksprache bestimmt die Darstellung.
 
 ## Suche auf ein Paket begrenzen
 
-Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. Jeder markierte Ordner zeigt immer seine Farbe und **◆ Wurzel**. Die standardmäßig deaktivierte Option zeigt **+ Wurzel** bei unmarkierten Ordnern.
+Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. Jeder markierte Ordner zeigt seine Farbe und **◆ Wurzel**. Aktiviere **Aktionen bei allen Ordnern anzeigen**, um bei unmarkierten Ordnern auch **+ Wurzel** anzuzeigen. Die Option ist standardmäßig deaktiviert.
 
-**Aktionen bei allen Ordnern anzeigen** — Zeigt „+ Wurzel“ bei unmarkierten Ordnern und „◆ Wurzel“ bei allen Paketwurzeln.
-
-Code Embed verwendet die Oberflächensprache von Obsidian. Die Einstellungen zeigen die installierte Version, den Link zur deutschen Anleitung und **Paketordner auswählen**. Zum manuellen Markieren im Ordner eine Notiz namens `_code-embed-root` anlegen (Dateiname `_code-embed-root.md`).
+Code Embed verwendet die Oberflächensprache von Obsidian. Die Einstellungen zeigen die installierte Version, einen Link zur deutschen Anleitung und **Paketordner auswählen**. Lege zum manuellen Markieren im Ordner eine Notiz namens `_code-embed-root` an (Dateiname `_code-embed-root.md`).
 
 ```text
 Prompts/
   _code-embed-root.md
   Start.md
-  Wspólne/
-    Styl.md
+  Gemeinsam/
+    Stil.md
 ```
 
-`Prompts/Start.md` → `![Wspólne/Styl:##Ton]`
+`Prompts/Start.md` → `![Gemeinsam/Stil:##Ton]`
 
-Die nächste Markierungsdatei begrenzt die gesamte Auflösung. Kurznamen müssen eindeutig sein. Bei Mehrdeutigkeit einen Pfad aus der Fehlermeldung verwenden. Pfade mit Schrägstrich beginnen an der Paketwurzel. Verschachtelte Pakete sind eigenständig. Beim Verschieben die Markierung im Ordner belassen.
+Die nächstgelegene Markierungsdatei begrenzt die gesamte Auflösung. Kurznamen müssen eindeutig sein. Wähle bei Mehrdeutigkeit einen Pfad aus der Fehlermeldung. Pfade mit Schrägstrich beginnen an der Paketwurzel. Verschachtelte Pakete sind eigenständig. Verschiebe den Ordner zusammen mit seiner Markierung, damit Verweise erhalten bleiben.
 
 ## Kompatibilität und Migration
 
-In Codeblöcken liest der Parser alle folgenden älteren Formen. Außerhalb übernimmt Obsidian native Einbettungen von Notizen, Überschriften und Bildern. Rename schreibt geänderte Einbettungen in kanonischer Form.
+In Codeblöcken erkennt der Parser die älteren Formen in der Tabelle. Außerhalb von Codeblöcken verarbeitet Obsidian native Einbettungen von Notizen, Überschriften und Bildern. Beim Umbenennen speichert Code Embed aktualisierte Verweise in kanonischer Form.
 
-| Legacy | → |
+| Ältere Syntax | Kanonische Syntax |
 | --- | --- |
-| `![[Szablony:##Styl]]` | `![Szablony:##Styl]` |
-| `$[##Styl]` | `![##Styl]` |
-| `![.:<<styl>>]` | `![<<styl>>]` |
-| `![Szablony##Styl]` | `![Szablony:##Styl]` |
+| `![[Vorlagen:##Stil]]` | `![Vorlagen:##Stil]` |
+| `$[##Stil]` | `![##Stil]` |
+| `![.:<<stil>>]` | `![<<stil>>]` |
+| `![Vorlagen##Stil]` | `![Vorlagen:##Stil]` |
 
 ## Entwicklungsversion installieren
 
@@ -102,6 +100,6 @@ npm run build
 npm test
 ```
 
-`dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
+Kopiere `dist/{main.js,manifest.json,styles.css}` nach `.obsidian/plugins/code-embed/`.
 
-[Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+[Versionen](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)

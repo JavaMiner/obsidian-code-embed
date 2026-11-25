@@ -6,94 +6,92 @@
 
 ## Define a fragment
 
-Keep the closing instruction for several prompts in one note, `Szablony`. Edit it once and the next Copy+ in each prompt picks up the change.
+Keep a closing instruction shared by several prompts in a note named `Templates`. Edit it once, and the next Copy+ in each prompt will use the updated text.
 
 ```xml
-<ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
+<VARIABLE>Give three examples.</VARIABLE>
 ```
 
-In another note insert the block below. Tap **Copy+** and paste the result: `Podaj trzy przykłady.` (Give three examples.)
+Insert the following block in another note. Select **Copy+** and paste the result: `Give three examples.`
 
 ```ce
-![Szablony:<<ZMIENNA>>]
+![Templates:<<VARIABLE>>]
 ```
 
-Put these equivalent definitions in separate notes or end the section with another heading of the same level.
+Put these equivalent definitions in separate notes or end the section with another heading at the same level.
 
 ```markdown
-## Instrukcje
-Odpowiedz po $1. Ton: ${2:rzeczowy}.
+## Instructions
+Reply in $1. Tone: ${2:direct}.
 ```
 
 ```xml
-<styl>Odpowiedz po $1. Ton: ${2:rzeczowy}.</styl>
+<style>Reply in $1. Tone: ${2:direct}.</style>
 ```
 
-## Embed it
+## Embed a fragment
 
-`![źródło:selektor(argumenty)]`
+`![source:selector(arguments)]`
 
-Omit the source for the current note. Use a colon only between a source and a selector.
+Omit the source to use the current note. Use a colon only between the source and the selector.
 
-- `![Szablony]` — Whole note
-- `![Szablony:3-8]` — Inclusive lines
-- `![Szablony:#Styl]` — Section with heading
-- `![Szablony:##Styl]` — Section body
-- `![Szablony:##Rozdział#Styl]` — Subsection body
-- `![Szablony:<styl>]` — Tag with delimiters
-- `![Szablony:<<styl>>]` — Tag body
-- `![#Styl]` · `![##Styl]` — Local section
-- `![<styl>]` · `![<<styl>>]` — Local tag
+- `![Templates]` — Whole note
+- `![Templates:3-8]` — Lines, including both endpoints
+- `![Templates:#Style]` — Section with heading
+- `![Templates:##Style]` — Section body
+- `![Templates:##Chapter#Style]` — Subsection body
+- `![Templates:<style>]` — Element including its tags
+- `![Templates:<<style>>]` — Element content
+- `![#Style]` · `![##Style]` — Local section
+- `![<style>]` · `![<<style>>]` — Local tag
 
 ## Pass arguments
 
-Both calls produce the result below. `$1`–`$9` select a value, `$*` joins all values, and `${2:rzeczowy}` supplies a missing or empty value. Quote arguments containing commas. Forward values explicitly to nested imports.
+Both calls produce the result below. `$1`–`$9` select an argument, `$*` joins all arguments, and `${2:direct}` supplies a default when the second argument is missing or empty. Quote arguments containing commas. Pass arguments explicitly to nested embeds.
 
 ```ce
-![##Instrukcje(polsku)]
-![<<styl>>(polsku)]
+![##Instructions(English)]
+![<<style>>(English)]
 ```
 
 ```text
-Odpowiedz po polsku. Ton: rzeczowy.
+Reply in English. Tone: direct.
 ```
 
-`![Wspólne:##Ton($1)]`
+`![Shared:##Tone($1)]`
 
 ## Preview and copy
 
-A `ce` or `codeembed` block opens in structured View. Tap View on `md` or `xml` blocks. Copy+ copies the expanded text. The block language controls presentation.
+A `ce` or `codeembed` block opens in structured View. Select View on `md` or `xml` blocks. Copy+ copies the expanded text. The block language controls presentation.
 
 ## Limit lookup to a package
 
-Open the folder context menu with a right click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. Every marked folder always shows its color and **◆ Root**. Enable the setting to show **+ Root** on unmarked folders. It defaults to off.
+Open the folder context menu with a right-click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. A marked folder always shows its color and **◆ Root**. Enable **Show actions on all folders** to show **+ Root** on unmarked folders as well. The setting is off by default.
 
-**Show actions on all folders** — Show “+ Root” on unmarked folders and “◆ Root” on every package root.
-
-Code Embed uses the Obsidian interface language. Its settings show the installed version, a link to the English guide and **Choose package folder**. To mark a folder manually, create a note named `_code-embed-root` inside it (filename `_code-embed-root.md`).
+Code Embed uses the Obsidian interface language. Its settings show the installed version, a link to the English guide, and **Choose package folder**. To mark a folder manually, create a note named `_code-embed-root` inside it (filename `_code-embed-root.md`).
 
 ```text
 Prompts/
   _code-embed-root.md
   Start.md
-  Wspólne/
-    Styl.md
+  Shared/
+    Style.md
 ```
 
-`Prompts/Start.md` → `![Wspólne/Styl:##Ton]`
+`Prompts/Start.md` → `![Shared/Style:##Tone]`
 
-The nearest marker bounds the entire expansion. Short names must be unique. For duplicates, use a path from the diagnostic. Paths with a slash start at the package root. Nested packages are separate. Move the folder with its marker to preserve references.
+The nearest marker bounds the entire expansion. Short names must be unique. If a name is ambiguous, choose a path from the error message. Paths with a slash start at the package root. Nested packages are separate. Move the folder with its marker to preserve references.
 
 ## Compatibility and migration
 
-Inside code blocks the parser reads all the older forms below. Outside code blocks Obsidian handles native note, heading and image embeds. Rename writes changed embeds in canonical form.
+Inside code blocks the parser recognizes the older forms below. Outside code blocks Obsidian handles native embeds of notes, headings, and images. When renaming, Code Embed writes updated references in canonical form.
 
-| Legacy | → |
+| Older syntax | Canonical syntax |
 | --- | --- |
-| `![[Szablony:##Styl]]` | `![Szablony:##Styl]` |
-| `$[##Styl]` | `![##Styl]` |
-| `![.:<<styl>>]` | `![<<styl>>]` |
-| `![Szablony##Styl]` | `![Szablony:##Styl]` |
+| `![[Templates:##Style]]` | `![Templates:##Style]` |
+| `$[##Style]` | `![##Style]` |
+| `![.:<<style>>]` | `![<<style>>]` |
+| `![Templates##Style]` | `![Templates:##Style]` |
 
 ## Install the development build
 
@@ -102,6 +100,6 @@ npm run build
 npm test
 ```
 
-`dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
+Copy `dist/{main.js,manifest.json,styles.css}` to `.obsidian/plugins/code-embed/`.
 
 [Releases](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
