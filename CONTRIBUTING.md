@@ -13,4 +13,4 @@ Use descriptive English names for internal state and functions. Keep comments in
 3. Commit and push an exact `X.Y.Z` tag (without `v`). Review the draft GitHub release and its three assets before publishing it.
 4. Record desktop and Android results separately using the [visual smoke note](examples/smoke-vault/Prompts/Test%20Code%20Embed.md). Use PASS, FAIL, or NIE URUCHOMIONO for each scenario. Verify the built assets before publishing.
 
-The project uses CC-BY-NC-4.0. GitHub currently reports NOASSERTION on the default branch. Keep the full license text and SPDX metadata consistent.
+The project uses CC-BY-4.0. Commercial use is permitted. When sharing Code Embed or a modified version, credit Jakub Wajda (JavaMiner), link to the license and indicate any changes you made. Keep the full license text and SPDX metadata consistent.

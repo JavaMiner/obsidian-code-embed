@@ -12,8 +12,9 @@ test("release metadata, funding and build output", () => {
   assert.match(pkg.version, /^\d+\.\d+\.\d+$/);
   for (const v of [lock.version, lock.packages[""].version, manifest.version]) assert.equal(v, pkg.version);
   assert.equal(require("../versions.json")[pkg.version], manifest.minAppVersion);
-  assert.equal(pkg.license, "CC-BY-NC-4.0");
-  assert.match(read("LICENSE"), /Attribution-NonCommercial 4\.0 International/);
+  assert.equal(pkg.license, "CC-BY-4.0");
+  assert.equal(lock.packages[""].license, pkg.license);
+  assert.match(read("LICENSE"), /Attribution 4\.0 International/);
   assert.equal(manifest.isDesktopOnly, false);
   for (const url of Object.values(manifest.fundingUrl)) assert.equal(new URL(url).protocol, "https:");
   assert.equal(manifest.fundingUrl.PayPal, "https://www.paypal.me/JakubWajda363");
