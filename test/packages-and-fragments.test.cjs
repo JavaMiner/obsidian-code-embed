@@ -7,7 +7,7 @@ const ctx = { module: { exports: {} }, require: () => new Proxy({}, {
   get: (_, key) => key === "getLanguage" ? undefined : key === "StateEffect" ? { define: () => ({}) } : Base
 }) };
 vm.runInNewContext(fs.readFileSync("dist/main.js", "utf8") +
-  "\nglobalThis.api = { parseRef, REF_RE, rewriteText, formatEmbed };", ctx);
+  "\nglobalThis.api = { parseRef, REF_RE, rewriteText, formatEmbed, MarkdownEmbedWidget };", ctx);
 const { REF_RE, formatEmbed, rewriteText } = ctx.api;
 
 function fixture(notes) {
@@ -237,4 +237,33 @@ test("reading view unwraps a single paragraph without losing inline markup", asy
   await plugin.renderMarkdownRef(host, "<<analized_file>>", path, renderContext);
   await plugin.renderMarkdownRef({ ...host, dataset: {} }, "<<analized_file>>", path, renderContext);
   assert.deepEqual(replacements, [[text, inlineCode]]);
+});
+
+test("Live Preview unwraps inline embeds before measuring the widget", async () => {
+  const path = "Prompt.md";
+  const { plugin } = fixture({ [path]: "<analized_file>js ce-test.js</analized_file>" });
+  const text = { textContent: "js ce-test.js" };
+  let rendered;
+  ctx.document = { createElement: tag => ({
+    tag, dataset: {}, classList: { toggle() {} }
+  }) };
+  plugin.addChild = child => child;
+  plugin.renderMd = async (markdown, el) => {
+    assert.equal(markdown, text.textContent);
+    el.childElementCount = 1;
+    el.firstElementChild = {
+      matches: selector => selector === "p",
+      childNodes: [text],
+      replaceWith: (...nodes) => { rendered = nodes; }
+    };
+  };
+  try {
+    const widget = new ctx.api.MarkdownEmbedWidget(plugin, "<<analized_file>>", path, 0, false);
+    const host = widget.toDOM({ requestMeasure() {} });
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(host.tag, "span");
+    assert.deepEqual(rendered, [text]);
+  } finally {
+    delete ctx.document;
+  }
 });
