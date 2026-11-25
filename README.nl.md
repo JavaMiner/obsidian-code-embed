@@ -1,6 +1,6 @@
 # Code Embed · Handleiding voor de ontwikkelversie
 
-[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Versie](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![Licentie](https://img.shields.io/badge/license-CC_BY--NC_4.0-blue)](LICENSE)
+[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Versie](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![Licentie](https://img.shields.io/badge/license-CC_BY_4.0-blue)](LICENSE)
 
 [PL](README.pl.md) · [EN](README.md) · [DE](README.de.md) · [FR](README.fr.md) · [ES](README.es.md) · [NL](README.nl.md) · [IT](README.it.md)
 
@@ -104,4 +104,6 @@ npm test
 
 Kopieer `dist/{main.js,manifest.json,styles.css}` naar `.obsidian/plugins/code-embed/`.
 
-[Versies](../../releases) · [CC BY-NC 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+Commercieel gebruik is toegestaan. Als je Code Embed of een aangepaste versie deelt, vermeld dan Jakub Wajda (JavaMiner) als oorspronkelijke auteur, voeg een link naar de licentie toe en geef aan wat je hebt gewijzigd.
+
+[Versies](../../releases) · [CC BY 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
