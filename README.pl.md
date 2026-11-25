@@ -1,6 +1,6 @@
 # Code Embed · Przewodnik po wersji rozwojowej
 
-[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![License](https://img.shields.io/badge/license-CC_BY_4.0-blue)](LICENSE)
+[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![License](https://img.shields.io/badge/license-Apache_2.0-blue)](LICENSE)
 
 [PL](README.pl.md) · [EN](README.md) · [DE](README.de.md) · [FR](README.fr.md) · [ES](README.es.md) · [NL](README.nl.md) · [IT](README.it.md)
 
@@ -104,6 +104,6 @@ npm test
 
 `dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
 
-Licencja zezwala na użycie komercyjne. Udostępniając Code Embed lub jego przeróbkę, podaj autora oryginału (Jakub Wajda, JavaMiner), dołącz link do licencji i wskaż wprowadzone zmiany.
+Licencja zezwala na użycie komercyjne. Rozpowszechniając przeróbkę, dołącz licencję, zachowaj informację z pliku NOTICE o autorze wykorzystanego kodu (Jakub Wajda, JavaMiner) i oznacz zmienione pliki.
 
-[Releases](../../releases) · [CC BY 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+[Releases](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)

@@ -12,9 +12,9 @@ test("release metadata, funding and build output", () => {
   assert.match(pkg.version, /^\d+\.\d+\.\d+$/);
   for (const v of [lock.version, lock.packages[""].version, manifest.version]) assert.equal(v, pkg.version);
   assert.equal(require("../versions.json")[pkg.version], manifest.minAppVersion);
-  assert.equal(pkg.license, "CC-BY-4.0");
+  assert.equal(pkg.license, "Apache-2.0");
   assert.equal(lock.packages[""].license, pkg.license);
-  assert.match(read("LICENSE"), /Attribution 4\.0 International/);
+  assert.match(read("LICENSE"), /Apache License\s+Version 2\.0/);
   assert.equal(manifest.isDesktopOnly, false);
   for (const url of Object.values(manifest.fundingUrl)) assert.equal(new URL(url).protocol, "https:");
   assert.equal(manifest.fundingUrl.PayPal, "https://www.paypal.me/JakubWajda363");
@@ -22,6 +22,8 @@ test("release metadata, funding and build output", () => {
   for (const url of Object.values(manifest.fundingUrl)) assert.ok(read(".github/FUNDING.yml").includes(url));
   for (const path of ["styles.css", "manifest.json"]) assert.equal(read("dist/" + path), read(path));
   const built = read("dist/main.js");
+  assert.ok(built.includes(read("LICENSE")));
+  assert.ok(built.includes(read("NOTICE")));
   assert.doesNotMatch(built, /(?:require\s*\(|import\s*(?:\(|.*?from\s*)?)[\"']\.\/i18n/);
   const bundled = /^const CE_LOCALES = (.+);$/m.exec(built);
   assert.ok(bundled, "dist/main.js bundles the locale dictionary");
@@ -56,7 +58,7 @@ test("the build embeds dictionaries for both LF and Windows CRLF checkouts", t =
   const checkout = fs.mkdtempSync(path.join(os.tmpdir(), "code-embed-build-"));
   t.after(() => fs.rmSync(checkout, { recursive: true, force: true }));
   fs.cpSync("src", path.join(checkout, "src"), { recursive: true });
-  for (const file of ["manifest.json", "styles.css"])
+  for (const file of ["manifest.json", "styles.css", "LICENSE", "NOTICE"])
     fs.copyFileSync(file, path.join(checkout, file));
 
   const source = read("src/main.js");
