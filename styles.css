@@ -46,3 +46,7 @@
   color: var(--ce-package-color, #498b78);
   font-weight: var(--font-semibold);
 }
+
+.ce-hidden {
+  display: none !important;
+}

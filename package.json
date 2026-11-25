@@ -1,12 +1,28 @@
 {
   "name": "obsidian-code-embed",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "private": true,
   "scripts": {
-    "build": "node scripts/build.cjs",
-    "test": "node --test",
-    "version:sync": "node scripts/version.cjs",
-    "validate": "node --test test/release-validation.test.cjs"
+    "build": "npm run typecheck && tsx scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "version:sync": "tsx scripts/version.ts",
+    "validate": "tsx --test test/release-validation.test.ts",
+    "format": "prettier --write --print-width 100 \"src/*.ts\" \"scripts/*.ts\" \"test/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" manifest.json package.json LICENSE --max-warnings 0"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.13",
+    "@types/node": "^22.20.7",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-plugin-obsidianmd": "^0.6.0",
+    "jiti": "^2.7.0",
+    "obsidian": "^1.14.4",
+    "prettier": "^3.10.1",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3"
+  }
 }
