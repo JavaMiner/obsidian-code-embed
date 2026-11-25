@@ -742,18 +742,25 @@ class PackageIndex {
   lookup(name, root) {
     const available = this.groups.get(root) || [];
     const safe = !name.includes("\\") && name.split("/").every(s => s && s !== "." && s !== "..");
+    const linkKey = path => path.normalize("NFC").toLowerCase();
+    const key = linkKey(name);
+    const matches = path => linkKey(path) === key || linkKey(path) === key + ".md";
     let hits = [];
     if (safe && name.includes("/")) {
-      hits = available.filter(f => {
-        const rel = relativeTo(root, f.path);
-        return rel === name || rel === name + ".md";
-      });
+      hits = available.filter(file => matches(relativeTo(root, file.path)));
+      if (!hits.length) hits = available.filter(file => matches(file.path));
+      if (!hits.length) {
+        // Obsidian can shorten a link to the trailing folders that distinguish its target.
+        hits = available.filter(file => {
+          const path = linkKey(relativeTo(root, file.path));
+          return path.endsWith("/" + key) || path.endsWith("/" + key + ".md");
+        });
+      }
     } else if (safe) {
-      hits = available.filter(f => f.name === name || f.extension === "md" && f.basename === name);
-      // A root-level duplicate can be selected by its complete filename.
-      if (hits.length > 1 && name.endsWith(".md")) {
-        const exact = hits.find(f => relativeTo(root, f.path) === name);
-        if (exact) hits = [exact];
+      hits = available.filter(file => matches(file.name));
+      if (hits.length > 1 && key.endsWith(".md")) {
+        const atRoot = hits.filter(file => linkKey(relativeTo(root, file.path)) === key);
+        if (atRoot.length === 1) hits = atRoot;
       }
     }
     if (hits.length === 1 && this.root(hits[0].path) === root) return { file: hits[0] };

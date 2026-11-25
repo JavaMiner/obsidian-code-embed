@@ -121,3 +121,32 @@ test("source root stays fixed when an unmarked entry imports a marked note", asy
   assert.equal(await plugin.expand("![Bridge]", "Entry.md"), "ok");
   assert.match(await plugin.expand("![Outside]", "P/Bridge.md"), /not found in package/);
 });
+
+test("marked folders resolve existing includes throughout the package", async () => {
+  const { plugin } = fixture({
+    "Library/Prompts/_code-embed-root.md": "",
+    "Library/Prompts/Tasks/Today/Start.md": "",
+    "Library/Prompts/Templates/Common/Style.md": "## Tone\n![<<voice>>]\n## Data\n<voice>![Words:<<word>>]</voice>",
+    "Library/Prompts/Shared/Vocabulary/Words.md": "<word>hello</word>",
+    "Library/Prompts/Private/_code-embed-root.md": "",
+    "Library/Prompts/Private/Common/Style.md": "private",
+    "Archive/Common/Style.md": "outside"
+  });
+  const expand = ref => plugin.expand("![" + ref + "]", "Library/Prompts/Tasks/Today/Start.md");
+  for (const name of ["Style", "Templates/Common/Style", "Common/Style", "Library/Prompts/Templates/Common/Style.md", "style"]) {
+    assert.equal(await expand(name + ":##Tone"), "hello");
+    assert.equal(await expand(name + ":<voice>"), "<voice>hello</voice>");
+  }
+  for (const name of ["Private/Common/Style", "Archive/Common/Style", "../Archive/Common/Style"])
+    assert.match(await expand(name), /not found in package/);
+});
+
+test("shortened paths report duplicates and package-relative paths take priority", async () => {
+  const { plugin } = fixture({
+    "P/_code-embed-root.md": "", "P/Start.md": "",
+    "P/A/Common/Style.md": "A", "P/B/Common/Style.md": "B",
+    "P/Pick.md": "vault path", "P/P/Pick.md": "package path"
+  });
+  assert.match(await plugin.expand("![common/style]", "P/Start.md"), /ambiguous.*A\/Common\/Style.md, B\/Common\/Style.md/);
+  assert.equal(await plugin.expand("![P/Pick]", "P/Start.md"), "package path");
+});
