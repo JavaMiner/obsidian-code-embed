@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5 — package lookup and release verification
+
+- Resolve same-note XML embeds and includes across package subfolders.
+- Scope explorer row styling to folders with visible actions.
+- Verify all three uploaded plugin files before publishing the GitHub release.
+
 ## 0.2.4 â€” folder menus and interface languages
 
 - Support both explorer menu events for a single folder and expose package selection in settings.
