@@ -23,8 +23,9 @@ function t(key, values = {}) {
 const PANES = ["outgoing-link", "backlink"];
 const VIEW_TYPE = "code-embed-panel";
 const refresh = StateEffect.define();
-const REF_RE = () => /(?<esc>\\)?(?<all>(?=[!$]\[\[?(?<ref>[^\[\]\r\n]+)\])(?:!\[\[[^\[\]\r\n]+\]\]|[!$](?!\[\[)\[[^\[\]\r\n]+\](?![\[(\]])))/g;
-const hasEmbed = (text) => text.includes('![') || text.includes('$[');
+// A local selector starts with # or <. Named sources require a colon before a selector.
+const REF_RE = () => /(?<esc>\\)?(?<all>!\[(?!\s*(?:\.\s*(?:[:\]]|$)|:))(?<ref>(?:\s*[#<][^\[\]\r\n]*|[^\[\]:#\r\n]+(?::[^\[\]\r\n]+)?))\](?![\[(\]]))/g;
+const hasEmbed = (text) => REF_RE().test(text);
 
 const DEFAULTS = {
   showAllFolderActions: false,
@@ -138,8 +139,6 @@ function stripFrontmatter(t) {
   return t.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "");
 }
 
-const unescapeRefs = (s) => s.replace(/\\!\[\[/g, "![[");
-
 const FENCE_RE = /^\s*(```|~~~)/;
 
 function fenceAware(lines) {
@@ -187,12 +186,6 @@ function formatEmbed(ref) {
   const p = parseRef(ref);
   const source = p.name === "." ? "" : p.name;
   return "![" + source + (source && p.range ? ":" : "") + p.range + argumentSuffix(ref, p) + "]";
-}
-
-function ownsWikiEmbed(p, ref = "") {
-  if (/^\s*#(?!#)/.test(ref)) return false;
-  return Boolean(p.range && !isNativeHeading(p) && !p.range.startsWith("#^")) ||
-    p.name === "." && !p.range.startsWith("#^");
 }
 
 const normTitle = (s) => s.replace(/[*_`]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -483,7 +476,7 @@ function makeMarkdownEditorExt(plugin) {
       if (/^(?: {4}|\t)/.test(text)) continue;
       const re = REF_RE(); let m;
       while ((m = re.exec(text)) !== null) {
-        if (m.groups.esc || (m.groups.all.startsWith("![[") && !plugin.handlesMarkdownRef(m.groups.ref, path))) continue;
+        if (m.groups.esc) continue;
         // Literal examples inside inline code must remain editable as written.
         const prefix = text.slice(0, m.index);
         let tick = null;
@@ -522,7 +515,7 @@ function makeLinkNavExt(plugin) {
       const path = view.state.field(editorInfoField, false)?.file?.path;
       if (!path) return;
       const line = view.state.doc.lineAt(pos);
-      const re = /!?\[\[([^\]]+)\]\]/g;
+      const re = /(?<!!)\[\[([^\]]+)\]\]/g;
       let m;
       while ((m = re.exec(line.text)) !== null) {
         const from = line.from + m.index, to = from + m[0].length;
@@ -939,7 +932,6 @@ class CodeEmbedPlugin extends Plugin {
       while ((m = re.exec(line)) !== null) {
         if (m.groups.esc) continue;
         const p = parseRef(m.groups.ref);
-        if (!inF && m.groups.all.startsWith("![[") && !ownsWikiEmbed(p, m.groups.ref)) continue;
         out.push({ ref: m.groups.ref, p, line: idx, ch: m.index, local: inF ? block : null });
       }
     }
@@ -1260,10 +1252,10 @@ class CodeEmbedPlugin extends Plugin {
 
   scanText(text, off) {
     const lines = text.split("\n"), fence = fenceAware(lines), out = [];
-    const re = /(!?)\[\[([^\]]+)\]\]/g;
+    const re = /(?<!!)\[\[([^\]]+)\]\]/g;
     lines.forEach((line, idx) => {
       for (const m of line.matchAll(REF_RE())) {
-        if (!m.groups.esc && !m.groups.all.startsWith('![[')) {
+        if (!m.groups.esc) {
           out.push({ ref: m.groups.ref, codeEmbed: true, embed: true, line: off + idx, ch: m.index, fence: fence[idx] });
         }
       }
@@ -1271,7 +1263,7 @@ class CodeEmbedPlugin extends Plugin {
       re.lastIndex = 0;
       let m;
       while ((m = re.exec(line)) !== null) {
-        out.push({ ref: m[2], embed: m[1] === "!", line: off + idx, ch: m.index, fence: fence[idx] });
+        out.push({ ref: m[1], embed: false, line: off + idx, ch: m.index, fence: fence[idx] });
       }
     });
     return out;
@@ -1756,12 +1748,12 @@ class CodeEmbedPlugin extends Plugin {
           const display = code.cloneNode(true); display.style.display = "";
           const frame = document.createElement("pre"); frame.append(display); box.append(frame);
         } else if (autoView || ((isXml || isMd) && this.settings.viewTree)) {
-          const marked = applyArgs(unescapeRefs(await this.expand(raw, path, [], true, raw)), [], false);
+          const marked = applyArgs(await this.expand(raw, path, [], true, raw), [], false);
           const tree = parseTree(marked);
           if (hasStructure(tree)) await this.renderTree(tree.children, box, path, isXml && this.settings.xmlPlain, 0);
-          else await this.renderMd(markErrors(unescapeRefs(expanded)), box, path);
+          else await this.renderMd(markErrors(expanded), box, path);
         } else {
-          await this.renderMd(markErrors(unescapeRefs(expanded)), box, path);
+          await this.renderMd(markErrors(expanded), box, path);
         }
         code.style.display = "none";
         view.setText(t("code"));
@@ -1772,11 +1764,6 @@ class CodeEmbedPlugin extends Plugin {
     }
     await this.processEmbeds(el, path, ctx);
     this.processLinks(el, path);
-  }
-
-  handlesMarkdownRef(ref, path) {
-    const p = parseRef(ref);
-    return ownsWikiEmbed(p, ref);
   }
 
   async renderMarkdownRef(el, ref, path, ctx) {
@@ -1804,7 +1791,7 @@ class CodeEmbedPlugin extends Plugin {
   async restoreLocalTagEmbeds(root, path, ctx) {
     // Markdown treats <bi> inside ![<<bi>>] as inline HTML. After sanitization
     // the name can be missing and the brackets can span several text nodes.
-    const lost = /(?:!\[\[\.:(?:<>)?\]\]|!\[(?:<>)?\])(?![\[(])/g;
+    const lost = /!\[(?:<>)?\](?![\[(])/g;
     if (!ctx?.getSectionInfo || !root.textContent.match(lost)) return;
     const section = ctx.getSectionInfo(root);
     if (!section) return;
@@ -1819,7 +1806,7 @@ class CodeEmbedPlugin extends Plugin {
       for (const match of prose.matchAll(REF_RE())) {
         if (match.groups.esc) continue;
         const ref = match.groups.ref;
-        if (!/^(?:\.:)?(?:<[\w:.\-]+>|<<[\w:.\-]+>>)$/.test(ref)) continue;
+        if (!/^(?:<[\w:.\-]+>|<<[\w:.\-]+>>)$/.test(ref)) continue;
         const projected = match[0].replace(/<[\w:.\-]+>/, "");
         if (!originals.has(projected)) originals.set(projected, []);
         originals.get(projected).push(ref);
@@ -1871,16 +1858,6 @@ class CodeEmbedPlugin extends Plugin {
 
   async processEmbeds(root, path, ctx) {
     if (root.closest("[data-ce-rendered]")) return;
-    const embeds = [
-      ...(root.matches?.(".internal-embed") ? [root] : []),
-      ...root.querySelectorAll(".internal-embed")
-    ];
-    for (const el of embeds) {
-      if (el.dataset.ce || el.closest("pre, code, [data-ce-rendered]")) continue;
-      const src = el.getAttribute("src") || "";
-      if (this.handlesMarkdownRef(src, path)) await this.renderMarkdownRef(el, src, path, ctx);
-    }
-
     await this.restoreLocalTagEmbeds(root, path, ctx);
 
     // Custom references can survive Markdown rendering as plain text nodes.
@@ -1895,7 +1872,7 @@ class CodeEmbedPlugin extends Plugin {
       const text = textNode.nodeValue, re = REF_RE(), frag = document.createDocumentFragment();
       const pending = []; let last = 0, m;
       while ((m = re.exec(text)) !== null) {
-        if (m.groups.esc || (m.groups.all.startsWith("![[") && !this.handlesMarkdownRef(m.groups.ref, path))) continue;
+        if (m.groups.esc) continue;
         frag.append(document.createTextNode(text.slice(last, m.index)));
         const host = document.createElement("span");
         frag.append(host);
@@ -1962,7 +1939,6 @@ function rewriteText(text, fn) {
     lines[i] = line.replace(REF_RE(), (all, esc, _all, ref) => {
       if (esc) return all;
       const p = parseRef(ref);
-      if (!inF && _all.startsWith("![[") && !ownsWikiEmbed(p, ref)) return all;
       const normalized = p.name + (p.range ? ":" + p.range : "") + argumentSuffix(ref, p);
       const nr = fn(normalized, inF);
       if (nr == null || nr === normalized) return all;

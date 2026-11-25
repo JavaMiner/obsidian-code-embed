@@ -84,17 +84,6 @@ Prompt/
 
 Il marcatore più vicino delimita l’intera espansione. I nomi brevi devono essere univoci. In caso di duplicati, scegli un percorso indicato nel messaggio di errore. I percorsi con una barra partono dalla radice del pacchetto. I pacchetti annidati sono indipendenti. Sposta la cartella insieme al marcatore per conservare i riferimenti.
 
-## Compatibilità e migrazione
-
-Nei blocchi di codice il parser riconosce le forme precedenti riportate nella tabella. Fuori dai blocchi, Obsidian gestisce le incorporazioni native di note, intestazioni e immagini. Quando cambi un nome, Code Embed salva in forma canonica i riferimenti che aggiorna.
-
-| Sintassi precedente | Sintassi canonica |
-| --- | --- |
-| `![[Modelli:##Stile]]` | `![Modelli:##Stile]` |
-| `$[##Stile]` | `![##Stile]` |
-| `![.:<<stile>>]` | `![<<stile>>]` |
-| `![Modelli##Stile]` | `![Modelli:##Stile]` |
-
 ## Installare la versione di sviluppo
 
 ```sh
