@@ -1,6 +1,6 @@
 # Code Embed · Guide de la version de développement
 
-[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Version](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![Licence](https://img.shields.io/badge/license-CC_BY_4.0-blue)](LICENSE)
+[![CI](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml/badge.svg?branch=feature%2Fcanonical-embeds-packages)](https://github.com/JavaMiner/obsidian-code-embed/actions/workflows/ci.yml) [![Version](https://img.shields.io/github/v/release/JavaMiner/obsidian-code-embed)](../../releases) [![Licence](https://img.shields.io/badge/license-Apache_2.0-blue)](LICENSE)
 
 [PL](README.pl.md) · [EN](README.md) · [DE](README.de.md) · [FR](README.fr.md) · [ES](README.es.md) · [NL](README.nl.md) · [IT](README.it.md)
 
@@ -102,6 +102,6 @@ npm test
 
 Copiez `dist/{main.js,manifest.json,styles.css}` dans `.obsidian/plugins/code-embed/`.
 
-L’utilisation commerciale est autorisée. Si vous partagez Code Embed ou une version modifiée, créditez l’auteur d’origine, Jakub Wajda (JavaMiner), ajoutez un lien vers la licence et indiquez vos modifications.
+L’utilisation commerciale est autorisée. Si vous distribuez une version modifiée, joignez la licence, conservez la mention de Jakub Wajda (JavaMiner) figurant dans NOTICE pour le code repris et signalez les fichiers modifiés.
 
-[Versions](../../releases) · [CC BY 4.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+[Versions](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
