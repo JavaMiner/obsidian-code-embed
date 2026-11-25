@@ -441,7 +441,7 @@ class MarkdownEmbedWidget extends WidgetType {
     this.plugin.resolve(this.ref, this.path, []).then(async (md) => {
       if (el.ceToken !== token) return;
       el.classList.toggle("ce-has-error", hasErrors(md));
-      await this.plugin.renderMd(markErrors(md), el, this.path, owner);
+      await this.plugin.renderEmbedMarkdown(md, el, this.path, owner, this.block);
       if (el.ceToken === token) view.requestMeasure();
     }).catch((error) => {
       if (el.ceToken === token) fillErr(el, formatError(error.message));
@@ -1661,6 +1661,15 @@ class CodeEmbedPlugin extends Plugin {
   }
 
 
+  async renderEmbedMarkdown(md, el, path, owner, block = false) {
+    await this.renderMd(markErrors(md), el, path, owner);
+    // Keep inline fragments alongside the surrounding Markdown.
+    const paragraph = el.firstElementChild;
+    if (!block && el.childElementCount === 1 && paragraph.matches("p")) {
+      paragraph.replaceWith(...paragraph.childNodes);
+    }
+  }
+
   async renderMd(md, el, path, owner = this) {
     if (MarkdownRenderer.render) await MarkdownRenderer.render(this.app, md, el, path, owner);
     else await MarkdownRenderer.renderMarkdown(md, el, path, owner);
@@ -1782,7 +1791,7 @@ class CodeEmbedPlugin extends Plugin {
     try {
       const md = await this.resolve(ref, path, []);
       el.classList.toggle("ce-has-error", hasErrors(md));
-      await this.renderMd(markErrors(md), el, path, owner);
+      await this.renderEmbedMarkdown(md, el, path, owner);
     } catch (error) {
       fillErr(el, formatError(error.message));
     }
