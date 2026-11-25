@@ -5,7 +5,12 @@ import vm from "node:vm";
 import { loadBundle, hostFixture } from "./bundle";
 import type { App, TFolder } from "obsidian";
 import manifest from "../manifest.json";
-function loadPlugin(path: string, locale: string, appLocale?: string) {
+function loadPlugin(
+  path: string,
+  locale: string,
+  appLocale?: string,
+  supportsApi = (_version: string) => true,
+) {
   const commands = new Map();
   const noop = () => {};
   class Plugin {
@@ -28,7 +33,14 @@ function loadPlugin(path: string, locale: string, appLocale?: string) {
     "registerMarkdownPostProcessor",
   ])
     Object.assign(Plugin.prototype, { [method]: noop });
-  const obsidian: Record<string, unknown> = { Plugin, getLanguage: () => appLocale };
+  const obsidian: Record<string, unknown> = {
+    Plugin,
+    requireApiVersion: supportsApi,
+    getLanguage: () => {
+      assert.ok(supportsApi("1.8.7"));
+      return appLocale;
+    },
+  };
   for (const type of [
     "PluginSettingTab",
     "Modal",
@@ -50,7 +62,10 @@ function loadPlugin(path: string, locale: string, appLocale?: string) {
   const globals = {
     require: (name: string) => modules[name],
     navigator: { language: locale },
-    document: { body: { style: { setProperty: noop, removeProperty: noop } } },
+    document: {
+      addEventListener: noop,
+      body: { style: { setProperty: noop, removeProperty: noop } },
+    },
     MutationObserver: class {
       observe() {}
     },
@@ -62,8 +77,14 @@ function loadPlugin(path: string, locale: string, appLocale?: string) {
   plugin.settings = vm.runInNewContext("({ ...DEFAULTS })", context);
   plugin.manifest = manifest;
   plugin.app = hostFixture<App>({
-    workspace: { on: noop, onLayoutReady: noop },
+    workspace: {
+      on: noop,
+      onLayoutReady: noop,
+      iterateAllLeaves: noop,
+      containerEl: { ownerDocument: globals.document },
+    },
     vault: { on: noop },
+    fileManager: {},
   });
   return { plugin, commands, context };
 }
@@ -274,7 +295,7 @@ test("single-folder context menus support both explorer events and add one worki
     paths.set(path, file);
     return hostFixture(file);
   };
-  plugin.app.vault.trash = async (file) => {
+  plugin.app.fileManager.trashFile = async (file) => {
     paths.delete(file.path);
   };
   vm.runInNewContext(
@@ -330,4 +351,50 @@ test("documentation follows the app language including unsupported-language fall
       ),
     );
   }
+});
+
+test("older hosts use the legacy locale, panel activation and native deletion prompt", async () => {
+  const { plugin, context } = loadPlugin("dist/main.js", "en", "de", () => false);
+  context.moment = { locale: () => "pl" };
+  assert.equal(vm.runInNewContext('t("view")', context), "Podgląd");
+  const panel = hostFixture<import("obsidian").WorkspaceLeaf>({ getRoot: () => ({}) });
+  plugin.app.workspace.getLeavesOfType = () => [panel];
+  let activated = false;
+  plugin.app.workspace.setActiveLeaf = (leaf) => {
+    activated = leaf === panel;
+  };
+  await plugin.openPanel();
+  assert.ok(activated);
+
+  const folder = hostFixture<TFolder>({ path: "Examples", children: [] });
+  const marker = hostFixture<import("obsidian").TFile>({ path: "Examples/_code-embed-root.md" });
+  plugin.app.vault.getAbstractFileByPath = () => marker;
+  let prompts = 0;
+  plugin.app.fileManager.promptForDeletion = async (file) => {
+    assert.equal(file, marker);
+    prompts++;
+    return false;
+  };
+  await plugin.toggleFolder(folder);
+  assert.equal(prompts, 1);
+});
+
+test("a replaced package marker survives a pending confirmation", async () => {
+  const { plugin, context } = loadPlugin("dist/main.js", "en");
+  const path = "Examples/_code-embed-root.md";
+  const original = hostFixture<import("obsidian").TFile>({ path });
+  const replacement = hostFixture<import("obsidian").TFile>({ path });
+  let current = original;
+  plugin.app.vault.getAbstractFileByPath = () => current;
+  let removals = 0;
+  plugin.app.fileManager.trashFile = async () => {
+    removals++;
+  };
+  context.confirmReplacement = () => {
+    current = replacement;
+    return { remove: true };
+  };
+  vm.runInNewContext("pickOne = confirmReplacement", context);
+  await plugin.toggleFolder(hostFixture<TFolder>({ path: "Examples", children: [] }));
+  assert.equal(removals, 0);
 });

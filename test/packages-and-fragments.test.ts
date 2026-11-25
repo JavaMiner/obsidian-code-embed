@@ -366,13 +366,11 @@ test("Live Preview unwraps inline embeds before measuring the widget", async () 
   const { plugin } = fixture({ [path]: "<source_file>js ce-test.js</source_file>" });
   const text = { textContent: "js ce-test.js" };
   let rendered;
-  ctx.document = {
-    createElement: (tag: string) => ({
-      tag,
-      dataset: {},
-      classList: { toggle() {} },
-    }),
-  };
+  ctx.createEl = (tag: string) => ({
+    tag,
+    dataset: {},
+    classList: { toggle() {} },
+  });
   plugin.addChild = (child) => child;
   plugin.renderMd = async (markdown, el) => {
     assert.equal(markdown, text.textContent);
@@ -394,6 +392,6 @@ test("Live Preview unwraps inline embeds before measuring the widget", async () 
     assert.equal(hostFixture<{ tag: string }>(host).tag, "span");
     assert.deepEqual(rendered, [text]);
   } finally {
-    delete ctx.document;
+    delete ctx.createEl;
   }
 });

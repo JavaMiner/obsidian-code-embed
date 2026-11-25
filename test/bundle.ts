@@ -11,6 +11,7 @@ const hostTypes = new Proxy(
   {},
   {
     get(_, key) {
+      if (key === "requireApiVersion") return () => false;
       if (key === "getLanguage") return undefined;
       if (key === "StateEffect") return { define: () => ({}) };
       return class {};
@@ -20,6 +21,8 @@ const hostTypes = new Proxy(
 
 export function loadBundle(path = "dist/main.js", globals: Context = {}) {
   const context: Context = { module: { exports: {} }, require: () => hostTypes, ...globals };
+  context.window = context;
+  context.createSpan = () => ({});
   runInNewContext(readFileSync(path, "utf8"), context, { filename: path });
   const api: TestApi = runInNewContext(
     "({ parseRef, REF_RE, formatEmbed, rewriteText, MarkdownEmbedWidget, t, CE_LOCALES })",

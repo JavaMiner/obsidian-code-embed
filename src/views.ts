@@ -1,5 +1,6 @@
 import {
   ItemView,
+  requireApiVersion,
   PluginSettingTab,
   Setting,
   Modal,
@@ -45,6 +46,9 @@ export class ReferencePanel extends ItemView {
   }
 }
 
+type SettingsRow = { name: string; desc?: string; render: (setting: Setting) => void };
+type SettingsGroup = { type: "group"; heading: string; items: SettingsRow[] };
+
 export class CodeEmbedSettings extends PluginSettingTab {
   constructor(
     app: App,
@@ -53,133 +57,210 @@ export class CodeEmbedSettings extends PluginSettingTab {
     super(app, plugin);
   }
 
-  async set<K extends keyof Settings>(key: K, val: Settings[K]) {
-    this.plugin.settings[key] = val;
+  private async set<K extends keyof Settings>(key: K, value: Settings[K]) {
+    this.plugin.settings[key] = value;
     await this.plugin.saveData(this.plugin.settings);
     this.plugin.applySettings(key);
   }
 
-  toggle(el: HTMLElement, key: KeysOfType<boolean>, name: string, desc: string) {
-    new Setting(el)
-      .setName(name)
-      .setDesc(desc)
-      .addToggle((t) => t.setValue(this.plugin.settings[key]).onChange((v) => this.set(key, v)));
+  private toggle(key: KeysOfType<boolean>, name: string, desc: string): SettingsRow {
+    return {
+      name,
+      desc,
+      render: (row) => {
+        row.addToggle((toggle) =>
+          toggle.setValue(this.plugin.settings[key]).onChange((value) => this.set(key, value)),
+        );
+      },
+    };
   }
 
-  slider(
-    el: HTMLElement,
+  private slider(
     key: KeysOfType<number>,
     name: string,
     desc: string,
     min: number,
     max: number,
     step: number,
-  ) {
-    new Setting(el)
-      .setName(name)
-      .setDesc(desc)
-      .addSlider((s) =>
-        s
-          .setLimits(min, max, step)
-          .setValue(this.plugin.settings[key])
-          .setDynamicTooltip()
-          .onChange((v) => this.set(key, v)),
-      );
+  ): SettingsRow {
+    return {
+      name,
+      desc,
+      render: (row) => {
+        row.addSlider((slider) =>
+          slider
+            .setLimits(min, max, step)
+            .setValue(this.plugin.settings[key])
+            .onChange((value) => this.set(key, value)),
+        );
+      },
+    };
   }
 
-  color(el: HTMLElement, key: keyof typeof COLOR_FALLBACK, name: string, desc: string) {
-    new Setting(el)
-      .setName(name)
-      .setDesc(desc)
-      .addColorPicker((c) =>
-        c
-          .setValue(this.plugin.settings[key] || COLOR_FALLBACK[key])
-          .onChange((v) => this.set(key, v)),
-      )
-      .addExtraButton((b) =>
-        b
-          .setIcon("rotate-ccw")
-          .setTooltip(t("restoreDefault"))
-          .onClick(async () => {
-            await this.set(key, "");
-            this.display();
-          }),
-      );
+  private color(key: keyof typeof COLOR_FALLBACK, name: string, desc: string): SettingsRow {
+    return {
+      name,
+      desc,
+      render: (row) => {
+        row.addColorPicker((picker) => {
+          picker
+            .setValue(this.plugin.settings[key] || COLOR_FALLBACK[key])
+            .onChange((value) => this.set(key, value));
+          row.addExtraButton((button) =>
+            button
+              .setIcon("rotate-ccw")
+              .setTooltip(t("restoreDefault"))
+              .onClick(async () => {
+                await this.set(key, "");
+                picker.setValue(COLOR_FALLBACK[key]);
+              }),
+          );
+        });
+      },
+    };
   }
 
+  private refreshSettings() {
+    if (requireApiVersion("1.13.0")) this.update();
+    else this.renderLegacySettings();
+  }
+
+  private groups(): SettingsGroup[] {
+    return [
+      {
+        type: "group",
+        heading: "Code Embed · " + this.plugin.manifest.version,
+        items: [
+          {
+            name: t("helpGuide"),
+            render: (row) => {
+              row.controlEl.createEl("a", {
+                text: t("helpGuide"),
+                href: guideUrl(),
+                attr: { target: "_blank", rel: "noopener noreferrer" },
+              });
+            },
+          },
+          {
+            name: t("chooseFolder"),
+            render: (row) => {
+              row.addButton((button) =>
+                button
+                  .setButtonText(t("chooseFolder"))
+                  .onClick(() => this.plugin.choosePackageFolder()),
+              );
+            },
+          },
+          this.toggle(
+            "showAllFolderActions",
+            t("showAllFolderActions"),
+            t("showAllFolderActionsHelp"),
+          ),
+          this.color("packageColor", t("rootColor"), t("rootColorHelp")),
+        ],
+      },
+      {
+        type: "group",
+        heading: t("expansion"),
+        items: [
+          this.slider("maxDepth", t("maxDepth"), t("maxDepthHelp"), 1, 10, 1),
+          this.toggle("livePreview", t("livePreview"), t("livePreviewHelp")),
+        ],
+      },
+      {
+        type: "group",
+        heading: t("previewMode"),
+        items: [
+          this.toggle("viewTree", t("viewTree"), t("viewTreeHelp")),
+          this.toggle("xmlPlain", t("xmlPlain"), t("xmlPlainHelp")),
+          this.slider("treeOpenDepth", t("treeOpenDepth"), t("treeOpenDepthHelp"), 0, 10, 1),
+          this.slider("inlineMax", t("inlineMax"), t("inlineMaxHelp"), 0, 200, 10),
+          this.toggle("buttonsOnPlain", t("buttonsOnPlain"), t("buttonsOnPlainHelp")),
+        ],
+      },
+      {
+        type: "group",
+        heading: t("sidebars"),
+        items: [
+          this.toggle("showPanels", t("showPanels"), t("showPanelsHelp")),
+          this.toggle("panelOnTop", t("panelOnTop"), t("panelOnTopHelp")),
+          this.toggle("panelNested", t("panelNested"), t("panelNestedHelp")),
+          this.slider("panelMaxVh", t("panelMaxVh"), t("panelMaxVhHelp"), 20, 90, 5),
+          this.toggle("panelLinks", t("panelLinks"), t("panelLinksHelp")),
+        ],
+      },
+      {
+        type: "group",
+        heading: t("rename"),
+        items: [
+          this.toggle("autoRenameFile", t("autoRenameFile"), t("autoRenameFileHelp")),
+          this.toggle("autoRenameTag", t("autoRenameTag"), t("autoRenameTagHelp")),
+          this.toggle("autoRenameSection", t("autoRenameSection"), t("autoRenameSectionHelp")),
+          this.toggle("renameNotice", t("renameNotice"), t("renameNoticeHelp")),
+        ],
+      },
+      {
+        type: "group",
+        heading: t("warnings"),
+        items: [
+          this.toggle("warnBroken", t("warnBroken"), t("warnBrokenHelp")),
+          this.slider("validateDelay", t("validateDelay"), t("validateDelayHelp"), 500, 10000, 500),
+        ],
+      },
+      {
+        type: "group",
+        heading: t("colors"),
+        items: [
+          this.color("cWidgetBorder", t("cWidgetBorder"), t("cWidgetBorderHelp")),
+          this.color("cWidgetBg", t("cWidgetBg"), t("cWidgetBgHelp")),
+          this.slider("cWidgetBgAlpha", t("cWidgetBgAlpha"), t("cWidgetBgAlphaHelp"), 0, 100, 5),
+          this.color("cErrBorder", t("cErrBorder"), t("cErrBorderHelp")),
+          this.color("cErrBg", t("cErrBg"), t("cErrBgHelp")),
+          this.slider("cErrBgAlpha", t("cErrBgAlpha"), t("cErrBgAlphaHelp"), 0, 100, 5),
+          this.color("cErrText", t("cErrText"), t("cErrTextHelp")),
+          this.color("cTreeTag", t("cTreeTag"), t("cTreeTagHelp")),
+          this.color("cTreeImport", t("cTreeImport"), t("cTreeImportHelp")),
+          this.color("cChip", t("cChip"), t("cChipHelp")),
+          {
+            name: t("resetAll"),
+            desc: t("resetHelp"),
+            render: (row) => {
+              row.addButton((button) =>
+                button
+                  .setButtonText(t("reset"))
+                  .setCta()
+                  .onClick(async () => {
+                    this.plugin.settings = { ...DEFAULTS };
+                    await this.plugin.saveData(this.plugin.settings);
+                    this.plugin.applySettings("all");
+                    this.refreshSettings();
+                  }),
+              );
+            },
+          },
+        ],
+      },
+    ];
+  }
+
+  getSettingDefinitions(): SettingsGroup[] {
+    return this.groups();
+  }
+  // Older hosts call display directly. Newer hosts index and render the same rows.
   display() {
-    const { containerEl: el } = this;
-    el.empty();
+    this.renderLegacySettings();
+  }
 
-    new Setting(el).setName("Code Embed · " + this.plugin.manifest.version).setHeading();
-    el.createEl("a", {
-      text: t("helpGuide"),
-      href: guideUrl(),
-      attr: { target: "_blank", rel: "noopener noreferrer" },
-    });
-    new Setting(el)
-      .setName(t("chooseFolder"))
-      .addButton((button) =>
-        button.setButtonText(t("chooseFolder")).onClick(() => this.plugin.choosePackageFolder()),
-      );
-    this.toggle(
-      el,
-      "showAllFolderActions",
-      t("showAllFolderActions"),
-      t("showAllFolderActionsHelp"),
-    );
-    this.color(el, "packageColor", t("rootColor"), t("rootColorHelp"));
-    new Setting(el).setName(t("expansion")).setHeading();
-    this.slider(el, "maxDepth", t("maxDepth"), t("maxDepthHelp"), 1, 10, 1);
-    this.toggle(el, "livePreview", t("livePreview"), t("livePreviewHelp"));
-
-    new Setting(el).setName(t("previewMode")).setHeading();
-    this.toggle(el, "viewTree", t("viewTree"), t("viewTreeHelp"));
-    this.toggle(el, "xmlPlain", t("xmlPlain"), t("xmlPlainHelp"));
-    this.slider(el, "treeOpenDepth", t("treeOpenDepth"), t("treeOpenDepthHelp"), 0, 10, 1);
-    this.slider(el, "inlineMax", t("inlineMax"), t("inlineMaxHelp"), 0, 200, 10);
-    this.toggle(el, "buttonsOnPlain", t("buttonsOnPlain"), t("buttonsOnPlainHelp"));
-
-    new Setting(el).setName(t("sidebars")).setHeading();
-    this.toggle(el, "showPanels", t("showPanels"), t("showPanelsHelp"));
-    this.toggle(el, "panelOnTop", t("panelOnTop"), t("panelOnTopHelp"));
-    this.toggle(el, "panelNested", t("panelNested"), t("panelNestedHelp"));
-    this.slider(el, "panelMaxVh", t("panelMaxVh"), t("panelMaxVhHelp"), 20, 90, 5);
-    this.toggle(el, "panelLinks", t("panelLinks"), t("panelLinksHelp"));
-
-    new Setting(el).setName(t("rename")).setHeading();
-    this.toggle(el, "autoRenameFile", t("autoRenameFile"), t("autoRenameFileHelp"));
-    this.toggle(el, "autoRenameTag", t("autoRenameTag"), t("autoRenameTagHelp"));
-    this.toggle(el, "autoRenameSection", t("autoRenameSection"), t("autoRenameSectionHelp"));
-    this.toggle(el, "renameNotice", t("renameNotice"), t("renameNoticeHelp"));
-
-    new Setting(el).setName(t("warnings")).setHeading();
-    this.toggle(el, "warnBroken", t("warnBroken"), t("warnBrokenHelp"));
-    this.slider(el, "validateDelay", t("validateDelay"), t("validateDelayHelp"), 500, 10000, 500);
-
-    new Setting(el).setName(t("colors")).setHeading();
-    this.color(el, "cWidgetBorder", t("cWidgetBorder"), t("cWidgetBorderHelp"));
-    this.color(el, "cWidgetBg", t("cWidgetBg"), t("cWidgetBgHelp"));
-    this.slider(el, "cWidgetBgAlpha", t("cWidgetBgAlpha"), t("cWidgetBgAlphaHelp"), 0, 100, 5);
-    this.color(el, "cErrBorder", t("cErrBorder"), t("cErrBorderHelp"));
-    this.color(el, "cErrBg", t("cErrBg"), t("cErrBgHelp"));
-    this.slider(el, "cErrBgAlpha", t("cErrBgAlpha"), t("cErrBgAlphaHelp"), 0, 100, 5);
-    this.color(el, "cErrText", t("cErrText"), t("cErrTextHelp"));
-    this.color(el, "cTreeTag", t("cTreeTag"), t("cTreeTagHelp"));
-    this.color(el, "cTreeImport", t("cTreeImport"), t("cTreeImportHelp"));
-    this.color(el, "cChip", t("cChip"), t("cChipHelp"));
-
-    new Setting(el)
-      .setName(t("resetAll"))
-      .setDesc(t("resetHelp"))
-      .addButton((b) =>
-        b.setButtonText(t("reset")).onClick(async () => {
-          this.plugin.settings = Object.assign({}, DEFAULTS);
-          await this.plugin.saveData(this.plugin.settings);
-          this.plugin.applySettings("all");
-          this.display();
-        }),
-      );
+  private renderLegacySettings() {
+    this.containerEl.empty();
+    for (const group of this.groups()) {
+      new Setting(this.containerEl).setName(group.heading).setHeading();
+      for (const item of group.items) {
+        const row = new Setting(this.containerEl).setName(item.name);
+        if (item.desc) row.setDesc(item.desc);
+        item.render(row);
+      }
+    }
   }
 }
 
@@ -203,7 +284,7 @@ export class BrokenModal extends Modal {
       row.createDiv({ cls: "ce-broken-why", text: b.why });
       row.onclick = () => {
         this.close();
-        this.plugin.goTo(b.file, b.line, b.ch);
+        this.plugin.goTo(b.file, b.line, b.ch).catch(console.error);
       };
     }
     new Setting(contentEl)
@@ -239,7 +320,7 @@ export class EmbedSuggest extends EditorSuggest<string> {
     if (!file) return null;
     const line = editor.getLine(cursor.line),
       before = line.slice(0, cursor.ch);
-    const m = /(?:^|[^\\\\])!\[([^\[\]]*)$/.exec(before);
+    const m = /(?:^|[^\\\\])!\[([^[\]]*)$/.exec(before);
     if (!m || /^\]\s*[([]/.test(line.slice(cursor.ch))) return null;
     return {
       start: { line: cursor.line, ch: cursor.ch - m[1].length - 2 },
@@ -332,7 +413,7 @@ export function askText(
       if (!done) resolve(null);
     };
     modal.open();
-    setTimeout(() => {
+    window.setTimeout(() => {
       input.focus();
       input.select();
     }, 30);
@@ -354,7 +435,7 @@ export function pickOne<T extends { label: string }>(app: App, placeholder: stri
         resolve(it);
       }
       onClose() {
-        setTimeout(() => {
+        window.setTimeout(() => {
           if (!chosen) resolve(null);
         }, 0);
       }

@@ -1,5 +1,6 @@
 import {
   Plugin,
+  requireApiVersion,
   MarkdownRenderer,
   MarkdownView,
   Notice,
@@ -30,7 +31,7 @@ import {
   askText,
   pickOne,
 } from "./views";
-import { DEFAULTS, type Settings } from "./settings";
+import { readSettings, DEFAULTS, type Settings } from "./settings";
 import {
   isVaultFile,
   isVaultFolder,
@@ -41,11 +42,12 @@ import {
   type IndexedFile,
   type Lookup,
 } from "./package-index";
-import { parseTree, hasStructure, type TreeNode } from "./tree";
+import { markImport, parseTree, hasStructure, type TreeNode } from "./tree";
 import { t } from "./locale";
 import { renderErrorsInText } from "./render-errors";
 import {
   REF_RE,
+  wikiLinks,
   hasEmbed,
   FENCE_RE,
   HEADING_RE,
@@ -102,9 +104,9 @@ class CodeEmbedPlugin extends Plugin {
   rawReferences = new Map<string, RawReference[]>();
   previousBrokenReferences: Set<string> | null = null;
   brokenModal: BrokenModal | null = null;
-  validationTimer?: ReturnType<typeof setTimeout>;
-  timer?: ReturnType<typeof setTimeout>;
-  panelTimer?: ReturnType<typeof setTimeout>;
+  validationTimer?: number;
+  timer?: number;
+  panelTimer?: number;
   validationRevision = 0;
   panelRevision = 0;
   injectionRevision = 0;
@@ -119,14 +121,13 @@ class CodeEmbedPlugin extends Plugin {
   suggest?: EmbedSuggest;
   folderUpdateFrame: number | null = null;
   renameSnapshots = new Map<string, RenameSnapshot>();
-  renameScanTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  renameScanTimers = new Map<string, number>();
   forceRenameUpdate = false;
 
   async onload() {
-    this.settings = Object.assign({}, DEFAULTS, await this.loadData());
+    this.settings = readSettings(await this.loadData());
     this.addSettingTab(new CodeEmbedSettings(this.app, this));
 
-    this.applyColors();
     const funding = (
       this.manifest as typeof this.manifest & { fundingUrl?: string | Record<string, string> }
     ).fundingUrl;
@@ -223,22 +224,92 @@ class CodeEmbedPlugin extends Plugin {
     this.registerEvent(ws.on("layout-change", () => this.scheduleInject()));
     this.app.workspace.onLayoutReady(() => {
       this.scheduleInject();
-      setTimeout(() => this.validate(true), 3000);
+      window.setTimeout(() => {
+        this.validate(true).catch(console.error);
+      }, 3000);
     });
 
     this.setupFolders();
     this.suggest = new EmbedSuggest(this.app, this);
     this.registerEditorSuggest(this.suggest);
     this.setupRename();
-    this.registerDomEvent(document, "click", (e) => this.onClick(e), true);
+    this.attachDocument(this.app.workspace.containerEl.ownerDocument);
+    this.app.workspace.iterateAllLeaves((leaf) =>
+      this.attachDocument(leaf.view.containerEl.ownerDocument),
+    );
+    this.registerEvent(
+      ws.on("window-open", (_container, win) => this.attachDocument(win.document)),
+    );
+    this.registerEvent(
+      ws.on("window-close", (_container, win) => this.detachDocument(win.document)),
+    );
   }
 
   onunload() {
-    document.querySelectorAll(".ce-native-section").forEach((e) => e.remove());
-    document.querySelectorAll(".ce-host").forEach((e) => e.classList.remove("ce-host"));
-    const st = document.body.style;
+    for (const doc of this.documents.keys()) this.detachDocument(doc);
+    if (this.folderUpdateFrame !== null) window.cancelAnimationFrame(this.folderUpdateFrame);
+    window.clearTimeout(this.timer);
+    window.clearTimeout(this.validationTimer);
+    window.clearTimeout(this.panelTimer);
+    this.teardownRename();
+    this.brokenModal?.close();
+  }
+
+  private readonly documents = new Map<Document, () => void>();
+
+  private attachDocument(doc: Document) {
+    if (this.documents.has(doc)) return;
+    const onClick = (event: MouseEvent) => this.onClick(event);
+    doc.addEventListener("click", onClick, true);
+    const observer = new MutationObserver((records) => {
+      if (
+        records.some(
+          (r) =>
+            r.type === "attributes" ||
+            (r.target.instanceOf(Element) &&
+              r.target.matches(".nav-folder-title") &&
+              !r.target.querySelector(".ce-folder-action")) ||
+            [...r.addedNodes].some(
+              (n) =>
+                n.instanceOf(Element) &&
+                (n.matches(
+                  ".nav-folder, .nav-folder-title, .workspace-leaf-content[data-type=file-explorer]",
+                ) ||
+                  n.querySelector<HTMLElement>(".nav-folder-title") ||
+                  (n.parentElement?.closest(".nav-folder-title") &&
+                    !n.matches(".ce-folder-action"))),
+            ),
+        )
+      )
+        this.scheduleFolders();
+    });
+    observer.observe(doc.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-path"],
+    });
+    this.documents.set(doc, () => {
+      doc.removeEventListener("click", onClick, true);
+      observer.disconnect();
+    });
+    this.applyDocumentColors(doc);
+    this.scheduleFolders();
+  }
+
+  private detachDocument(doc: Document) {
+    this.documents.get(doc)?.();
+    this.documents.delete(doc);
+    doc.querySelectorAll(".ce-folder-action").forEach((el) => el.remove());
+    doc
+      .querySelectorAll(".ce-package-folder, .ce-folder-with-action")
+      .forEach((el) => el.classList.remove("ce-package-folder", "ce-folder-with-action"));
+    doc.querySelectorAll(".ce-native-section").forEach((e) => e.remove());
+    doc.querySelectorAll(".ce-host").forEach((e) => e.classList.remove("ce-host"));
+    const st = doc.body.style;
     [
       "--ce-panel-max",
+      "--ce-package-color",
       "--ce-widget-border",
       "--ce-widget-bg",
       "--ce-err-border",
@@ -248,16 +319,15 @@ class CodeEmbedPlugin extends Plugin {
       "--ce-import",
       "--ce-chip",
     ].forEach((p) => st.removeProperty(p));
-    clearTimeout(this.timer);
-    clearTimeout(this.validationTimer);
-    clearTimeout(this.panelTimer);
-    this.teardownRename();
-    this.brokenModal?.close();
   }
 
   applyColors() {
+    for (const doc of this.documents.keys()) this.applyDocumentColors(doc);
+  }
+
+  private applyDocumentColors(doc: Document) {
     const s = this.settings,
-      st = document.body.style;
+      st = doc.body.style;
     const setColor = (name: string, val: string | null) => {
       if (val) st.setProperty(name, val);
       else st.removeProperty(name);
@@ -282,14 +352,14 @@ class CodeEmbedPlugin extends Plugin {
     this.invalidate();
     this.scheduleInject();
     if (key === "warnBroken" || key === "maxDepth" || key === "all") {
-      if (this.settings.warnBroken) this.validate(true);
+      if (this.settings.warnBroken) this.validate(true).catch(console.error);
       else this.previousBrokenReferences = null;
     }
   }
 
   invalidate() {
-    clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
+    window.clearTimeout(this.timer);
+    this.timer = window.setTimeout(() => {
       this.cache.clear();
       this.revision++;
       this.app.workspace.iterateAllLeaves((leaf) => {
@@ -359,8 +429,10 @@ class CodeEmbedPlugin extends Plugin {
 
   scheduleValidate() {
     if (!this.settings.warnBroken) return;
-    clearTimeout(this.validationTimer);
-    this.validationTimer = setTimeout(() => this.validate(false), this.settings.validateDelay);
+    window.clearTimeout(this.validationTimer);
+    this.validationTimer = window.setTimeout(() => {
+      this.validate(false).catch(console.error);
+    }, this.settings.validateDelay);
   }
 
   async validate(silent: boolean) {
@@ -424,8 +496,7 @@ class CodeEmbedPlugin extends Plugin {
         };
       }),
     );
-    const guards: Record<string, Record<string, string>> = (this.settings.movedReferences ??=
-      Object.create(null));
+    const guards: Record<string, Record<string, string>> = (this.settings.movedReferences ??= {});
     let changed = false;
     for (const [file, before] of oldPaths) {
       if (file.extension !== "md" || file.name === MARKER) continue;
@@ -511,49 +582,12 @@ class CodeEmbedPlugin extends Plugin {
     this.addRibbonIcon("folder-cog", t("chooseFolder"), chooseFolder);
     this.app.workspace.onLayoutReady(() => this.scheduleFolders());
     this.registerEvent(this.app.workspace.on("layout-change", () => this.scheduleFolders()));
-    const observer = new MutationObserver((records) => {
-      if (
-        records.some(
-          (r) =>
-            r.type === "attributes" ||
-            (r.target instanceof Element &&
-              r.target.matches(".nav-folder-title") &&
-              !r.target.querySelector(".ce-folder-action")) ||
-            [...r.addedNodes].some(
-              (n) =>
-                n instanceof Element &&
-                (n.matches(
-                  ".nav-folder, .nav-folder-title, .workspace-leaf-content[data-type=file-explorer]",
-                ) ||
-                  n.querySelector<HTMLElement>(".nav-folder-title") ||
-                  (n.parentElement?.closest(".nav-folder-title") &&
-                    !n.matches(".ce-folder-action"))),
-            ),
-        )
-      )
-        this.scheduleFolders();
-    });
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["data-path"],
-    });
-    this.register(() => {
-      observer.disconnect();
-      if (this.folderUpdateFrame !== null) cancelAnimationFrame(this.folderUpdateFrame);
-      document.querySelectorAll(".ce-folder-action").forEach((el) => el.remove());
-      document
-        .querySelectorAll(".ce-package-folder, .ce-folder-with-action")
-        .forEach((el) => el.classList.remove("ce-package-folder", "ce-folder-with-action"));
-      document.body.style.removeProperty("--ce-package-color");
-    });
     this.scheduleFolders();
   }
 
   scheduleFolders() {
     if (this.folderUpdateFrame != null) return;
-    this.folderUpdateFrame = requestAnimationFrame(() => {
+    this.folderUpdateFrame = window.requestAnimationFrame(() => {
       this.folderUpdateFrame = null;
       for (const leaf of this.app.workspace.getLeavesOfType("file-explorer")) {
         const view = leaf.view as ExplorerView;
@@ -602,7 +636,7 @@ class CodeEmbedPlugin extends Plugin {
         event.preventDefault();
         event.stopPropagation();
         const current = this.app.vault.getAbstractFileByPath(button?.dataset.folderPath ?? "");
-        if (isVaultFolder(current)) this.toggleFolder(current);
+        if (isVaultFolder(current)) this.toggleFolder(current).catch(console.error);
       });
     }
     button.dataset.folderPath = folder.path;
@@ -626,19 +660,23 @@ class CodeEmbedPlugin extends Plugin {
         new Notice(t("markerIsFolder", { path }));
         return;
       }
-      const choice = await pickOne(this.app, t("confirmUnmark", { path }), [
-        { label: t("cancel") },
-        { label: t("removeMarker", { path }), remove: true },
-      ]);
-      if (
-        choice?.remove && existing.path === path
-          ? this.app.vault.getAbstractFileByPath(path)
-          : null === existing
-      ) {
-        await this.app.vault.trash(existing, true);
-        this.scheduleFolders();
-        new Notice(t("rootRemoved", { path: folder.path }));
+      if (requireApiVersion("1.6.6")) {
+        const choice = await pickOne(this.app, t("confirmUnmark", { path }), [
+          { label: t("cancel") },
+          { label: t("removeMarker", { path }), remove: true },
+        ]);
+        if (
+          !choice?.remove ||
+          existing.path !== path ||
+          this.app.vault.getAbstractFileByPath(path) !== existing
+        )
+          return;
+        await this.app.fileManager.trashFile(existing);
+      } else if (!(await this.app.fileManager.promptForDeletion(existing))) {
+        return;
       }
+      this.scheduleFolders();
+      new Notice(t("rootRemoved", { path: folder.path }));
     } catch (error) {
       new Notice(errorMessage(error));
     }
@@ -787,14 +825,13 @@ class CodeEmbedPlugin extends Plugin {
       localText === undefined ? null : local,
       root,
     );
-    return mark ? "\u0001" + ref.replace(/[\u0001-\u0003]/g, "") + "\u0002" + out + "\u0003" : out;
+    return mark ? markImport(ref, out) : out;
   }
 
   scanText(text: string, off: number) {
     const lines = text.split("\n"),
       fence = fenceAware(lines),
       out: ScannedReference[] = [];
-    const re = /(?<!!)\[\[([^\]]+)\]\]/g;
     lines.forEach((line, idx) => {
       for (const m of line.matchAll(REF_RE())) {
         if (!m.groups!.esc) {
@@ -809,9 +846,7 @@ class CodeEmbedPlugin extends Plugin {
         }
       }
       if (!line.includes("[[")) return;
-      re.lastIndex = 0;
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of wikiLinks(line)) {
         out.push({ ref: m[1], embed: false, line: off + idx, ch: m.index, fence: fence[idx] });
       }
     });
@@ -928,8 +963,10 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   scheduleInject() {
-    clearTimeout(this.panelTimer);
-    this.panelTimer = setTimeout(() => this.injectAll(), 250);
+    window.clearTimeout(this.panelTimer);
+    this.panelTimer = window.setTimeout(() => {
+      this.injectAll().catch(console.error);
+    }, 250);
   }
 
   async injectAll() {
@@ -944,8 +981,10 @@ class CodeEmbedPlugin extends Plugin {
 
   async injectPanes() {
     if (!this.settings.showPanels) {
-      document.querySelectorAll(".ce-native-section").forEach((e) => e.remove());
-      document.querySelectorAll(".ce-host").forEach((e) => e.classList.remove("ce-host"));
+      for (const doc of this.documents.keys()) {
+        doc.querySelectorAll(".ce-native-section").forEach((el) => el.remove());
+        doc.querySelectorAll(".ce-host").forEach((el) => el.classList.remove("ce-host"));
+      }
       return;
     }
     const revision = ++this.injectionRevision;
@@ -962,7 +1001,7 @@ class CodeEmbedPlugin extends Plugin {
 
   refreshPanels() {
     for (const l of this.app.workspace.getLeavesOfType(VIEW_TYPE)) {
-      if (l.view instanceof ReferencePanel) l.view.render();
+      if (l.view instanceof ReferencePanel) l.view.render().catch(console.error);
     }
   }
 
@@ -974,7 +1013,13 @@ class CodeEmbedPlugin extends Plugin {
       if (!leaf) return;
       await leaf.setViewState({ type: VIEW_TYPE, active: true });
     }
-    ws.revealLeaf(leaf);
+    if (requireApiVersion("1.7.2")) await ws.revealLeaf(leaf);
+    else {
+      const root = leaf.getRoot();
+      if (root === ws.leftSplit) ws.leftSplit.expand();
+      if (root === ws.rightSplit) ws.rightSplit.expand();
+      ws.setActiveLeaf(leaf, { focus: true });
+    }
   }
 
   labelOf(n: ReferenceNode) {
@@ -995,7 +1040,7 @@ class CodeEmbedPlugin extends Plugin {
     if (view.getMode() !== "source") {
       await view.setState({ ...view.getState(), mode: "source" }, { history: false });
     }
-    setTimeout(() => {
+    window.setTimeout(() => {
       const ed = view.editor;
       if (!ed) return;
       const last = Math.max(0, ed.lineCount() - 1);
@@ -1013,7 +1058,7 @@ class CodeEmbedPlugin extends Plugin {
       .trim();
     if (!r) return { line: 0, ch: 0 };
     let m;
-    if ((m = /^<<?([\w:.\-]+)>>?$/.exec(r))) {
+    if ((m = /^<<?([\w:.-]+)>>?$/.exec(r))) {
       const open = "<" + m[1] + ">";
       const i = text.indexOf(open);
       if (i < 0) return { line: 0, ch: 0 };
@@ -1078,15 +1123,15 @@ class CodeEmbedPlugin extends Plugin {
     count: number,
     fill: (body: HTMLElement) => void,
   ) {
-    const head = document.createElement("div");
+    const head = createDiv();
     head.className = "ce-native-head";
-    const body = document.createElement("div");
+    const body = createDiv();
     body.className = "ce-native-body";
     body.addEventListener("wheel", (e) => e.stopPropagation(), { passive: true });
     const upd = () => {
       const f = !!this.fold[key];
       head.textContent = (f ? "▸ " : "▾ ") + title + " (" + count + ")";
-      body.style.display = f ? "none" : "";
+      body.classList.toggle("ce-hidden", f);
     };
     head.onclick = () => {
       this.fold[key] = !this.fold[key];
@@ -1109,7 +1154,7 @@ class CodeEmbedPlugin extends Plugin {
     chip.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.goTo(o.file, o.line, o.ch);
+      this.goTo(o.file, o.line, o.ch).catch(console.error);
     };
   }
 
@@ -1128,7 +1173,7 @@ class CodeEmbedPlugin extends Plugin {
       const first = n.occ[0];
       label.onclick = (e) => {
         e.preventDefault();
-        this.goTo(first.file, first.line, first.ch);
+        this.goTo(first.file, first.line, first.ch).catch(console.error);
       };
       row.createSpan({ cls: "ce-count", text: "×" + n.occ.length });
       for (const o of n.occ) this.chip(row, o, file);
@@ -1164,7 +1209,7 @@ class CodeEmbedPlugin extends Plugin {
       const upd = () => {
         const f = !!this.fold[gk];
         arrow.textContent = f ? "▸" : "▾";
-        kids.style.display = f ? "none" : "";
+        kids.classList.toggle("ce-hidden", f);
       };
       arrow.onclick = (e) => {
         e.stopPropagation();
@@ -1174,7 +1219,7 @@ class CodeEmbedPlugin extends Plugin {
       const first = g.rows[0].node.occ[0];
       name.onclick = (e) => {
         e.preventDefault();
-        this.goTo(first.file, first.line, first.ch);
+        this.goTo(first.file, first.line, first.ch).catch(console.error);
       };
       for (const it of g.rows) {
         const n = it.node;
@@ -1185,7 +1230,7 @@ class CodeEmbedPlugin extends Plugin {
         const f0 = n.occ[0];
         label.onclick = (e) => {
           e.preventDefault();
-          this.goTo(f0.file, f0.line, f0.ch);
+          this.goTo(f0.file, f0.line, f0.ch).catch(console.error);
         };
         row.createSpan({ cls: "ce-count", text: "×" + n.occ.length });
         if (it.chain.length > 1) {
@@ -1232,7 +1277,7 @@ class CodeEmbedPlugin extends Plugin {
       const upd = () => {
         const f = !!this.fold[gk];
         arrow.textContent = f ? "▸" : "▾";
-        kids.style.display = f ? "none" : "";
+        kids.classList.toggle("ce-hidden", f);
       };
       arrow.onclick = (e) => {
         e.stopPropagation();
@@ -1294,7 +1339,7 @@ class CodeEmbedPlugin extends Plugin {
     if (revision !== this.injectionRevision) return;
 
     if (!sec) {
-      sec = document.createElement("div");
+      sec = createDiv();
       sec.className = "ce-native-section";
     }
     if (this.settings.panelOnTop) {
@@ -1364,8 +1409,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   async renderMd(md: string, el: HTMLElement, path: string, owner: Component = this) {
-    if (MarkdownRenderer.render) await MarkdownRenderer.render(this.app, md, el, path, owner);
-    else await MarkdownRenderer.renderMarkdown(md, el, path, owner);
+    await MarkdownRenderer.render(this.app, md, el, path, owner);
   }
 
   async renderTree(
@@ -1434,7 +1478,7 @@ class CodeEmbedPlugin extends Plugin {
       const expanded = applyArgs(expandedRaw, [], false);
 
       if (!autoView && expanded !== raw) {
-        const holder = document.createElement("div");
+        const holder = createDiv();
         holder.dataset.ceRendered = "1";
         const ticks = "`".repeat(
           expanded.split(/[^`]+/).reduce((n, x) => Math.max(n, x.length + 1), 3),
@@ -1451,7 +1495,7 @@ class CodeEmbedPlugin extends Plugin {
         if (rendered) code.replaceChildren(...rendered.childNodes);
         else code.textContent = expanded;
       }
-      const bar = document.createElement("div");
+      const bar = createDiv();
       bar.className = "ce-bar";
       const copy = bar.createEl("button", { text: t("copy") });
       copy.onclick = async (e) => {
@@ -1459,28 +1503,26 @@ class CodeEmbedPlugin extends Plugin {
         e.stopPropagation();
         await navigator.clipboard.writeText(expanded);
         copy.setText("OK");
-        setTimeout(() => copy.setText(t("copy")), 1200);
+        window.setTimeout(() => copy.setText(t("copy")), 1200);
       };
-      const view = autoView
-        ? document.createElement("button")
-        : bar.createEl("button", { text: t("view") });
+      const view = autoView ? createEl("button") : bar.createEl("button", { text: t("view") });
       let box: HTMLDivElement | null = null;
       const togglePreview = async () => {
         if (box) {
           box.remove();
           box = null;
-          code.style.display = "";
+          code.classList.remove("ce-hidden");
           view.setText(t("view"));
           return;
         }
-        box = document.createElement("div");
+        box = createDiv();
         box.className = "ce-rendered markdown-rendered";
         if (hasErrors(expanded)) box.classList.add("ce-has-error");
         pre.appendChild(box);
         if (!autoView && lang && !isXml && !isMd) {
           const display = code.cloneNode(true) as HTMLElement;
-          display.style.display = "";
-          const frame = document.createElement("pre");
+          display.classList.remove("ce-hidden");
+          const frame = createEl("pre");
           frame.append(display);
           box.append(frame);
         } else if (autoView || ((isXml || isMd) && this.settings.viewTree)) {
@@ -1492,7 +1534,7 @@ class CodeEmbedPlugin extends Plugin {
         } else {
           await this.renderMd(markErrors(expanded), box, path);
         }
-        code.style.display = "none";
+        code.classList.add("ce-hidden");
         view.setText(t("code"));
       };
       pre.classList.add("ce-pre");
@@ -1538,7 +1580,7 @@ class CodeEmbedPlugin extends Plugin {
   async restoreLocalTagEmbeds(root: HTMLElement, path: string, ctx: MarkdownPostProcessorContext) {
     // Markdown treats <bi> inside ![<<bi>>] as inline HTML. After sanitization
     // the name can be missing and the brackets can span several text nodes.
-    const lost = /!\[(?:<>)?\](?![\[(])/g;
+    const lost = /!\[(?:<>)?\](?![[(])/g;
     if (!ctx?.getSectionInfo || !root.textContent.match(lost)) return;
     const section = ctx.getSectionInfo(root);
     if (!section) return;
@@ -1556,8 +1598,8 @@ class CodeEmbedPlugin extends Plugin {
       for (const match of prose.matchAll(REF_RE())) {
         if (match.groups!.esc) continue;
         const ref = match.groups!.ref;
-        if (!/^(?:<[\w:.\-]+>|<<[\w:.\-]+>>)$/.test(ref)) continue;
-        const projected = match[0].replace(/<[\w:.\-]+>/, "");
+        if (!/^(?:<[\w:.-]+>|<<[\w:.-]+>>)$/.test(ref)) continue;
+        const projected = match[0].replace(/<[\w:.-]+>/, "");
         if (!originals.has(projected)) originals.set(projected, []);
         originals.get(projected)!.push(ref);
       }
@@ -1604,7 +1646,7 @@ class CodeEmbedPlugin extends Plugin {
       const refs = originals.get(projected);
       if (!refs || refs.length !== matches.length) continue;
       for (let i = matches.length - 1; i >= 0; i--) {
-        const host = document.createElement("span");
+        const host = createSpan();
         matches[i].deleteContents();
         matches[i].insertNode(host);
         await this.renderMarkdownRef(host, refs[i], path, ctx);
@@ -1617,7 +1659,7 @@ class CodeEmbedPlugin extends Plugin {
     await this.restoreLocalTagEmbeds(root, path, ctx);
 
     // Custom references can survive Markdown rendering as plain text nodes.
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) =>
         hasEmbed(node.nodeValue ?? "") &&
         !node.parentElement?.closest("pre, code, a, .internal-embed, [data-ce-rendered]")
@@ -1626,24 +1668,26 @@ class CodeEmbedPlugin extends Plugin {
     });
     const nodes = [];
     let node;
-    while ((node = walker.nextNode())) nodes.push(node as Text);
+    while ((node = walker.nextNode())) {
+      if (node.instanceOf(Text)) nodes.push(node);
+    }
     for (const textNode of nodes) {
       const text = textNode.data,
         re = REF_RE(),
-        frag = document.createDocumentFragment();
+        frag = createFragment();
       const pending: [HTMLElement, string][] = [];
       let last = 0,
         m;
       while ((m = re.exec(text)) !== null) {
         if (m.groups!.esc) continue;
-        frag.append(document.createTextNode(text.slice(last, m.index)));
-        const host = document.createElement("span");
+        frag.append(root.ownerDocument.createTextNode(text.slice(last, m.index)));
+        const host = createSpan();
         frag.append(host);
         pending.push([host, m.groups!.ref]);
         last = re.lastIndex;
       }
       if (!pending.length) continue;
-      frag.append(document.createTextNode(text.slice(last)));
+      frag.append(root.ownerDocument.createTextNode(text.slice(last)));
       textNode.replaceWith(frag);
       for (const [host, ref] of pending) await this.renderMarkdownRef(host, ref, path, ctx);
     }
@@ -1666,21 +1710,22 @@ class CodeEmbedPlugin extends Plugin {
       a.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.goToRange(tgt, p.range);
+        this.goToRange(tgt, p.range).catch(console.error);
       });
     }
   }
 
   onClick(e: MouseEvent) {
-    if (!(e.target instanceof Element)) return;
-    const el = e.target.closest<HTMLElement>(".ce-embed");
+    const target = e.targetNode;
+    if (!target?.instanceOf(Element)) return;
+    const el = target.closest<HTMLElement>(".ce-embed");
     if (!el) return;
-    if (e.target.closest("a")) return;
+    if (target.closest("a")) return;
     e.preventDefault();
     e.stopPropagation();
     if (e.ctrlKey || e.metaKey) {
       const f = this.app.vault.getAbstractFileByPath(el.dataset.cePath ?? "");
-      if (isVaultFile(f)) this.app.workspace.getLeaf(true).openFile(f);
+      if (isVaultFile(f)) this.app.workspace.getLeaf(true).openFile(f).catch(console.error);
     }
   }
 
@@ -1708,12 +1753,12 @@ class CodeEmbedPlugin extends Plugin {
     this.registerEvent(v.on("modify", (f) => this.scheduleRenameScan(f)));
     this.registerEvent(
       ws.on("file-open", (f) => {
-        if (f && f.extension === "md") this.snapshot(f, false);
+        if (f && f.extension === "md") this.snapshot(f, false).catch(console.error);
       }),
     );
     ws.onLayoutReady(() => {
       const f = ws.getActiveFile();
-      if (f && f.extension === "md") this.snapshot(f, false);
+      if (f && f.extension === "md") this.snapshot(f, false).catch(console.error);
     });
 
     this.addCommand({
@@ -1722,7 +1767,7 @@ class CodeEmbedPlugin extends Plugin {
       checkCallback: (chk) => {
         const f = ws.getActiveFile();
         if (!isVaultFile(f) || f.extension !== "md") return false;
-        if (!chk) this.cmdRenameFile(f);
+        if (!chk) this.cmdRenameFile(f).catch(console.error);
         return true;
       },
     });
@@ -1732,7 +1777,7 @@ class CodeEmbedPlugin extends Plugin {
       checkCallback: (chk) => {
         const f = ws.getActiveFile();
         if (!isVaultFile(f) || f.extension !== "md") return false;
-        if (!chk) this.cmdRenameTag(f);
+        if (!chk) this.cmdRenameTag(f).catch(console.error);
         return true;
       },
     });
@@ -1742,7 +1787,7 @@ class CodeEmbedPlugin extends Plugin {
       checkCallback: (chk) => {
         const f = ws.getActiveFile();
         if (!isVaultFile(f) || f.extension !== "md") return false;
-        if (!chk) this.cmdRenameSection(f);
+        if (!chk) this.cmdRenameSection(f).catch(console.error);
         return true;
       },
     });
@@ -1751,7 +1796,7 @@ class CodeEmbedPlugin extends Plugin {
       name: t("cmdRenameTarget"),
       editorCheckCallback: (chk, editor, view) => {
         if (!view.file || !this.refAtCursor(editor)) return false;
-        if (!chk) this.cmdRenameAtCursor(editor, view.file);
+        if (!chk) this.cmdRenameAtCursor(editor, view.file).catch(console.error);
         return true;
       },
     });
@@ -1802,7 +1847,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   teardownRename() {
-    for (const t of this.renameScanTimers?.values() ?? []) clearTimeout(t);
+    for (const t of this.renameScanTimers?.values() ?? []) window.clearTimeout(t);
   }
 
   // Validate after the outermost rename has updated both definitions and references.
@@ -1815,11 +1860,10 @@ class CodeEmbedPlugin extends Plugin {
       if (!this.activeRenameCount) {
         this.previousBrokenReferences = null;
         if (this.settings.warnBroken) {
-          clearTimeout(this.validationTimer);
-          this.validationTimer = setTimeout(
-            () => this.validate(false),
-            this.settings.validateDelay,
-          );
+          window.clearTimeout(this.validationTimer);
+          this.validationTimer = window.setTimeout(() => {
+            this.validate(false).catch(console.error);
+          }, this.settings.validateDelay);
         }
       }
     }
@@ -1845,10 +1889,10 @@ class CodeEmbedPlugin extends Plugin {
       this.renameSnapshots.delete(file.path);
       return;
     }
-    clearTimeout(this.renameScanTimers.get(file.path));
+    window.clearTimeout(this.renameScanTimers.get(file.path));
     this.renameScanTimers.set(
       file.path,
-      setTimeout(() => {
+      window.setTimeout(() => {
         this.scanRename(file).catch((e) => console.error("code-embed rename", e));
       }, 1500),
     );
@@ -1991,7 +2035,7 @@ class CodeEmbedPlugin extends Plugin {
     const name = await askText(this.app, t("newNoteName"), file.basename, (v) =>
       !v
         ? t("emptyName")
-        : /[\\/:*?"<>|#^\[\]]/.test(v)
+        : /[\\/:*?"<>|#^[\]]/.test(v)
           ? t("badChars") + ': \\ / : * ? " < > | # ^ [ ]'
           : null,
     );
@@ -2006,7 +2050,7 @@ class CodeEmbedPlugin extends Plugin {
     try {
       await this.app.fileManager.renameFile(file, target);
     } finally {
-      setTimeout(() => {
+      window.setTimeout(() => {
         this.forceRenameUpdate = false;
       }, 0);
     }
@@ -2100,7 +2144,7 @@ class CodeEmbedPlugin extends Plugin {
         const p = parseRef(ref);
         const tgt = this.findFile(p.name, src.path);
         if (!tgt || tgt.path !== file.path) return null;
-        const tm = /^(<<?)([\w:.\-]+)(>>?)$/.exec(p.range || "");
+        const tm = /^(<<?)([\w:.-]+)(>>?)$/.exec(p.range || "");
         if (!tm || tm[2] !== oldTag) return null;
         const sp = this.nameSpan(ref, p);
         if (!sp) return null;
@@ -2292,7 +2336,7 @@ class CodeEmbedPlugin extends Plugin {
     const text = editor.getValue();
     const pairs = [],
       stack = [];
-    const re = /<(\/?)([A-Za-z_][\w:.\-]*)>/g;
+    const re = /<(\/?)([A-Za-z_][\w:.-]*)>/g;
     let m;
     while ((m = re.exec(text)) !== null) {
       if (!m[1] && m.index > 0 && text[m.index - 1] === "<") continue;
@@ -2337,7 +2381,7 @@ class CodeEmbedPlugin extends Plugin {
         label: t("file") + ": " + target.basename + " (" + t("currentNote") + ")",
         kind: "file",
       });
-    const tm = /^<([<]?)([\w:.\-]+)>[>]?$/.exec(p.range || "");
+    const tm = /^<([<]?)([\w:.-]+)>[>]?$/.exec(p.range || "");
     if (tm) opts.push({ label: t("tag") + ": <" + tm[2] + ">", kind: "tag", tag: tm[2] });
     if (p.range && p.range.startsWith("#")) {
       const m = /^#+\s*([^(|]*)/.exec(p.range);

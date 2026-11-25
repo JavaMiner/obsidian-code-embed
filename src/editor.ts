@@ -10,6 +10,7 @@ import {
 import { RangeSetBuilder, StateEffect, StateField, type EditorState } from "@codemirror/state";
 import type CodeEmbedPlugin from "./main";
 import {
+  wikiLinks,
   FENCE_RE,
   REF_RE,
   hasEmbed,
@@ -43,7 +44,7 @@ class EmbedWidget extends WidgetType {
     );
   }
   toDOM() {
-    const s: WidgetElement = document.createElement("span");
+    const s: WidgetElement = createSpan();
     s.className = "ce-widget";
     s.textContent = "…";
     const path = this.path;
@@ -54,7 +55,7 @@ class EmbedWidget extends WidgetType {
       .then(async (t) => {
         if (!s.ceOwner) return;
         if (this.lang && !/^(?:ce|codeembed|md|markdown|xml)$/.test(this.lang) && !hasErrors(t)) {
-          const holder = document.createElement("div");
+          const holder = createDiv();
           holder.dataset.ceRendered = "1";
           const fence = "`".repeat(t.split(/[^`]+/).reduce((n, x) => Math.max(n, x.length + 1), 3));
           await this.plugin.renderMd(
@@ -174,7 +175,7 @@ export class MarkdownEmbedWidget extends WidgetType {
     );
   }
   toDOM(view: EditorView) {
-    const el: WidgetElement = document.createElement(this.block ? "div" : "span");
+    const el: WidgetElement = createEl(this.block ? "div" : "span");
     el.className = "ce-inline-render markdown-rendered";
     el.dataset.ceRendered = "1";
     const owner = this.plugin.addChild(new Component());
@@ -189,8 +190,12 @@ export class MarkdownEmbedWidget extends WidgetType {
         await this.plugin.renderEmbedMarkdown(md, el, this.path, owner, this.block);
         if (el.ceToken === token) view.requestMeasure();
       })
-      .catch((error) => {
-        if (el.ceToken === token) renderErrorsInText(el, formatError(error.message));
+      .catch((error: unknown) => {
+        if (el.ceToken === token)
+          renderErrorsInText(
+            el,
+            formatError(error instanceof Error ? error.message : String(error)),
+          );
       });
     return el;
   }
@@ -281,9 +286,7 @@ export function createLinkNavigationExtension(plugin: CodeEmbedPlugin) {
       const path = view.state.field(editorInfoField, false)?.file?.path;
       if (!path) return;
       const line = view.state.doc.lineAt(pos);
-      const re = /(?<!!)\[\[([^\]]+)\]\]/g;
-      let m;
-      while ((m = re.exec(line.text)) !== null) {
+      for (const m of wikiLinks(line.text)) {
         const from = line.from + m.index,
           to = from + m[0].length;
         if (pos < from || pos > to) continue;
@@ -293,7 +296,7 @@ export function createLinkNavigationExtension(plugin: CodeEmbedPlugin) {
         if (!tgt) return;
         e.preventDefault();
         e.stopPropagation();
-        plugin.goToRange(tgt, p.range);
+        plugin.goToRange(tgt, p.range).catch(console.error);
         return;
       }
     },

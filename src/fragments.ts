@@ -2,7 +2,7 @@ import { CE_LOCALES, t } from "./locale";
 
 // A local selector starts with # or <. Named sources require a colon before a selector.
 export const REF_RE = () =>
-  /(?<esc>\\)?(?<all>!\[(?!\s*(?:\.\s*(?:[:\]]|$)|:))(?<ref>(?:\s*[#<][^\[\]\r\n]*|[^\[\]:#\r\n]+(?::[^\[\]\r\n]+)?))\](?![\[(\]]))/g;
+  /(?<esc>\\)?(?<all>!\[(?!\s*(?:\.\s*(?:[:\]]|$)|:))(?<ref>(?:\s*[#<][^[\]\r\n]*|[^[\]:#\r\n]+(?::[^[\]\r\n]+)?))\](?![[(\]]))/g;
 export const hasEmbed = (text: string) => REF_RE().test(text);
 
 const errorLabels = [...new Set(Object.values(CE_LOCALES).map((labels) => labels.errorLabel))];
@@ -43,17 +43,20 @@ export function splitArgs(s: string) {
 }
 
 export function applyArgs(text: string, args: string[], hasParens: boolean) {
-  return text.replace(/\\\$|\$\{([1-9]):([^}]*)\}|\$([1-9*])/g, (m, d, def, n) => {
-    if (m === "\\$") return hasParens ? "$" : m;
-    if (d) {
-      const v = args[Number(d) - 1];
-      return v !== undefined && v !== "" ? v : def;
-    }
-    if (!hasParens) return m;
-    if (n === "*") return args.join(", ");
-    const v = args[Number(n) - 1];
-    return v === undefined ? m : v;
-  });
+  return text.replace(
+    /\\\$|\$\{([1-9]):([^}]*)\}|\$([1-9*])/g,
+    (m: string, d: string | undefined, def: string = "", n: string | undefined) => {
+      if (m === "\\$") return hasParens ? "$" : m;
+      if (d) {
+        const v = args[Number(d) - 1];
+        return v !== undefined && v !== "" ? v : def;
+      }
+      if (!hasParens) return m;
+      if (n === "*") return args.join(", ");
+      const v = args[Number(n) - 1];
+      return v === undefined ? m : v;
+    },
+  );
 }
 
 function stripFrontmatter(t: string) {
@@ -94,7 +97,7 @@ export function parseRef(ref: string) {
   }
   name = name.split("|")[0].trim();
   let args = null;
-  const am = /^(<[\w:.\-]+>>?|<<[\w:.\-]+>>|#[^(]*?)\(([\s\S]*)\)$/.exec(range);
+  const am = /^(<[\w:.-]+>>?|<<[\w:.-]+>>|#[^(]*?)\(([\s\S]*)\)$/.exec(range);
   if (am) {
     range = am[1].trim();
     args = am[2].trim() === "" ? [] : splitArgs(am[2]);
@@ -255,7 +258,7 @@ function sliceTag(text: string, tag: string, inner: boolean) {
 export function slice(text: string, range: string) {
   if (!range) return stripFrontmatter(text);
   let m;
-  if ((m = /^(<<?)([\w:.\-]+)>>?$/.exec(range))) return sliceTag(text, m[2], m[1] === "<<");
+  if ((m = /^(<<?)([\w:.-]+)>>?$/.exec(range))) return sliceTag(text, m[2], m[1] === "<<");
   if (range.startsWith("#")) return sliceSection(text, range);
   if ((m = /^(\d+)-(-\d+|\d*)$/.exec(range))) return sliceLines(text, m[1], m[2]);
   throw new Error(t("unknownSelector") + ": " + range);
@@ -266,7 +269,7 @@ export const countNewlines = (s: string) => {
   for (let i = 0; i < s.length; i++) if (s.charCodeAt(i) === 10) n++;
   return n;
 };
-export const TAG_NAME_PATTERN = /^[\w:.\-]+$/;
+export const TAG_NAME_PATTERN = /^[\w:.-]+$/;
 export const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export function rewriteText(
@@ -283,15 +286,18 @@ export function rewriteText(
       continue;
     }
     if (!hasEmbed(line)) continue;
-    lines[i] = line.replace(REF_RE(), (all, esc, _all, ref) => {
-      if (esc) return all;
-      const p = parseRef(ref);
-      const normalized = p.name + (p.range ? ":" + p.range : "") + argumentSuffix(ref, p);
-      const nr = fn(normalized, inFence);
-      if (nr == null || nr === normalized) return all;
-      count++;
-      return formatEmbed(nr);
-    });
+    lines[i] = line.replace(
+      REF_RE(),
+      (all: string, esc: string | undefined, _all: string, ref: string) => {
+        if (esc) return all;
+        const p = parseRef(ref);
+        const normalized = p.name + (p.range ? ":" + p.range : "") + argumentSuffix(ref, p);
+        const nr = fn(normalized, inFence);
+        if (nr == null || nr === normalized) return all;
+        count++;
+        return formatEmbed(nr);
+      },
+    );
   }
   return { text: lines.join("\n"), count };
 }
@@ -321,11 +327,11 @@ export function tagsOf(text: string) {
   const t = stripFrontmatter(text).replace(REF_RE(), "");
   const opens = new Set<string>(),
     closes = new Set<string>();
-  for (const m of t.matchAll(/<(\/?)([\w:.\-]+)>/g)) (m[1] ? closes : opens).add(m[2]);
+  for (const m of t.matchAll(/<(\/?)([\w:.-]+)>/g)) (m[1] ? closes : opens).add(m[2]);
   return [...opens].filter((x) => closes.has(x));
 }
 
-export const badSectionName = (s: string) => !s || /[#(^|\]\[\n]/.test(s);
+export const badSectionName = (s: string) => !s || /[#(^|\][\n]/.test(s);
 
 export function tagToHeading(text: string, tag: string, level: number, title: string) {
   const lines = text.split("\n");
@@ -384,4 +390,10 @@ export function headingToTag(text: string, lineIdx: number, tag: string) {
   lines[lineIdx] = "<" + tag + ">";
   lines.splice(ei, 0, "</" + tag + ">");
   return { changed: true, text: lines.join("\n") };
+}
+
+export function* wikiLinks(text: string) {
+  for (const match of text.matchAll(/\[\[([^\]]+)\]\]/g)) {
+    if (text[match.index - 1] !== "!") yield match;
+  }
 }

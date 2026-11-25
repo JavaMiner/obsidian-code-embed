@@ -1,4 +1,4 @@
-import { getLanguage } from "obsidian";
+import { getLanguage, requireApiVersion } from "obsidian";
 import en from "./i18n/en.json";
 import pl from "./i18n/pl.json";
 import de from "./i18n/de.json";
@@ -11,9 +11,9 @@ export type Language = keyof typeof CE_LOCALES;
 
 function activeLanguage(): Language {
   const locale =
-    getLanguage?.() ||
-    (globalThis as { moment?: { locale(): string } }).moment?.locale?.() ||
-    globalThis.navigator?.language ||
+    (requireApiVersion("1.8.7") ? getLanguage() : undefined) ||
+    (window as { moment?: { locale(): string } }).moment?.locale?.() ||
+    window.navigator?.language ||
     "en";
   const language = locale.toLowerCase().split(/[-_]/)[0];
   return Object.prototype.hasOwnProperty.call(CE_LOCALES, language) ? (language as Language) : "en";
@@ -27,5 +27,7 @@ export function guideUrl() {
 
 export function t(key: keyof typeof en, values: Record<string, string | number> = {}) {
   const message = CE_LOCALES[activeLanguage()][key] ?? CE_LOCALES.en[key] ?? key;
-  return message.replace(/\{(\w+)\}/g, (token, name) => String(values[name] ?? token));
+  return message.replace(/\{(\w+)\}/g, (token: string, name: string) =>
+    String(values[name] ?? token),
+  );
 }

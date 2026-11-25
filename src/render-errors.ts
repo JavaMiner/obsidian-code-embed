@@ -9,10 +9,7 @@ export function renderErrorsInText(el: HTMLElement, text: string) {
   while ((m = re.exec(text)) !== null) {
     found = true;
     if (m.index > last) el.append(text.slice(last, m.index));
-    const s = document.createElement("span");
-    s.className = "ce-err";
-    s.textContent = m[0];
-    el.append(s);
+    el.createSpan({ cls: "ce-err", text: m[0] });
     last = re.lastIndex;
   }
   if (last < text.length) el.append(text.slice(last));
