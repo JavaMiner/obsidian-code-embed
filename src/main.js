@@ -1796,6 +1796,11 @@ class CodeEmbedPlugin extends Plugin {
       const md = await this.resolve(ref, path, []);
       el.classList.toggle("ce-has-error", hasErrors(md));
       await this.renderMd(markErrors(md), el, path, owner);
+      // A single rendered paragraph can stay inline with the surrounding text.
+      const paragraph = el.firstElementChild;
+      if (el.childElementCount === 1 && paragraph.matches("p")) {
+        paragraph.replaceWith(...paragraph.childNodes);
+      }
     } catch (error) {
       fillErr(el, formatError(error.message));
     }

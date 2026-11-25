@@ -206,3 +206,31 @@ test("reading view restores two XML selectors split by Markdown HTML processing"
     [[2, 2], [3, 2], "L'Oréal Revitalift Laser"], [[0, 2], [1, 2], "Bioderma Sensibio Gel Moussant"]
   ]);
 });
+
+test("reading view unwraps a single paragraph without losing inline markup", async () => {
+  const path = "Prompt.md";
+  const { plugin } = fixture({ [path]: "<analized_file>js ce-test.js</analized_file>" });
+  const text = { textContent: "js ce-test.js" };
+  const inlineCode = { tagName: "CODE" };
+  const replacements = [];
+  const paragraph = {
+    matches: selector => selector === "p",
+    childNodes: [text, inlineCode],
+    replaceWith: (...nodes) => replacements.push(nodes)
+  };
+  const host = {
+    dataset: {},
+    classList: { remove() {}, add() {}, toggle() {} },
+    removeAttribute() {},
+    replaceChildren() {}
+  };
+  plugin.renderMd = async (markdown, el) => {
+    assert.equal(markdown, "js ce-test.js");
+    el.firstElementChild = paragraph;
+    el.childElementCount = replacements.length ? 2 : 1;
+  };
+  const renderContext = { addChild() {} };
+  await plugin.renderMarkdownRef(host, "<<analized_file>>", path, renderContext);
+  await plugin.renderMarkdownRef({ ...host, dataset: {} }, "<<analized_file>>", path, renderContext);
+  assert.deepEqual(replacements, [[text, inlineCode]]);
+});
