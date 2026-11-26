@@ -8,6 +8,10 @@ Włącz Code Runner i wybierz jedną wersję walidatora. Każda obsługuje 14 pr
 
 [[Walidacja/Python]] · [[Walidacja/JavaScript]] · [[Walidacja/TypeScript]]
 
+## Uruchom wszystkie testy
+
+Otwórz **całe repozytorium** jako skarbiec w desktopowym Obsidianie. Włącz Code Runner. Jednorazowo w katalogu repozytorium wykonaj `npm ci` i `npm run build`. Powtórz build po zmianach źródeł. Wybierz lokalny program i kliknij ▶: [[Uruchom/Java]], [[Uruchom/Python]] lub [[Uruchom/JavaScript]]. Wymagany jest Node.js 22.13+, a dla wybranego wariantu także JDK 11+ lub Python 3 na PATH. Raport obejmuje 33 testy automatyczne i 14 porównań rozwiniętego tekstu kart. Wygląd sprawdzisz w próbach poniżej.
+
 ## Próby wizualne
 
 ### [[Próby/CE-01|CE-01 · Cała notatka]]

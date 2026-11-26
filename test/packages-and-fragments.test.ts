@@ -1,37 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { loadBundle, hostFixture } from "./bundle";
-import type { App, MarkdownPostProcessorContext, TFile } from "obsidian";
+import { hostFixture } from "./bundle";
+import type { MarkdownPostProcessorContext } from "obsidian";
 import type { EditorView } from "@codemirror/view";
-const { context: ctx, api, Plugin } = loadBundle();
+
+import { fixture, bundle, type Note } from "./fixture";
+const { context: ctx, api } = bundle;
 const { REF_RE, formatEmbed, rewriteText } = api;
-type Note = TFile & { body: string };
-function fixture(notes: Record<string, string>) {
-  const files = Object.entries(notes).map(([path, body]) =>
-    hostFixture<Note>({
-      path,
-      body,
-      name: path.split("/").pop(),
-      extension: "md",
-      basename: path.split("/").pop()!.replace(/\.md$/, ""),
-    }),
-  );
-  const plugin = new Plugin();
-  plugin.settings.maxDepth = 8;
-  plugin.cache = new Map();
-  plugin.app = hostFixture<App>({
-    vault: {
-      getFiles: () => files,
-      getMarkdownFiles: () => files,
-      getAbstractFileByPath: (path: string) => files.find((f) => f.path === path),
-      cachedRead: async (file: Note) => file.body,
-    },
-    metadataCache: {
-      getFirstLinkpathDest: (name: string) => files.find((f) => f.basename === name),
-    },
-  });
-  return { plugin, files };
-}
 
 test("canonical forms, legacy input and native embeds", () => {
   for (const ref of [
