@@ -12,7 +12,7 @@ Keep a closing instruction shared by several prompts in a note named `Templates`
 <VARIABLE>Give three examples.</VARIABLE>
 ```
 
-Insert the following block in another note. Select **Copy+** and paste the result: `Give three examples.`
+Insert the following block in another note. Select **📋 Copy+** and paste the result: `Give three examples.`
 
 ```ce
 ![Templates:<<VARIABLE>>]
@@ -62,9 +62,11 @@ Reply in English. Tone: direct.
 
 ## Preview and copy
 
-In editing and reading views, **Copy+** copies the expanded block, **Preview** renders it, and **Permanent** replaces dollar references such as `$[Templates]` in the source. A missing reference cancels the entire replacement. CE blocks open in structured preview.
+📋 copies the expanded text. 👁️ previews the block or opens a linked reading pane for the note. ⚙️ opens settings for the current language or note. Unlabelled, Markdown, XML and CE blocks are selected by default.
 
-The same buttons at the top act on the whole note. Preview opens a linked editor and reading pane side by side. On a phone it switches modes. Copy+ and Permanent act on prose and selected fences, preserving properties and inline code. Settings include unlabelled fences, Markdown, XML and CE by default. Add languages such as `java` if needed. Backticks and tildes both work, including fences longer than three characters.
+Inside a block, 🔒 replaces references such as `![Templates]` with their contents. At the top of a note, 🔒 creates and opens a sibling note with references expanded in prose and all fenced blocks. Properties and inline code examples are preserved. The original stays editable.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Limit lookup to a package
 
@@ -96,3 +98,7 @@ Copy `dist/{main.js,manifest.json,styles.css}` to `.obsidian/plugins/code-embed/
 Commercial use is permitted. When distributing a modified version, include the license, retain the applicable attribution to Jakub Wajda (JavaMiner) from NOTICE and mark the files you changed.
 
 [Releases](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Support
+
+Support development on [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)

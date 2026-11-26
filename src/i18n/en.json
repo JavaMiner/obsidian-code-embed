@@ -156,8 +156,12 @@
   "blockKinds": "Block action languages",
   "blockKindsHelp": "Separate language names with commas, for example java, python.",
   "sourceChanged": "The source changed. Reopen the note or block and try again.",
-  "nothingToReplace": "No dollar references to replace.",
-  "permanent": "Permanent",
+  "permanent": "Expand references permanently",
   "unlabelledBlocks": "Unlabelled blocks",
-  "additionalLanguages": "Additional languages"
+  "additionalLanguages": "Additional languages",
+  "actionSettings": "Action settings",
+  "noteActions": "Note actions",
+  "snapshotTemplate": "Snapshot filename",
+  "snapshotHelp": "Use [name], [date] (YYYYMMDD) and [version].",
+  "saveSnapshot": "Create and open an expanded copy"
 }

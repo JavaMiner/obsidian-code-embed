@@ -12,7 +12,7 @@ Piszesz kilka promptów, które mają kończyć się takim samym poleceniem. Zap
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
 
-W innej notatce wstaw poniższy blok. Stuknij **Copy+** i wklej wynik. Otrzymasz `Podaj trzy przykłady.`
+W innej notatce wstaw poniższy blok. Stuknij **📋 Copy+** i wklej wynik. Otrzymasz `Podaj trzy przykłady.`
 
 ```ce
 ![Szablony:<<ZMIENNA>>]
@@ -62,9 +62,11 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Podejrzyj i skopiuj
 
-W trybie edycji i czytania **Copy+** kopiuje rozwinięty blok, **Podgląd** go wyświetla, a **Permanent** zastępuje w źródle odwołania takie jak `$[Szablony]`. Brak fragmentu anuluje całą podmianę. Bloki CE od razu pokazują podgląd struktury.
+📋 kopiuje rozwinięty tekst. 👁️ pokazuje podgląd bloku, a dla notatki otwiera powiązany widok czytania. ⚙️ otwiera ustawienia danego typu bloku lub całej notatki. Domyślnie wybrane są bloki bez oznaczenia, Markdown, XML i CE.
 
-Przyciski u góry działają na całą notatkę. Podgląd otwiera powiązany edytor i widok czytania obok siebie. Na telefonie przełącza tryb. Copy+ i Permanent obejmują tekst i wybrane bloki. Zachowują właściwości notatki i przykłady w kodzie śródliniowym. Domyślnie włączone są bloki bez oznaczenia, Markdown, XML i CE. W ustawieniach można dodać np. `java`. Ogrodzenie może składać się z trzech lub więcej grawisów lub tyld.
+W bloku 🔒 zastępuje odwołania takie jak `![Szablony]` ich treścią. Na górze notatki 🔒 tworzy w tym samym folderze nową notatkę i ją otwiera. Rozwija odwołania w tekście i we wszystkich blokach. Zachowuje właściwości notatki i przykłady w kodzie śródliniowym. Oryginał pozostaje do dalszej edycji.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Ogranicz wyszukiwanie do pakietu
 
@@ -98,3 +100,7 @@ npm test
 Licencja zezwala na użycie komercyjne. Rozpowszechniając przeróbkę, dołącz licencję, zachowaj informację z pliku NOTICE o autorze wykorzystanego kodu (Jakub Wajda, JavaMiner) i oznacz zmienione pliki.
 
 [Releases](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Wsparcie
+
+Rozwój wtyczki możesz wesprzeć przez [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.pl.md)

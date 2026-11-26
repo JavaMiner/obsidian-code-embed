@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 (in development)
+
+- Add copy, preview, lock and contextual settings actions to notes and selected fenced blocks.
+- Expand canonical references in place within a block or create a dated, versioned note with all references expanded.
+- Link sidebar diagnostics to their package and defer new broken-reference warnings while the caret is between the brackets.
+- Add Ko-fi to the support links.
+
 ## 0.2.9 — Preview and panel visibility
 
 - Scope visibility rules to code previews and collapsible reference sections so the stylesheet can use normal CSS precedence.

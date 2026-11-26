@@ -156,8 +156,12 @@
   "blockKinds": "Talen voor blokacties",
   "blockKindsHelp": "Scheid talen met komma’s, bijvoorbeeld java, python.",
   "sourceChanged": "De bron is gewijzigd. Open de notitie of het blok opnieuw.",
-  "nothingToReplace": "Geen verwijzingen met een dollarteken om te vervangen.",
-  "permanent": "Permanent",
+  "permanent": "Verwijzingen definitief uitwerken",
   "unlabelledBlocks": "Blokken zonder taal",
-  "additionalLanguages": "Extra talen"
+  "additionalLanguages": "Extra talen",
+  "actionSettings": "Actie-instellingen",
+  "noteActions": "Notitieacties",
+  "snapshotTemplate": "Bestandsnaam van de kopie",
+  "snapshotHelp": "Gebruik [name], [date] (JJJJMMDD) en [version].",
+  "saveSnapshot": "Uitgewerkte kopie maken en openen"
 }

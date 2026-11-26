@@ -12,7 +12,7 @@ Guarda la instrucción final de varios prompts en una nota llamada `Plantillas`.
 <VARIABLE>Da tres ejemplos.</VARIABLE>
 ```
 
-Inserta el siguiente bloque en otra nota. Pulsa **Copy+** y pega el resultado: `Da tres ejemplos.`
+Inserta el siguiente bloque en otra nota. Pulsa **📋 Copy+** y pega el resultado: `Da tres ejemplos.`
 
 ```ce
 ![Plantillas:<<VARIABLE>>]
@@ -62,9 +62,11 @@ Responde en español. Tono: directo.
 
 ## Previsualizar y copiar
 
-Al editar o leer, **Copy+** copia el bloque expandido, **Vista previa** lo muestra y **Permanent** reemplaza referencias como `$[Plantillas]` en el texto original. Si falta un fragmento, se cancela el cambio completo. Los bloques CE se abren en vista estructurada.
+📋 copia el texto expandido. 👁️ muestra el bloque o abre un panel de lectura vinculado a la nota. ⚙️ abre los ajustes del lenguaje o de la nota. Por defecto se seleccionan los bloques sin lenguaje, Markdown, XML y CE.
 
-Los botones superiores actúan sobre toda la nota. La vista previa abre el editor y la lectura en dos paneles vinculados. En teléfonos cambia de modo. Los bloques sin lenguaje, Markdown, XML y CE están seleccionados por defecto. Puedes añadir otros lenguajes en los ajustes. Se admiten delimitadores de tres o más acentos graves o virgulillas.
+En un bloque, 🔒 sustituye referencias como `![Plantillas]` por su contenido. En la parte superior de la nota, 🔒 crea y abre una copia en la misma carpeta, con las referencias expandidas en el texto y en todos los bloques. Conserva las propiedades, el código en línea y la nota original.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Limitar la búsqueda a un paquete
 
@@ -98,3 +100,7 @@ Copia `dist/{main.js,manifest.json,styles.css}` a `.obsidian/plugins/code-embed/
 Se permite el uso comercial. Al distribuir una versión modificada, incluye la licencia, conserva la atribución a Jakub Wajda (JavaMiner) de NOTICE para el código reutilizado e identifica los archivos modificados.
 
 [Versiones](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Apoyo
+
+Apoya el desarrollo en [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)

@@ -12,7 +12,7 @@ Bewaar de gedeelde slotinstructie van meerdere prompts in een notitie met de naa
 <VARIABELE>Geef drie voorbeelden.</VARIABELE>
 ```
 
-Plaats het volgende blok in een andere notitie. Kies **Copy+** en plak de tekst: `Geef drie voorbeelden.`
+Plaats het volgende blok in een andere notitie. Kies **📋 Copy+** en plak de tekst: `Geef drie voorbeelden.`
 
 ```ce
 ![Sjablonen:<<VARIABELE>>]
@@ -62,9 +62,11 @@ Antwoord in het Nederlands. Toon: direct.
 
 ## Bekijken en kopiëren
 
-Bij het bewerken en lezen kopieert **Copy+** het uitgewerkte blok. **Voorbeeld** toont het resultaat en **Permanent** vervangt verwijzingen zoals `$[Sjablonen]` in de bron. Ontbreekt een fragment, dan wordt de hele wijziging geannuleerd. CE-blokken openen in de structuurweergave.
+📋 kopieert de uitgewerkte tekst. 👁️ toont het blok of opent een gekoppeld leesvenster voor de notitie. ⚙️ opent de instellingen voor de bloktaal of de notitie. Standaard zijn blokken zonder taal, Markdown, XML en CE geselecteerd.
 
-De knoppen bovenaan gelden voor de hele notitie. Voorbeeld opent de editor en de leesweergave naast elkaar in gekoppelde panelen. Op telefoons wisselt de weergave. Standaard zijn blokken zonder taal, Markdown, XML en CE geselecteerd. Andere talen kun je toevoegen in de instellingen. Zowel backticks als tildes werken als afbakening vanaf drie tekens.
+In een blok vervangt 🔒 verwijzingen zoals `![Sjablonen]` door hun inhoud. Bovenaan de notitie maakt en opent 🔒 een kopie in dezelfde map met uitgewerkte verwijzingen in de tekst en alle blokken. Eigenschappen, inlinecode en de oorspronkelijke notitie blijven behouden.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Zoeken binnen een pakket
 
@@ -98,3 +100,7 @@ Kopieer `dist/{main.js,manifest.json,styles.css}` naar `.obsidian/plugins/code-e
 Commercieel gebruik is toegestaan. Als je een aangepaste versie verspreidt, voeg dan de licentie toe, behoud de naamsvermelding van Jakub Wajda (JavaMiner) uit NOTICE voor de overgenomen code en markeer gewijzigde bestanden.
 
 [Versies](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Ondersteuning
+
+Steun de ontwikkeling via [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)

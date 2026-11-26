@@ -126,29 +126,36 @@ export class CodeEmbedSettings extends PluginSettingTab {
     else this.renderLegacySettings();
   }
 
+  private kindRow(kind: string): SettingsRow {
+    const names: Record<string, string> = {
+      plain: t("unlabelledBlocks"),
+      markdown: "Markdown",
+      xml: "XML",
+      ce: "CE",
+    };
+    return {
+      name: Object.hasOwn(names, kind) ? names[kind] : kind,
+      render: (row) => {
+        row.addToggle((toggle) =>
+          toggle
+            .setValue(selectedKinds(this.plugin.settings.blockActionKinds).has(kind))
+            .onChange((enabled) => {
+              const kinds = selectedKinds(this.plugin.settings.blockActionKinds);
+              if (enabled) kinds.add(kind);
+              else kinds.delete(kind);
+              return this.set("blockActionKinds", [...kinds].join(", "));
+            }),
+        );
+      },
+    };
+  }
+
   private blockKinds(): SettingsRow[] {
-    const builtIn = new Map([
-      ["plain", t("unlabelledBlocks")],
-      ["markdown", "Markdown"],
-      ["xml", "XML"],
-      ["ce", "CE / XMLCE"],
-    ]);
+    const builtIn = selectedKinds(DEFAULTS.blockActionKinds);
     const current = () => selectedKinds(this.plugin.settings.blockActionKinds);
     const save = (kinds: Set<string>) => this.set("blockActionKinds", [...kinds].join(", "));
     return [
-      ...Array.from(builtIn, ([kind, name]) => ({
-        name,
-        render: (row: Setting) => {
-          row.addToggle((toggle) =>
-            toggle.setValue(current().has(kind)).onChange((enabled) => {
-              const kinds = current();
-              if (enabled) kinds.add(kind);
-              else kinds.delete(kind);
-              return save(kinds);
-            }),
-          );
-        },
-      })),
+      ...[...builtIn].map((kind) => this.kindRow(kind)),
       {
         name: t("additionalLanguages"),
         desc: t("blockKindsHelp"),
@@ -168,6 +175,43 @@ export class CodeEmbedSettings extends PluginSettingTab {
         },
       },
     ];
+  }
+
+  private templateRow(): SettingsRow {
+    return {
+      name: t("snapshotTemplate"),
+      desc: t("snapshotHelp"),
+      render: (row) => {
+        row.addText((field) =>
+          field
+            .setPlaceholder(DEFAULTS.snapshotTemplate)
+            .setValue(this.plugin.settings.snapshotTemplate)
+            .onChange((value) =>
+              this.set("snapshotTemplate", value.trim() || DEFAULTS.snapshotTemplate),
+            ),
+        );
+      },
+    };
+  }
+
+  openFor(kind?: string) {
+    const modal = new Modal(this.app);
+    const selected = kind ? this.kindRow(kind) : null;
+    modal.titleEl.setText("Code Embed · " + (selected?.name ?? t("noteActions")));
+    const controls = selected ? [selected] : [this.templateRow(), ...this.blockKinds()];
+    if (kind === "markdown" || kind === "xml")
+      controls.push(this.toggle("viewTree", t("viewTree"), t("viewTreeHelp")));
+    if (kind === "xml") controls.push(this.toggle("xmlPlain", t("xmlPlain"), t("xmlPlainHelp")));
+    if (kind === "ce")
+      controls.push(
+        this.slider("treeOpenDepth", t("treeOpenDepth"), t("treeOpenDepthHelp"), 0, 10, 1),
+      );
+    for (const control of controls) {
+      const row = new Setting(modal.contentEl).setName(control.name);
+      if (control.desc) row.setDesc(control.desc);
+      control.render(row);
+    }
+    modal.open();
   }
 
   private groups(): SettingsGroup[] {
@@ -223,6 +267,7 @@ export class CodeEmbedSettings extends PluginSettingTab {
         ],
       },
       { type: "group", heading: t("blockKinds"), items: this.blockKinds() },
+      { type: "group", heading: t("noteActions"), items: [this.templateRow()] },
       {
         type: "group",
         heading: t("sidebars"),
@@ -325,6 +370,7 @@ export class BrokenModal extends Modal {
     for (const b of this.list) {
       const row = box.createDiv({ cls: "ce-broken-row" });
       row.createDiv({ cls: "ce-broken-path", text: b.file.path + " : L" + (b.line + 1) });
+      this.plugin.renderPackageLink(row, b.file);
       row.createEl("code", { text: formatEmbed(b.ref) });
       row.createDiv({ cls: "ce-broken-why", text: b.why });
       row.onclick = () => {

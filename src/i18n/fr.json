@@ -156,8 +156,12 @@
   "blockKinds": "Langages des blocs avec actions",
   "blockKindsHelp": "Séparez les langages par des virgules, par exemple java, python.",
   "sourceChanged": "La source a changé. Rouvrez la note ou le bloc et réessayez.",
-  "nothingToReplace": "Aucune référence avec un signe dollar à remplacer.",
-  "permanent": "Permanent",
+  "permanent": "Développer les références définitivement",
   "unlabelledBlocks": "Blocs sans langage",
-  "additionalLanguages": "Autres langages"
+  "additionalLanguages": "Autres langages",
+  "actionSettings": "Réglages des actions",
+  "noteActions": "Actions de la note",
+  "snapshotTemplate": "Nom du fichier de copie",
+  "snapshotHelp": "Utilisez [name], [date] (AAAAMMJJ) et [version].",
+  "saveSnapshot": "Créer et ouvrir une copie développée"
 }

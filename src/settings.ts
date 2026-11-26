@@ -4,7 +4,10 @@ export type Settings = typeof DEFAULTS & {
 export type KeysOfType<T> = {
   [K in keyof typeof DEFAULTS]: (typeof DEFAULTS)[K] extends T ? K : never;
 }[keyof typeof DEFAULTS];
+export const DEFAULT_SNAPSHOT_TEMPLATE = "[name].perm.[date].v[version].md";
+
 export const DEFAULTS = {
+  snapshotTemplate: DEFAULT_SNAPSHOT_TEMPLATE,
   showAllFolderActions: false,
   packageColor: "#498b78",
   maxDepth: 5,

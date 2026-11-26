@@ -156,8 +156,12 @@
   "blockKinds": "Sprachen für Blockaktionen",
   "blockKindsHelp": "Sprachnamen durch Kommas trennen, zum Beispiel java, python.",
   "sourceChanged": "Die Quelle hat sich geändert. Öffne die Notiz oder den Block erneut.",
-  "nothingToReplace": "Keine Dollar-Verweise zum Ersetzen.",
-  "permanent": "Permanent",
+  "permanent": "Verweise dauerhaft auflösen",
   "unlabelledBlocks": "Blöcke ohne Sprachangabe",
-  "additionalLanguages": "Weitere Sprachen"
+  "additionalLanguages": "Weitere Sprachen",
+  "actionSettings": "Aktionseinstellungen",
+  "noteActions": "Notizaktionen",
+  "snapshotTemplate": "Dateiname der Kopie",
+  "snapshotHelp": "Verwende [name], [date] (JJJJMMTT) und [version].",
+  "saveSnapshot": "Aufgelöste Kopie erstellen und öffnen"
 }

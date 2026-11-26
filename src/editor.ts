@@ -1,4 +1,10 @@
-import { findFences, selectedKinds, blockKind } from "./action-markdown";
+import {
+  caretInsideReference,
+  referencesIn,
+  findFences,
+  selectedKinds,
+  blockKind,
+} from "./action-markdown";
 import { actionBar, type BlockTarget } from "./note-actions";
 import { Component, editorInfoField, editorLivePreviewField } from "obsidian";
 import {
@@ -106,14 +112,27 @@ class BlockActionsWidget extends WidgetType {
     );
   }
   toDOM(view: EditorView) {
-    return actionBar(createSpan(), "ce-editor-actions", (action) =>
-      this.plugin.actions.run(
-        this.plugin.actions.viewForElement(view.dom, this.path),
-        action,
-        this.target,
-      ),
+    return actionBar(
+      createSpan(),
+      "ce-editor-actions",
+      !referencesIn(this.target.body).next().done,
+      (action) =>
+        this.plugin.actions.run(
+          this.plugin.actions.viewForElement(view.dom, this.path),
+          action,
+          this.target,
+        ),
     );
   }
+}
+
+function editingReference(state: EditorState) {
+  return state.selection.ranges.some(({ head }) => {
+    const line = state.doc.lineAt(head);
+    return [...referencesIn(line.text)].some((match) =>
+      caretInsideReference(head - line.from, match),
+    );
+  });
 }
 
 export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
@@ -124,6 +143,14 @@ export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
         this.deco = this.build(view);
       }
       update(u: ViewUpdate) {
+        if (
+          u.docChanged ||
+          u.focusChanged ||
+          (u.selectionSet && (editingReference(u.startState) || editingReference(u.state)))
+        ) {
+          plugin.scheduleValidate();
+          plugin.scheduleInject();
+        }
         if (
           u.docChanged ||
           u.selectionSet ||

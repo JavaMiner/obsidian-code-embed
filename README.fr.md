@@ -12,7 +12,7 @@ Conservez la consigne finale commune à plusieurs prompts dans une note nommée 
 <VARIABLE>Donnez trois exemples.</VARIABLE>
 ```
 
-Insérez le bloc suivant dans une autre note. Sélectionnez **Copy+**, puis collez le résultat : `Donnez trois exemples.`
+Insérez le bloc suivant dans une autre note. Sélectionnez **📋 Copy+**, puis collez le résultat : `Donnez trois exemples.`
 
 ```ce
 ![Modèles:<<VARIABLE>>]
@@ -62,9 +62,11 @@ Répondez en français. Ton : direct.
 
 ## Prévisualiser et copier
 
-En édition et en lecture, **Copy+** copie le bloc développé, **Aperçu** l’affiche et **Permanent** remplace dans la source les références comme `$[Modèles]`. Si un fragment manque, le remplacement est annulé. Les blocs CE affichent leur structure dès l’ouverture.
+📋 copie le texte développé. 👁️ affiche le bloc ou ouvre un volet de lecture lié à la note. ⚙️ ouvre les réglages du langage ou de la note. Par défaut, les blocs sans langage, Markdown, XML et CE sont sélectionnés.
 
-En haut de la note, ces boutons agissent sur toute la note. L’aperçu ouvre deux volets liés, en édition et en lecture. Sur téléphone, il change de mode. Les blocs sans langage, Markdown, XML et CE sont sélectionnés par défaut. Les réglages permettent d’ajouter d’autres langages. Les délimiteurs peuvent contenir trois accents graves ou tildes, ou davantage.
+Dans un bloc, 🔒 remplace les références comme `![Modèles]` par leur contenu. En haut de la note, 🔒 crée et ouvre une copie dans le même dossier, avec les références développées dans le texte et tous les blocs. Les propriétés, le code en ligne et la note originale sont conservés.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Limiter la recherche à un paquet
 
@@ -96,3 +98,7 @@ Copiez `dist/{main.js,manifest.json,styles.css}` dans `.obsidian/plugins/code-em
 L’utilisation commerciale est autorisée. Si vous distribuez une version modifiée, joignez la licence, conservez la mention de Jakub Wajda (JavaMiner) figurant dans NOTICE pour le code repris et signalez les fichiers modifiés.
 
 [Versions](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Soutien
+
+Soutenez le développement sur [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)

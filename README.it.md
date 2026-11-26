@@ -12,7 +12,7 @@ Salva l’istruzione finale comune a più prompt in una nota chiamata `Modelli`.
 <VARIABILE>Fornisci tre esempi.</VARIABILE>
 ```
 
-Inserisci il blocco seguente in un’altra nota. Premi **Copy+** e incolla il risultato: `Fornisci tre esempi.`
+Inserisci il blocco seguente in un’altra nota. Premi **📋 Copy+** e incolla il risultato: `Fornisci tre esempi.`
 
 ```ce
 ![Modelli:<<VARIABILE>>]
@@ -62,9 +62,11 @@ Rispondi in italiano. Tono: diretto.
 
 ## Visualizzare e copiare
 
-In modifica e lettura, **Copy+** copia il blocco espanso, **Anteprima** lo visualizza e **Permanent** sostituisce nel testo le referenze come `$[Modelli]`. Se manca un frammento, la modifica viene annullata. I blocchi CE si aprono in anteprima strutturata.
+📋 copia il testo espanso. 👁️ mostra il blocco o apre un pannello di lettura collegato alla nota. ⚙️ apre le impostazioni del linguaggio o della nota. Per impostazione predefinita sono selezionati i blocchi senza linguaggio, Markdown, XML e CE.
 
-I pulsanti in alto agiscono sull’intera nota. L’anteprima apre due pannelli collegati, uno per la modifica e uno per la lettura. Sul telefono cambia modalità. I blocchi senza linguaggio, Markdown, XML e CE sono selezionati per impostazione predefinita. Puoi aggiungere altri linguaggi nelle impostazioni. I delimitatori possono contenere tre o più accenti gravi o tilde.
+Nel blocco, 🔒 sostituisce i riferimenti come `![Modelli]` con il loro contenuto. In cima alla nota, 🔒 crea e apre una copia nella stessa cartella con i riferimenti espansi nel testo e in tutti i blocchi. Conserva le proprietà, il codice in linea e la nota originale.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Limitare la ricerca a un pacchetto
 
@@ -98,3 +100,7 @@ Copia `dist/{main.js,manifest.json,styles.css}` in `.obsidian/plugins/code-embed
 L’uso commerciale è consentito. Se distribuisci una versione modificata, includi la licenza, conserva l’attribuzione a Jakub Wajda (JavaMiner) riportata in NOTICE per il codice riutilizzato e indica i file modificati.
 
 [Versioni](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Sostegno
+
+Sostieni lo sviluppo su [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)

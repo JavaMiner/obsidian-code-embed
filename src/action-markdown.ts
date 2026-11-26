@@ -14,15 +14,11 @@ export function canonicalReferences() {
   return /(?<esc>\\)?(?<all>!\[(?!\s*(?:\.\s*(?:[:\]]|$)|:))(?<ref>(?:\s*[#<][^[\]\r\n]*|[^[\]:#\r\n]+(?::[^[\]\r\n]+)?))\](?![[(\]]))/g;
 }
 
-export function actionReferences() {
-  return /(?<esc>\\)?(?<all>(?:!\[(?!\s*(?:\.\s*(?:[:\]]|$)|:))|\$\[)(?<ref>(?:\s*[:#<][^[\]\r\n]*|[^[\]:#\r\n]+(?::[^[\]\r\n]+)?))\](?![[(\]]))/g;
-}
-
 export function blockKind(language: string) {
   const name = language.toLowerCase();
   if (!name) return "plain";
   if (name === "md") return "markdown";
-  if (name === "codeembed" || name === "xmlce") return "ce";
+  if (name === "codeembed") return "ce";
   return name;
 }
 
@@ -79,7 +75,6 @@ export function findFences(source: string): Fence[] {
 }
 
 export type ResolveReference = (reference: string, local: string | null) => Promise<string>;
-export type Expansion = "copy" | "permanent";
 
 function inlineCodeSpans(text: string) {
   const spans: { start: number; end: number }[] = [];
@@ -108,24 +103,24 @@ function inlineCodeSpans(text: string) {
   return spans;
 }
 
-async function expandText(
-  text: string,
-  kind: Expansion,
-  local: string | null,
-  resolve: ResolveReference,
-  prose = false,
-) {
+export function* referencesIn(text: string, prose = false) {
+  if (!text.includes("![")) return;
   const spans = prose ? inlineCodeSpans(text) : [];
   let span = 0;
+  for (const match of text.matchAll(canonicalReferences())) {
+    while (span < spans.length && spans[span].end <= match.index) span++;
+    if (match.groups!.esc || (spans[span] && spans[span].start <= match.index)) continue;
+    yield { ref: match.groups!.ref, from: match.index, to: match.index + match[0].length };
+  }
+}
+
+async function expandText(text: string, local: string | null, resolve: ResolveReference) {
   let offset = 0;
   let output = "";
-  for (const match of text.matchAll(actionReferences())) {
-    while (span < spans.length && spans[span].end <= match.index) span++;
-    if (spans[span] && spans[span].start <= match.index) continue;
-    if (match.groups!.esc || (kind === "permanent" && !match[0].startsWith("$"))) continue;
-    const value = await resolve(match.groups!.ref, local);
-    output += text.slice(offset, match.index) + value;
-    offset = match.index + match[0].length;
+  for (const match of referencesIn(text, local === null)) {
+    const value = await resolve(match.ref, local);
+    output += text.slice(offset, match.from) + value;
+    offset = match.to;
   }
   return output + text.slice(offset);
 }
@@ -136,8 +131,8 @@ function preserveLineEndings(source: string, resolve: ResolveReference): Resolve
     : resolve;
 }
 
-export function expandBlock(body: string, kind: Expansion, resolve: ResolveReference) {
-  return expandText(body, kind, body, preserveLineEndings(body, resolve));
+export function expandBlock(body: string, resolve: ResolveReference) {
+  return expandText(body, body, preserveLineEndings(body, resolve));
 }
 
 /** Keep inserted fence-like lines inside their original block. */
@@ -156,34 +151,64 @@ export function replaceFenceBody(source: string, fence: Fence, body: string) {
   return open + body + close;
 }
 
+function* noteSections(source: string, kinds?: ReadonlySet<string>) {
+  let start = frontmatterEnd(source);
+  for (const fence of findFences(source)) {
+    if (start < fence.start) yield { from: start, to: fence.start, fence: null };
+    if (!kinds || kinds.has(blockKind(fence.language))) {
+      yield { from: fence.bodyStart, to: fence.bodyEnd, fence };
+    }
+    start = fence.end;
+  }
+  if (start < source.length) yield { from: start, to: source.length, fence: null };
+}
+
+export function* noteReferences(source: string) {
+  if (!source.includes("![")) return;
+  for (const { from, to, fence } of noteSections(source)) {
+    const text = source.slice(from, to);
+    for (const match of referencesIn(text, !fence))
+      yield {
+        ref: match.ref,
+        from: from + match.from,
+        to: from + match.to,
+        local: fence ? text : null,
+      };
+  }
+}
+
+export function caretInsideReference(caret: number, match: { from: number; to: number }) {
+  return caret >= match.from + 2 && caret < match.to;
+}
+
+/** Mask active references without shifting diagnostic offsets or exposing unfinished imports to other notes. */
+export function validationDocument(source: string, carets: readonly number[]) {
+  let offset = 0;
+  const parts: string[] = [];
+  const deferred = new Set<string>();
+  for (const match of noteReferences(source)) {
+    if (!carets.some((caret) => caretInsideReference(caret, match))) continue;
+    deferred.add(match.ref);
+    parts.push(source.slice(offset, match.from), " ".repeat(match.to - match.from));
+    offset = match.to;
+  }
+  return { text: parts.length ? parts.join("") + source.slice(offset) : source, deferred };
+}
+
 export async function expandNote(
   source: string,
-  kinds: ReadonlySet<string>,
-  kind: Expansion,
   resolve: ResolveReference,
+  kinds?: ReadonlySet<string>,
 ) {
-  const resolveWithLineEndings = preserveLineEndings(source, resolve);
-  let offset = frontmatterEnd(source);
-  let output = source.slice(0, offset);
-  for (const fence of findFences(source)) {
-    output += await expandText(
-      source.slice(offset, fence.start),
-      kind,
-      null,
-      resolveWithLineEndings,
-      true,
-    );
-    if (kinds.has(blockKind(fence.language))) {
-      const body = source.slice(fence.bodyStart, fence.bodyEnd);
-      output += replaceFenceBody(
-        source,
-        fence,
-        await expandText(body, kind, body, resolveWithLineEndings),
-      );
-    } else output += source.slice(fence.start, fence.end);
-    offset = fence.end;
+  const resolver = preserveLineEndings(source, resolve);
+  let offset = 0;
+  let output = "";
+  for (const { from, to, fence } of noteSections(source, kinds)) {
+    const text = source.slice(from, to);
+    output += source.slice(offset, fence?.start ?? from);
+    const expanded = await expandText(text, fence ? text : null, resolver);
+    output += fence ? replaceFenceBody(source, fence, expanded) : expanded;
+    offset = fence?.end ?? to;
   }
-  return (
-    output + (await expandText(source.slice(offset), kind, null, resolveWithLineEndings, true))
-  );
+  return output + source.slice(offset);
 }

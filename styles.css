@@ -56,3 +56,6 @@ pre.ce-pre code.ce-hidden,
 .ce-native-section .ce-children.ce-hidden {
   display: none;
 }
+
+.ce-package-link { font-size: var(--font-ui-smaller); overflow-wrap: anywhere; }
+.ce-bar button:disabled, .ce-editor-actions button:disabled, .ce-note-actions button:disabled { opacity: .4; filter: grayscale(1); cursor: default; }

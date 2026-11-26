@@ -156,8 +156,12 @@
   "blockKinds": "Typy bloków z przyciskami",
   "blockKindsHelp": "Oddziel nazwy przecinkami, np. java, python.",
   "sourceChanged": "Źródło się zmieniło. Otwórz ponownie notatkę lub blok i spróbuj jeszcze raz.",
-  "nothingToReplace": "Brak odwołań ze znakiem dolara do zastąpienia.",
-  "permanent": "Permanent",
+  "permanent": "Rozwiń odwołania na stałe",
   "unlabelledBlocks": "Bloki bez oznaczenia języka",
-  "additionalLanguages": "Dodatkowe języki"
+  "additionalLanguages": "Dodatkowe języki",
+  "actionSettings": "Ustawienia akcji",
+  "noteActions": "Akcje notatki",
+  "snapshotTemplate": "Nazwa kopii notatki",
+  "snapshotHelp": "Użyj [name], [date] (RRRRMMDD) i [version].",
+  "saveSnapshot": "Utwórz i otwórz rozwiniętą kopię"
 }

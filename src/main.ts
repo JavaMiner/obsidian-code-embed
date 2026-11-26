@@ -16,7 +16,14 @@ import {
   type Menu,
 } from "obsidian";
 import { actionBar, NoteActions } from "./note-actions";
-import { actionReferences, blockKind, findFences, selectedKinds } from "./action-markdown";
+import {
+  validationDocument,
+  referencesIn,
+  noteReferences,
+  blockKind,
+  findFences,
+  selectedKinds,
+} from "./action-markdown";
 import type { EditorView } from "@codemirror/view";
 import {
   refresh,
@@ -53,7 +60,6 @@ import {
   hasEmbed,
   FENCE_RE,
   HEADING_RE,
-  firstError,
   formatError,
   markErrors,
   hasErrors,
@@ -89,7 +95,6 @@ import type {
 
 interface ExpansionRules {
   failOnError?: boolean;
-  references?: () => RegExp;
   source?: { path: string; text: string };
   read?: (file: TFile) => Promise<string>;
 }
@@ -131,13 +136,21 @@ class CodeEmbedPlugin extends Plugin {
   folderUpdateFrame: number | null = null;
   renameSnapshots = new Map<string, RenameSnapshot>();
   renameScanTimers = new Map<string, number>();
+  private scanningRenames = 0;
   forceRenameUpdate = false;
 
   readonly actions = new NoteActions(this);
 
+  private settingsTab?: CodeEmbedSettings;
+
+  openActionSettings(kind?: string) {
+    this.settingsTab?.openFor(kind);
+  }
+
   async onload() {
     this.settings = readSettings(await this.loadData());
-    this.addSettingTab(new CodeEmbedSettings(this.app, this));
+    this.settingsTab = new CodeEmbedSettings(this.app, this);
+    this.addSettingTab(this.settingsTab);
 
     const funding = (
       this.manifest as typeof this.manifest & { fundingUrl?: string | Record<string, string> }
@@ -191,6 +204,7 @@ class CodeEmbedPlugin extends Plugin {
       v = this.app.vault;
     this.registerEvent(
       v.on("modify", (f) => {
+        this.cache.delete(f.path);
         this.resolvedReferences.delete(f.path);
         this.rawReferences.delete(f.path);
         this.invalidate();
@@ -223,9 +237,7 @@ class CodeEmbedPlugin extends Plugin {
     this.registerEvent(ws.on("layout-change", () => this.scheduleInject()));
     this.app.workspace.onLayoutReady(() => {
       this.scheduleInject();
-      window.setTimeout(() => {
-        this.validate(true).catch(console.error);
-      }, 3000);
+      this.validate(true).catch(console.error);
     });
 
     this.setupFolders();
@@ -372,30 +384,18 @@ class CodeEmbedPlugin extends Plugin {
     }, 500);
   }
 
-  rawRefs(text: string) {
-    const lines = text.split("\n"),
-      out = [];
-    let inFence = false,
-      block = null;
-    for (let idx = 0; idx < lines.length; idx++) {
-      const line = lines[idx];
-      if (FENCE_RE.test(line)) {
-        if (!inFence) {
-          const b = [];
-          for (let k = idx + 1; k < lines.length && !FENCE_RE.test(lines[k]); k++) b.push(lines[k]);
-          block = b.join("\n");
-        }
-        inFence = !inFence;
-        continue;
+  rawRefs(text: string): RawReference[] {
+    const out = [];
+    let line = 0;
+    let start = 0;
+    let newline = text.indexOf("\n");
+    for (const { ref, from, local } of noteReferences(text)) {
+      while (newline >= 0 && newline < from) {
+        line++;
+        start = newline + 1;
+        newline = text.indexOf("\n", start);
       }
-      if (!hasEmbed(line)) continue;
-      const re = REF_RE();
-      let m;
-      while ((m = re.exec(line)) !== null) {
-        if (m.groups!.esc) continue;
-        const p = parseRef(m.groups!.ref);
-        out.push({ ref: m.groups!.ref, p, line: idx, ch: m.index, local: inFence ? block : null });
-      }
+      out.push({ ref, p: parseRef(ref), line, ch: from - start, local });
     }
     return out;
   }
@@ -409,24 +409,42 @@ class CodeEmbedPlugin extends Plugin {
     return hit;
   }
 
-  async checkItem(it: RawReference, file: TFile) {
-    const expanded = await this.resolve(it.ref, file.path, [], false, it.local);
-    return firstError(expanded) || null;
+  async checkItem(it: RawReference, file: TFile, source?: { path: string; text: string }) {
+    try {
+      await this.resolve(it.ref, file.path, [], false, it.local, undefined, {
+        failOnError: true,
+        source,
+      });
+      return null;
+    } catch (error) {
+      return errorMessage(error);
+    }
   }
 
-  async collectErrors() {
-    const out = [];
-    for (const f of this.app.vault.getMarkdownFiles()) {
-      if (f.name === MARKER) continue;
-      for (const it of await this.rawOf(f)) {
-        const why = await this.checkItem(it, f);
-        if (why) out.push({ file: f, line: it.line, ch: it.ch, ref: it.ref, why });
+  async collectErrors(deferred = new Set<string>()) {
+    const out: BrokenReference[] = [];
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const editor = view?.getMode() === "source" ? view.editor : null;
+    let draft: { path: string; text: string } | undefined;
+    if (editor && view?.file) {
+      const carets = editor.listSelections().map((range) => editor.posToOffset(range.head));
+      const doc = validationDocument(editor.getValue(), carets);
+      draft = { path: view.file.path, text: doc.text };
+      for (const ref of doc.deferred) deferred.add(view.file.path + "|" + ref + "|");
+    }
+    for (const file of this.app.vault.getMarkdownFiles()) {
+      if (file.name === MARKER) continue;
+      const items = draft?.path === file.path ? this.rawRefs(draft.text) : await this.rawOf(file);
+      for (const it of items) {
+        const why = await this.checkItem(it, file, draft);
+        if (why) out.push({ file, line: it.line, ch: it.ch, ref: it.ref, why });
       }
     }
     return out;
   }
 
   scheduleValidate() {
+    this.validationRevision++;
     if (!this.settings.warnBroken) return;
     window.clearTimeout(this.validationTimer);
     this.validationTimer = window.setTimeout(() => {
@@ -436,9 +454,10 @@ class CodeEmbedPlugin extends Plugin {
 
   async validate(silent: boolean) {
     if (!this.settings.warnBroken) return;
-    if (this.activeRenameCount) return;
+    if (this.activeRenameCount || this.scanningRenames || this.renameScanTimers.size) return;
     const revision = ++this.validationRevision;
-    const list = await this.collectErrors();
+    const deferred = new Set<string>();
+    const list = await this.collectErrors(deferred);
     if (revision !== this.validationRevision || this.activeRenameCount) return;
     const cur = new Map<string, BrokenReference>();
     for (const e of list) {
@@ -447,6 +466,13 @@ class CodeEmbedPlugin extends Plugin {
     }
     const prev = this.previousBrokenReferences;
     this.previousBrokenReferences = new Set(cur.keys());
+    if (prev && deferred.size) {
+      const prefixes = [...deferred];
+      for (const key of prev) {
+        if (prefixes.some((prefix) => key.startsWith(prefix)))
+          this.previousBrokenReferences.add(key);
+      }
+    }
     if (silent || !prev) return;
     const fresh = [...cur.entries()].filter(([k]) => !prev.has(k)).map(([, v]) => v);
     if (fresh.length) this.notifyBroken(fresh);
@@ -755,7 +781,7 @@ class CodeEmbedPlugin extends Plugin {
     root = this.packages().root(sourcePath),
     rules: ExpansionRules = {},
   ): Promise<string> {
-    const re = (rules.references ?? REF_RE)();
+    const re = REF_RE();
     const parts = [];
     let last = 0,
       m;
@@ -1189,6 +1215,7 @@ class CodeEmbedPlugin extends Plugin {
         e.preventDefault();
         this.goTo(first.file, first.line, first.ch).catch(console.error);
       };
+      this.renderPackageLink(row, n.file);
       row.createSpan({ cls: "ce-count", text: "×" + n.occ.length });
       for (const o of n.occ) this.chip(row, o, file);
     }
@@ -1218,6 +1245,7 @@ class CodeEmbedPlugin extends Plugin {
       name.textContent =
         g.root.basename + (g.root.path === file.path ? " (" + t("currentNote") + ")" : "");
       name.title = g.root.path;
+      this.renderPackageLink(head, g.root);
       head.createSpan({ cls: "ce-count", text: "×" + g.total });
       const kids = wrap.createDiv({ cls: "ce-children" });
       const upd = () => {
@@ -1241,6 +1269,7 @@ class CodeEmbedPlugin extends Plugin {
         const label = row.createSpan({ cls: "ce-label" });
         label.textContent = this.labelOf(n);
         label.title = n.file.path;
+        this.renderPackageLink(row, n.file);
         const f0 = n.occ[0];
         label.onclick = (e) => {
           e.preventDefault();
@@ -1265,6 +1294,28 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
+  renderPackageLink(row: HTMLElement, file: TFile) {
+    const root = this.packages().root(file.path);
+    if (root === null) {
+      row.createSpan({ cls: "ce-package-link", text: t("outsidePackage") });
+      return;
+    }
+    const path = markerPath(root);
+    const link = row.createEl("a", {
+      cls: "ce-package-link internal-link",
+      text: t("package") + " · " + (root || "/"),
+      href: path,
+      attr: { "data-href": path, title: path },
+    });
+    link.onclick = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.app.workspace
+        .openLinkText(path, file.path, event.ctrlKey || event.metaKey)
+        .catch(console.error);
+    };
+  }
+
   renderErrors(body: HTMLElement, errs: BrokenReference[], file: TFile | null) {
     if (!errs.length) {
       this.emptyNote(body, t("noErrors"));
@@ -1286,6 +1337,7 @@ class CodeEmbedPlugin extends Plugin {
       const head = wrap.createDiv({ cls: "ce-native-row ce-group" });
       const arrow = head.createSpan({ cls: "ce-arrow" });
       const name = head.createSpan({ cls: "ce-label", text: g.file.path });
+      this.renderPackageLink(head, g.file);
       head.createSpan({ cls: "ce-count", text: "×" + g.list.length });
       const kids = wrap.createDiv({ cls: "ce-children" });
       const upd = () => {
@@ -1491,18 +1543,10 @@ class CodeEmbedPlugin extends Plugin {
     const kind = blockKind(language);
     const treeView =
       kind === "ce" || (this.settings.viewTree && (kind === "markdown" || kind === "xml"));
-    const expanded = applyArgs(
-      await this.expand(raw, path, [], false, raw, undefined, { references: actionReferences }),
-      [],
-      false,
-    );
+    const expanded = applyArgs(await this.expand(raw, path, [], false, raw), [], false);
     box.classList.toggle("ce-has-error", hasErrors(expanded));
     if (treeView) {
-      const marked = applyArgs(
-        await this.expand(raw, path, [], true, raw, undefined, { references: actionReferences }),
-        [],
-        false,
-      );
+      const marked = applyArgs(await this.expand(raw, path, [], true, raw), [], false);
       const tree = parseTree(marked);
       if (hasStructure(tree)) {
         await this.renderTree(
@@ -1536,13 +1580,8 @@ class CodeEmbedPlugin extends Plugin {
       const autoView = kind === "ce";
       if (!showActions && !autoView && !hasEmbed(raw)) continue;
       pre.dataset.ce = "1";
-      const references = showActions ? actionReferences : REF_RE;
-      const expanded = references().test(raw)
-        ? applyArgs(
-            await this.expand(raw, path, [], false, raw, undefined, { references }),
-            [],
-            false,
-          )
+      const expanded = hasEmbed(raw)
+        ? applyArgs(await this.expand(raw, path, [], false, raw), [], false)
         : raw;
 
       if (!autoView && expanded !== raw) {
@@ -1575,7 +1614,8 @@ class CodeEmbedPlugin extends Plugin {
       };
       pre.classList.add("ce-pre");
       if (showActions) {
-        const bar = actionBar(pre, "ce-bar", async (action) => {
+        const bar = actionBar(pre, "ce-bar", !referencesIn(raw).next().done, async (action) => {
+          if (action === "actionSettings") return this.openActionSettings(kind);
           if (action === "view") return togglePreview();
           if (action === "copy") return this.actions.copyBlock(raw.replace(/\r?\n$/, ""), path);
           const info = ctx.getSectionInfo(pre);
@@ -1587,12 +1627,7 @@ class CodeEmbedPlugin extends Plugin {
       }
       if (autoView) await togglePreview();
     }
-    await this.processEmbeds(
-      el,
-      path,
-      ctx,
-      this.actions.previewsNote(path) ? actionReferences : REF_RE,
-    );
+    await this.processEmbeds(el, path, ctx);
     this.processLinks(el, path);
   }
 
@@ -1601,7 +1636,6 @@ class CodeEmbedPlugin extends Plugin {
     ref: string,
     path: string,
     ctx?: MarkdownPostProcessorContext,
-    references = REF_RE,
   ) {
     if (el.dataset.ce) return;
     el.dataset.ce = "1";
@@ -1616,7 +1650,7 @@ class CodeEmbedPlugin extends Plugin {
     else this.addChild(owner);
     el.replaceChildren();
     try {
-      const md = await this.resolve(ref, path, [], false, null, undefined, { references });
+      const md = await this.resolve(ref, path, [], false, null);
       el.classList.toggle("ce-has-error", hasErrors(md));
       await this.renderEmbedMarkdown(md, el, path, owner);
     } catch (error) {
@@ -1624,16 +1658,10 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
-  async restoreLocalTagEmbeds(
-    root: HTMLElement,
-    path: string,
-    ctx: MarkdownPostProcessorContext,
-    references = REF_RE,
-  ) {
+  async restoreLocalTagEmbeds(root: HTMLElement, path: string, ctx: MarkdownPostProcessorContext) {
     // Markdown treats <bi> inside ![<<bi>>] as inline HTML. After sanitization
     // the name can be missing and the brackets can span several text nodes.
-    const lost =
-      references === actionReferences ? /[!$]\[(?:<>)?\](?![[(])/g : /!\[(?:<>)?\](?![[(])/g;
+    const lost = /!\[(?:<>)?\](?![[(])/g;
     if (!ctx?.getSectionInfo || !root.textContent.match(lost)) return;
     const section = ctx.getSectionInfo(root);
     if (!section) return;
@@ -1648,7 +1676,7 @@ class CodeEmbedPlugin extends Plugin {
     for (const [index, line] of lines.entries()) {
       if (fence[index]) continue;
       const prose = line.replace(/(`+).*?\1/g, "");
-      for (const match of prose.matchAll(references())) {
+      for (const match of prose.matchAll(REF_RE())) {
         if (match.groups!.esc) continue;
         const ref = match.groups!.ref;
         if (!/^(?:<[\w:.-]+>|<<[\w:.-]+>>)$/.test(ref)) continue;
@@ -1702,24 +1730,19 @@ class CodeEmbedPlugin extends Plugin {
         const host = createSpan();
         matches[i].deleteContents();
         matches[i].insertNode(host);
-        await this.renderMarkdownRef(host, refs[i], path, ctx, references);
+        await this.renderMarkdownRef(host, refs[i], path, ctx);
       }
     }
   }
 
-  async processEmbeds(
-    root: HTMLElement,
-    path: string,
-    ctx: MarkdownPostProcessorContext,
-    references = REF_RE,
-  ) {
+  async processEmbeds(root: HTMLElement, path: string, ctx: MarkdownPostProcessorContext) {
     if (root.closest("[data-ce-rendered]")) return;
-    await this.restoreLocalTagEmbeds(root, path, ctx, references);
+    await this.restoreLocalTagEmbeds(root, path, ctx);
 
     // Custom references can survive Markdown rendering as plain text nodes.
     const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) =>
-        references().test(node.nodeValue ?? "") &&
+        REF_RE().test(node.nodeValue ?? "") &&
         !node.parentElement?.closest("pre, code, a, .internal-embed, [data-ce-rendered]")
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT,
@@ -1731,7 +1754,7 @@ class CodeEmbedPlugin extends Plugin {
     }
     for (const textNode of nodes) {
       const text = textNode.data,
-        re = references(),
+        re = REF_RE(),
         frag = createFragment();
       const pending: [HTMLElement, string][] = [];
       let last = 0,
@@ -1747,8 +1770,7 @@ class CodeEmbedPlugin extends Plugin {
       if (!pending.length) continue;
       frag.append(root.ownerDocument.createTextNode(text.slice(last)));
       textNode.replaceWith(frag);
-      for (const [host, ref] of pending)
-        await this.renderMarkdownRef(host, ref, path, ctx, references);
+      for (const [host, ref] of pending) await this.renderMarkdownRef(host, ref, path, ctx);
     }
   }
 
@@ -1906,7 +1928,8 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   teardownRename() {
-    for (const t of this.renameScanTimers?.values() ?? []) window.clearTimeout(t);
+    for (const t of this.renameScanTimers.values()) window.clearTimeout(t);
+    this.renameScanTimers.clear();
   }
 
   // Validate after the outermost rename has updated both definitions and references.
@@ -1916,15 +1939,7 @@ class CodeEmbedPlugin extends Plugin {
       return await fn();
     } finally {
       this.activeRenameCount--;
-      if (!this.activeRenameCount) {
-        this.previousBrokenReferences = null;
-        if (this.settings.warnBroken) {
-          window.clearTimeout(this.validationTimer);
-          this.validationTimer = window.setTimeout(() => {
-            this.validate(false).catch(console.error);
-          }, this.settings.validateDelay);
-        }
-      }
+      if (!this.activeRenameCount) this.scheduleValidate();
     }
   }
 
@@ -1948,11 +1963,19 @@ class CodeEmbedPlugin extends Plugin {
       this.renameSnapshots.delete(file.path);
       return;
     }
-    window.clearTimeout(this.renameScanTimers.get(file.path));
+    const path = file.path;
+    window.clearTimeout(this.renameScanTimers.get(path));
     this.renameScanTimers.set(
-      file.path,
+      path,
       window.setTimeout(() => {
-        this.scanRename(file).catch((e) => console.error("code-embed rename", e));
+        this.renameScanTimers.delete(path);
+        this.scanningRenames++;
+        this.scanRename(file)
+          .catch((error: unknown) => console.error("code-embed rename", error))
+          .finally(() => {
+            this.scanningRenames--;
+            this.scheduleValidate();
+          });
       }, 1500),
     );
   }
@@ -2031,6 +2054,9 @@ class CodeEmbedPlugin extends Plugin {
         return res.text;
       });
       if (n) {
+        this.cache.delete(f.path);
+        this.rawReferences.delete(f.path);
+        this.resolvedReferences.delete(f.path);
         files++;
         refs += n;
       }
