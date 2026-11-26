@@ -19,7 +19,7 @@ import { selectedKinds } from "./action-markdown";
 import { DEFAULTS, COLOR_FALLBACK, type KeysOfType, type Settings } from "./settings";
 import { formatEmbed, headingsOf, tagsOf } from "./fragments";
 import { t, guideUrl } from "./locale";
-import { MARKER, relativeTo } from "./package-index";
+import { isMarker, relativeTo } from "./package-index";
 
 export const VIEW_TYPE = "code-embed-panel";
 export class ReferencePanel extends ItemView {
@@ -196,21 +196,56 @@ export class CodeEmbedSettings extends PluginSettingTab {
 
   openFor(kind?: string) {
     const modal = new Modal(this.app);
-    const selected = kind ? this.kindRow(kind) : null;
-    modal.titleEl.setText("Code Embed · " + (selected?.name ?? t("noteActions")));
-    const controls = selected ? [selected] : [this.templateRow(), ...this.blockKinds()];
-    if (kind === "markdown" || kind === "xml")
-      controls.push(this.toggle("viewTree", t("viewTree"), t("viewTreeHelp")));
-    if (kind === "xml") controls.push(this.toggle("xmlPlain", t("xmlPlain"), t("xmlPlainHelp")));
-    if (kind === "ce")
-      controls.push(
-        this.slider("treeOpenDepth", t("treeOpenDepth"), t("treeOpenDepthHelp"), 0, 10, 1),
+    const render = () => {
+      modal.contentEl.empty();
+      const kinds = selectedKinds(this.plugin.settings.blockActionKinds);
+      const current = kind && kinds.has(kind) ? kind : undefined;
+      modal.titleEl.setText(
+        "Code Embed · " + (current ? this.kindRow(current).name : t("noteActions")),
       );
-    for (const control of controls) {
-      const row = new Setting(modal.contentEl).setName(control.name);
-      if (control.desc) row.setDesc(control.desc);
-      control.render(row);
-    }
+      const ordered = current ? [current, ...[...kinds].filter((k) => k !== current)] : [...kinds];
+      const save = async () => {
+        await this.set("blockActionKinds", [...kinds].join(", "));
+        render();
+      };
+      for (const format of ordered) {
+        new Setting(modal.contentEl).setName(this.kindRow(format).name).addExtraButton((btn) =>
+          btn
+            .setIcon("trash-2")
+            .setTooltip(t("removeFormat"))
+            .onClick(async () => {
+              kinds.delete(format);
+              await save();
+            }),
+        );
+      }
+      const controls = [this.toggle("showActionLabels", t("showActionLabels"), "")];
+      if (!kind) controls.push(this.templateRow());
+      if (kind === "markdown" || kind === "xml")
+        controls.push(this.toggle("viewTree", t("viewTree"), t("viewTreeHelp")));
+      if (kind === "xml") controls.push(this.toggle("xmlPlain", t("xmlPlain"), t("xmlPlainHelp")));
+      if (kind === "ce")
+        controls.push(
+          this.slider("treeOpenDepth", t("treeOpenDepth"), t("treeOpenDepthHelp"), 0, 10, 1),
+        );
+      for (const control of controls) {
+        const row = new Setting(modal.contentEl).setName(control.name);
+        if (control.desc) row.setDesc(control.desc);
+        control.render(row);
+      }
+      new Setting(modal.contentEl).addButton((btn) =>
+        btn.setButtonText("+ " + t("addFormat")).onClick(async () => {
+          const value = await askText(this.app, t("addFormat"), "", (value) =>
+            /^[a-z0-9][a-z0-9_+#.-]*$/i.test(value.trim()) ? null : t("invalidFormat"),
+          );
+          if (value) {
+            for (const format of selectedKinds(value)) kinds.add(format);
+            await save();
+          }
+        }),
+      );
+    };
+    render();
     modal.open();
   }
 
@@ -251,10 +286,7 @@ export class CodeEmbedSettings extends PluginSettingTab {
       {
         type: "group",
         heading: t("expansion"),
-        items: [
-          this.slider("maxDepth", t("maxDepth"), t("maxDepthHelp"), 1, 10, 1),
-          this.toggle("livePreview", t("livePreview"), t("livePreviewHelp")),
-        ],
+        items: [this.toggle("livePreview", t("livePreview"), t("livePreviewHelp"))],
       },
       {
         type: "group",
@@ -266,7 +298,11 @@ export class CodeEmbedSettings extends PluginSettingTab {
           this.slider("inlineMax", t("inlineMax"), t("inlineMaxHelp"), 0, 200, 10),
         ],
       },
-      { type: "group", heading: t("blockKinds"), items: this.blockKinds() },
+      {
+        type: "group",
+        heading: t("blockKinds"),
+        items: [this.toggle("showActionLabels", t("showActionLabels"), ""), ...this.blockKinds()],
+      },
       { type: "group", heading: t("noteActions"), items: [this.templateRow()] },
       {
         type: "group",
@@ -431,7 +467,7 @@ export class EmbedSuggest extends EditorSuggest<string> {
         .filter(
           (f) =>
             f.extension === "md" &&
-            f.name !== MARKER &&
+            !isMarker(f.name) &&
             f.path.toLowerCase().includes(query.toLowerCase()),
         )
         .map((f) => {

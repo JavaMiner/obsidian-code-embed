@@ -10,7 +10,7 @@ export const DEFAULTS = {
   snapshotTemplate: DEFAULT_SNAPSHOT_TEMPLATE,
   showAllFolderActions: false,
   packageColor: "#498b78",
-  maxDepth: 5,
+  showActionLabels: true,
   livePreview: true,
   viewTree: true,
   xmlPlain: true,

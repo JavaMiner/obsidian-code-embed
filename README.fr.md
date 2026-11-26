@@ -12,7 +12,7 @@ Conservez la consigne finale commune à plusieurs prompts dans une note nommée 
 <VARIABLE>Donnez trois exemples.</VARIABLE>
 ```
 
-Insérez le bloc suivant dans une autre note. Sélectionnez **📋 Copy+**, puis collez le résultat : `Donnez trois exemples.`
+Insérez le bloc suivant dans une autre note. Sélectionnez **⧉ Copy+**, puis collez le résultat : `Donnez trois exemples.`
 
 ```ce
 ![Modèles:<<VARIABLE>>]
@@ -62,21 +62,23 @@ Répondez en français. Ton : direct.
 
 ## Prévisualiser et copier
 
-📋 copie le texte développé. 👁️ affiche le bloc ou ouvre un volet de lecture lié à la note. ⚙️ ouvre les réglages du langage ou de la note. Par défaut, les blocs sans langage, Markdown, XML et CE sont sélectionnés.
+⧉ copie le texte développé. 👁️ affiche le bloc ou ouvre un volet de lecture lié à la note. ⚙️ ouvre les réglages du langage ou de la note. Par défaut, les blocs sans langage, Markdown, XML et CE sont sélectionnés.
 
 Dans un bloc, 🔒 remplace les références comme `![Modèles]` par leur contenu. En haut de la note, 🔒 crée et ouvre une copie dans le même dossier, avec les références développées dans le texte et tous les blocs. Les propriétés, le code en ligne et la note originale sont conservés.
+
+Dans ⚙️, supprimez un format ou ajoutez-en un en fin de liste. Désactivez les libellés pour afficher uniquement les icônes dans les blocs et les notes. L’aperçu du dossier ouvre la description du paquet. Les anciens marqueurs avec un tiret bas restent reconnus.
 
 ⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Limiter la recherche à un paquet
 
-Ouvrez le menu du dossier par clic droit ou appui long, ou choisissez un dossier dans la palette de commandes. Confirmez le chemin du marqueur avant de le retirer. Chaque dossier marqué affiche sa couleur et **◆ Racine**. Activez **Afficher les actions sur tous les dossiers** pour afficher aussi **+ Racine** sur les dossiers sans marqueur. Cette option est désactivée par défaut.
+Ouvrez le menu du dossier par clic droit ou appui long, ou choisissez un dossier dans la palette de commandes. Confirmez le chemin du marqueur avant de le retirer. Chaque dossier marqué affiche sa couleur et **🔷 Racine**. Activez **Afficher les actions sur tous les dossiers** pour afficher aussi **+ Racine** sur les dossiers sans marqueur. Cette option est désactivée par défaut.
 
-Code Embed utilise la langue de l’interface d’Obsidian. Ses réglages affichent la version installée, un lien vers le guide français et **Choisir le dossier du paquet**. Pour marquer un dossier manuellement, créez-y une note `_code-embed-root` (fichier `_code-embed-root.md`).
+Code Embed utilise la langue de l’interface d’Obsidian. Ses réglages affichent la version installée, un lien vers le guide français et **Choisir le dossier du paquet**. Pour marquer un dossier manuellement, créez-y une note `.code-embed-root` (fichier `.code-embed-root.md`).
 
 ```text
 Prompts/
-  _code-embed-root.md
+  .code-embed-root.md
   Départ.md
   Commun/
     Style.md

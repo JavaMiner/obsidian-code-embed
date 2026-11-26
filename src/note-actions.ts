@@ -1,4 +1,5 @@
 import {
+  setIcon,
   Component,
   MarkdownView,
   Modal,
@@ -22,7 +23,7 @@ import { snapshotName } from "./snapshot-name";
 import { applyArgs } from "./fragments";
 import { t } from "./locale";
 
-const icons = { copy: "📋", view: "👁️", permanent: "🔒", actionSettings: "⚙️" } as const;
+const icons = { copy: "copy", view: "👁️", permanent: "🔒", actionSettings: "⚙️" } as const;
 export type Action = keyof typeof icons;
 export interface BlockTarget {
   line: number;
@@ -41,8 +42,22 @@ export function actionBar(
   for (const action of ["copy", "view", "permanent", "actionSettings"] as const) {
     const label = t(action === "permanent" ? lockLabel : action);
     const button = bar.createEl("button", {
-      text: icons[action],
       attr: { type: "button", "data-action": action, "aria-label": label, title: label },
+    });
+    if (action === "copy") setIcon(button, "copy");
+    else button.createSpan({ text: icons[action], attr: { "aria-hidden": "true" } });
+    button.createSpan({
+      cls: "ce-action-label",
+      text: t(
+        (
+          {
+            copy: "copyLabel",
+            view: "previewLabel",
+            permanent: "freezeLabel",
+            actionSettings: "settingsLabel",
+          } as const
+        )[action],
+      ),
     });
     button.disabled = action === "permanent" && !canExpand;
     let busy = false;

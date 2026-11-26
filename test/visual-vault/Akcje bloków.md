@@ -1,6 +1,6 @@
 # Akcje bloków i notatki
 
-Otwórz kopię tej notatki w Obsidianie z włączonym Code Embed. Przełącz się między edycją a czytaniem. Na górze notatki i przy wybranych blokach powinny być widoczne 📋, 👁️, 🔒 i ⚙️.
+Otwórz kopię tej notatki w Obsidianie z włączonym Code Embed. Przełącz się między edycją a czytaniem. Na górze notatki i przy wybranych blokach powinny być widoczne ⧉, 👁️, 🔒 i ⚙️.
 
 | Adres | Co wpisać lub kliknąć | Oczekiwany efekt |
 | --- | --- | --- |

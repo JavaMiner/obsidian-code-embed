@@ -12,7 +12,7 @@ Keep a closing instruction shared by several prompts in a note named `Templates`
 <VARIABLE>Give three examples.</VARIABLE>
 ```
 
-Insert the following block in another note. Select **📋 Copy+** and paste the result: `Give three examples.`
+Insert the following block in another note. Select **⧉ Copy+** and paste the result: `Give three examples.`
 
 ```ce
 ![Templates:<<VARIABLE>>]
@@ -62,21 +62,23 @@ Reply in English. Tone: direct.
 
 ## Preview and copy
 
-📋 copies the expanded text. 👁️ previews the block or opens a linked reading pane for the note. ⚙️ opens settings for the current language or note. Unlabelled, Markdown, XML and CE blocks are selected by default.
+⧉ copies the expanded text. 👁️ previews the block or opens a linked reading pane for the note. ⚙️ opens settings for the current language or note. Unlabelled, Markdown, XML and CE blocks are selected by default.
 
 Inside a block, 🔒 replaces references such as `![Templates]` with their contents. At the top of a note, 🔒 creates and opens a sibling note with references expanded in prose and all fenced blocks. Properties and inline code examples are preserved. The original stays editable.
+
+Use ⚙️ to remove a format or add one at the bottom of the list. Turn off Labels for icon-only buttons in blocks and notes. The folder’s Preview button opens the package description. Existing underscore-prefixed markers are still recognized.
 
 ⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Limit lookup to a package
 
-Open the folder context menu with a right-click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. A marked folder always shows its color and **◆ Root**. Enable **Show actions on all folders** to show **+ Root** on unmarked folders as well. The setting is off by default.
+Open the folder context menu with a right-click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. A marked folder always shows its color and **🔷 Root**. Enable **Show actions on all folders** to show **+ Root** on unmarked folders as well. The setting is off by default.
 
-Code Embed uses the Obsidian interface language. Its settings show the installed version, a link to the English guide, and **Choose package folder**. To mark a folder manually, create a note named `_code-embed-root` inside it (filename `_code-embed-root.md`).
+Code Embed uses the Obsidian interface language. Its settings show the installed version, a link to the English guide, and **Choose package folder**. To mark a folder manually, create a note named `.code-embed-root` inside it (filename `.code-embed-root.md`).
 
 ```text
 Prompts/
-  _code-embed-root.md
+  .code-embed-root.md
   Start.md
   Shared/
     Style.md

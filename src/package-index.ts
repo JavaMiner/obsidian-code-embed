@@ -11,7 +11,9 @@ export function isVaultFolder(file: TAbstractFile | null | undefined): file is T
   );
 }
 
-export const MARKER = "_code-embed-root.md";
+export const MARKER = ".code-embed-root.md";
+export const LEGACY_MARKER = "_code-embed-root.md";
+export const isMarker = (name: string | undefined) => name === MARKER || name === LEGACY_MARKER;
 const folderOf = (path: string) => (path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "");
 export const relativeTo = (root: string, path: string) =>
   root ? path.slice(root.length + 1) : path;
@@ -20,10 +22,13 @@ export const markerPath = (root: string) => (root && root !== "/" ? root + "/" :
 export class PackageIndex<F extends IndexedFile = TFile> {
   readonly roots: Set<string>;
   readonly groups = new Map<string, F[]>();
-  constructor(files: F[]) {
-    this.roots = new Set(files.filter((f) => f.name === MARKER).map((f) => folderOf(f.path)));
+  constructor(files: F[], hiddenRoots: Iterable<string> = []) {
+    this.roots = new Set([
+      ...hiddenRoots,
+      ...files.filter((f) => isMarker(f.name)).map((f) => folderOf(f.path)),
+    ]);
     for (const file of files) {
-      if (file.name === MARKER) continue;
+      if (isMarker(file.name)) continue;
       const root = this.root(file.path);
       if (root === null) continue;
       if (!this.groups.has(root)) this.groups.set(root, []);

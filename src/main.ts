@@ -1,4 +1,5 @@
 import {
+  Modal,
   Plugin,
   requireApiVersion,
   MarkdownRenderer,
@@ -45,6 +46,8 @@ import {
   isVaultFile,
   isVaultFolder,
   MARKER,
+  LEGACY_MARKER,
+  isMarker,
   markerPath,
   relativeTo,
   PackageIndex,
@@ -227,6 +230,15 @@ class CodeEmbedPlugin extends Plugin {
     this.registerEvent(v.on("delete", refreshFiles));
     this.registerEvent(
       v.on("rename", (file, oldPath) => {
+        if (isVaultFolder(file)) {
+          this.hiddenRoots = new Set(
+            [...this.hiddenRoots].map((root) =>
+              root === oldPath || root.startsWith(oldPath + "/")
+                ? file.path + root.slice(oldPath.length)
+                : root,
+            ),
+          );
+        }
         refreshFiles();
         this.trackMovedSources(file, oldPath).catch(console.error);
       }),
@@ -237,7 +249,6 @@ class CodeEmbedPlugin extends Plugin {
     this.registerEvent(ws.on("layout-change", () => this.scheduleInject()));
     this.app.workspace.onLayoutReady(() => {
       this.scheduleInject();
-      this.validate(true).catch(console.error);
     });
 
     this.setupFolders();
@@ -257,6 +268,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   onunload() {
+    this.markerRevision++;
     for (const doc of this.documents.keys()) this.detachDocument(doc);
     if (this.folderUpdateFrame !== null) window.cancelAnimationFrame(this.folderUpdateFrame);
     window.clearTimeout(this.timer);
@@ -311,12 +323,13 @@ class CodeEmbedPlugin extends Plugin {
   private detachDocument(doc: Document) {
     this.documents.get(doc)?.();
     this.documents.delete(doc);
-    doc.querySelectorAll(".ce-folder-action").forEach((el) => el.remove());
+    doc.querySelectorAll(".ce-folder-action, .ce-marker-preview").forEach((el) => el.remove());
     doc
       .querySelectorAll(".ce-package-folder, .ce-folder-with-action")
       .forEach((el) => el.classList.remove("ce-package-folder", "ce-folder-with-action"));
     doc.querySelectorAll(".ce-note-actions, .ce-native-section").forEach((e) => e.remove());
     doc.querySelectorAll(".ce-host").forEach((e) => e.classList.remove("ce-host"));
+    doc.body.classList.remove("ce-icons-only");
     const st = doc.body.style;
     [
       "--ce-panel-max",
@@ -337,6 +350,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   private applyDocumentColors(doc: Document) {
+    doc.body.classList.toggle("ce-icons-only", !this.settings.showActionLabels);
     const s = this.settings,
       st = doc.body.style;
     const setColor = (name: string, val: string | null) => {
@@ -362,7 +376,7 @@ class CodeEmbedPlugin extends Plugin {
     this.rawReferences.clear();
     this.invalidate();
     this.scheduleInject();
-    if (key === "warnBroken" || key === "maxDepth" || key === "all") {
+    if (key === "warnBroken" || key === "all") {
       if (this.settings.warnBroken) this.validate(true).catch(console.error);
       else this.previousBrokenReferences = null;
     }
@@ -433,7 +447,7 @@ class CodeEmbedPlugin extends Plugin {
       for (const ref of doc.deferred) deferred.add(view.file.path + "|" + ref + "|");
     }
     for (const file of this.app.vault.getMarkdownFiles()) {
-      if (file.name === MARKER) continue;
+      if (isMarker(file.name)) continue;
       const items = draft?.path === file.path ? this.rawRefs(draft.text) : await this.rawOf(file);
       for (const it of items) {
         const why = await this.checkItem(it, file, draft);
@@ -520,11 +534,16 @@ class CodeEmbedPlugin extends Plugin {
           actual: file,
         };
       }),
+      [...this.hiddenRoots].map((root) =>
+        root === item.path || root.startsWith(item.path + "/")
+          ? oldPath + root.slice(item.path.length)
+          : root,
+      ),
     );
     const guards: Record<string, Record<string, string>> = (this.settings.movedReferences ??= {});
     let changed = false;
     for (const [file, before] of oldPaths) {
-      if (file.extension !== "md" || file.name === MARKER) continue;
+      if (file.extension !== "md" || isMarker(file.name)) continue;
       const oldRoot = previous.root(before);
       const root = this.packages().root(file.path);
       const names = new Map(Object.entries(guards[before] || {}));
@@ -553,9 +572,88 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
+  private hiddenRoots = new Set<string>();
+  private markerRevision = 0;
+
+  private async scanHiddenRoots() {
+    const revision = ++this.markerRevision;
+    const { vault } = this.app;
+    const folders = new Set([
+      "",
+      ...vault
+        .getAllLoadedFiles()
+        .filter(isVaultFolder)
+        .map((f) => (f.path === "/" ? "" : f.path)),
+    ]);
+    const found = new Set<string>();
+    for (const folder of folders) {
+      if (revision !== this.markerRevision) return;
+      if ((await vault.adapter.stat(markerPath(folder)))?.type === "file") found.add(folder);
+    }
+    if (revision !== this.markerRevision) return;
+    this.hiddenRoots = found;
+    this.packageIndex = null;
+    this.resolvedReferences.clear();
+    this.invalidate();
+    this.scheduleFolders();
+    this.scheduleInject();
+    this.scheduleValidate();
+  }
+
+  private packageMarker(root: string) {
+    const path = markerPath(root);
+    if (
+      this.hiddenRoots.has(root === "/" ? "" : root) ||
+      this.app.vault.getAbstractFileByPath(path)
+    )
+      return path;
+    const legacy = path.slice(0, -MARKER.length) + LEGACY_MARKER;
+    return this.app.vault.getAbstractFileByPath(legacy) ? legacy : path;
+  }
+
+  async previewMarker(root: string) {
+    const path = this.packageMarker(root);
+    const { vault, workspace } = this.app;
+    const file = vault.getAbstractFileByPath(path);
+    if (isVaultFile(file)) {
+      await workspace.getLeaf(false).openFile(file);
+      return;
+    }
+    const original = await vault.adapter.read(path);
+    const modal = new Modal(this.app);
+    modal.titleEl.setText(path);
+    modal.open();
+    const content = modal.contentEl.createDiv({ cls: "markdown-rendered" });
+    const owner = this.addChild(new Component());
+    modal.onClose = () => {
+      this.removeChild(owner);
+    };
+    await this.renderMd(original, content, path, owner);
+    const edit = modal.contentEl.createEl("button", { text: t("editDescription") });
+    edit.onclick = () => {
+      content.empty();
+      const field = content.createEl("textarea", { cls: "ce-marker-editor" });
+      field.value = original;
+      field.focus();
+      edit.setText(t("saveDescription"));
+      edit.onclick = () => {
+        const save = async () => {
+          if ((await vault.adapter.read(path)) !== original) throw new Error(t("sourceChanged"));
+          await vault.adapter.write(path, field.value);
+          modal.close();
+        };
+        save().catch((error: unknown) => new Notice(errorMessage(error)));
+      };
+    };
+  }
+
   folderActionLabel(folder: TFolder) {
-    const marker = this.app.vault.getAbstractFileByPath(markerPath(folder.path));
-    return marker && !isVaultFolder(marker) ? t("unmarkFolder") : t("markFolder");
+    const path = this.packageMarker(folder.path);
+    const marker = this.app.vault.getAbstractFileByPath(path);
+    return this.hiddenRoots.has(folder.path === "/" ? "" : folder.path) ||
+      (marker && !isVaultFolder(marker))
+      ? t("unmarkFolder")
+      : t("markFolder");
   }
 
   async choosePackageFolder() {
@@ -605,7 +703,18 @@ class CodeEmbedPlugin extends Plugin {
       callback: chooseFolder,
     });
     this.addRibbonIcon("folder-cog", t("chooseFolder"), chooseFolder);
-    this.app.workspace.onLayoutReady(() => this.scheduleFolders());
+    const scan = () => this.scanHiddenRoots().catch(console.error);
+    this.app.workspace.onLayoutReady(() => {
+      this.scanHiddenRoots()
+        .then(() => this.validate(true))
+        .catch(console.error);
+    });
+    const refreshFolderMarkers = (file: TAbstractFile) => {
+      if (isVaultFolder(file)) void scan();
+    };
+    this.registerEvent(this.app.vault.on("rename", refreshFolderMarkers));
+    this.registerEvent(this.app.vault.on("create", refreshFolderMarkers));
+    this.registerEvent(this.app.vault.on("delete", refreshFolderMarkers));
     this.registerEvent(this.app.workspace.on("layout-change", () => this.scheduleFolders()));
     this.scheduleFolders();
   }
@@ -647,6 +756,8 @@ class CodeEmbedPlugin extends Plugin {
     const marked = this.packages().roots.has(folderPath);
     row.classList.toggle("ce-package-folder", marked);
     row.classList.toggle("ce-folder-with-action", marked || showAll);
+    let preview = row.querySelector<HTMLButtonElement>(".ce-marker-preview");
+    if (!marked) preview?.remove();
     let button = row.querySelector<HTMLButtonElement>(".ce-folder-action");
     if (!showAll && !marked) {
       button?.remove();
@@ -669,16 +780,70 @@ class CodeEmbedPlugin extends Plugin {
     if (button.textContent !== label) button.textContent = label;
     button.title = marked ? t("unmarkFolder") : t("markFolder");
     button.setAttribute("aria-label", button.title + " — " + folder.path);
+    if (marked) {
+      if (!preview) {
+        preview = row.createEl("button", {
+          cls: "ce-marker-preview",
+          text: "👁️ " + t("previewLabel"),
+        });
+        preview.type = "button";
+        preview.addEventListener("mousedown", (event) => event.stopPropagation());
+        preview.addEventListener("pointerdown", (event) => event.stopPropagation());
+        preview.addEventListener("click", (event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          this.previewMarker(preview!.dataset.folderPath!).catch(
+            (error: unknown) => new Notice(errorMessage(error)),
+          );
+        });
+      }
+      preview.dataset.folderPath = folder.path;
+    }
   }
 
   async toggleFolder(folder: TFolder) {
-    const path = markerPath(folder.path),
+    const path = this.packageMarker(folder.path),
       existing = this.app.vault.getAbstractFileByPath(path);
+    const root = folder.path === "/" ? "" : folder.path;
+    const { adapter } = this.app.vault;
     try {
       if (!existing) {
-        await this.app.vault.create(path, "");
+        const stat = await adapter.stat(path);
+        if (stat?.type === "folder") {
+          new Notice(t("markerIsFolder", { path }));
+          return;
+        }
+        if (stat) {
+          const choice = await pickOne(this.app, t("confirmUnmark", { path }), [
+            { label: t("cancel") },
+            { label: t("removeMarker", { path }), remove: true },
+          ]);
+          if (!choice?.remove) return;
+          const now = await adapter.stat(path);
+          if (
+            !now ||
+            now.mtime !== stat.mtime ||
+            now.ctime !== stat.ctime ||
+            now.size !== stat.size
+          )
+            return;
+          await adapter.trashLocal(path);
+          this.hiddenRoots.delete(root);
+          new Notice(t("rootRemoved", { path: folder.path }));
+        } else {
+          const name = folder.name || this.app.vault.getName();
+          await this.app.vault.create(
+            path,
+            "# " + t("packageHeading", { name }) + "\n\n" + t("packagePrompt") + "\n",
+          );
+          this.hiddenRoots.add(root);
+          new Notice(t("rootCreated", { path: folder.path }));
+        }
+        this.markerRevision++;
+        this.packageIndex = null;
         this.scheduleFolders();
-        new Notice(t("rootCreated", { path: folder.path }));
+        this.scheduleInject();
+        this.scheduleValidate();
         return;
       }
       if (isVaultFolder(existing)) {
@@ -700,6 +865,8 @@ class CodeEmbedPlugin extends Plugin {
       } else if (!(await this.app.fileManager.promptForDeletion(existing))) {
         return;
       }
+      this.hiddenRoots.delete(root);
+      this.packageIndex = null;
       this.scheduleFolders();
       new Notice(t("rootRemoved", { path: folder.path }));
     } catch (error) {
@@ -708,7 +875,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   packages() {
-    return (this.packageIndex ||= new PackageIndex(this.app.vault.getFiles()));
+    return (this.packageIndex ||= new PackageIndex(this.app.vault.getFiles(), this.hiddenRoots));
   }
 
   lookup(name: string, sourcePath: string, root = this.packages().root(sourcePath)): Lookup<TFile> {
@@ -736,11 +903,7 @@ class CodeEmbedPlugin extends Plugin {
   lookupWithin(name: string, sourcePath: string, root: string | null): Lookup<TFile> {
     if (name !== "." && name && root !== null) return this.packages().lookup(name, root);
     const file = this.unscopedFile(name, sourcePath);
-    if (
-      !file ||
-      file.name === MARKER ||
-      (root !== null && this.packages().root(file.path) !== root)
-    )
+    if (!file || isMarker(file.name) || (root !== null && this.packages().root(file.path) !== root))
       return {
         error:
           t("missingNote") +
@@ -843,8 +1006,6 @@ class CodeEmbedPlugin extends Plugin {
     } else {
       return unresolved(error);
     }
-    if (stack.length >= this.settings.maxDepth)
-      return unresolved(t("depthExceeded") + " (" + this.settings.maxDepth + ")" + scope);
     if (stack.includes(key))
       return unresolved(t("cycle") + ": " + [...stack, key].join(" → ") + scope);
     let fragment: string;
@@ -929,7 +1090,7 @@ class CodeEmbedPlugin extends Plugin {
     refs: ResolvedReference[],
     depth: number,
     stack: string[],
-    limit = this.settings.maxDepth,
+    limit = Infinity,
     root = this.packages().root(src.path),
   ): Promise<ReferenceNode[]> {
     const groups = new Map<string, ReferenceNode>();
@@ -961,7 +1122,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   panelLimit() {
-    return this.settings.panelNested ? this.settings.maxDepth : 0;
+    return this.settings.panelNested ? Infinity : 0;
   }
 
   async outgoing(file: TFile) {
@@ -980,7 +1141,7 @@ class CodeEmbedPlugin extends Plugin {
   async incoming(file: TFile) {
     const res: Incoming[] = [];
     for (const f of this.app.vault.getMarkdownFiles()) {
-      if (f.name === MARKER) continue;
+      if (isMarker(f.name)) continue;
       const refs = await this.refsOf(f);
       if (!refs.length) continue;
       const nodes = await this.buildNodes(f, refs, 0, [], this.panelLimit());
@@ -1300,7 +1461,7 @@ class CodeEmbedPlugin extends Plugin {
       row.createSpan({ cls: "ce-package-link", text: t("outsidePackage") });
       return;
     }
-    const path = markerPath(root);
+    const path = this.packageMarker(root);
     const link = row.createEl("a", {
       cls: "ce-package-link internal-link",
       text: t("package") + " · " + (root || "/"),
@@ -1310,9 +1471,7 @@ class CodeEmbedPlugin extends Plugin {
     link.onclick = (event) => {
       event.preventDefault();
       event.stopPropagation();
-      this.app.workspace
-        .openLinkText(path, file.path, event.ctrlKey || event.metaKey)
-        .catch(console.error);
+      this.previewMarker(root).catch(console.error);
     };
   }
 
@@ -2043,7 +2202,7 @@ class CodeEmbedPlugin extends Plugin {
     let files = 0,
       refs = 0;
     for (const f of this.app.vault.getMarkdownFiles()) {
-      if (f.name === MARKER) continue;
+      if (isMarker(f.name)) continue;
       const raw = await this.app.vault.cachedRead(f);
       if (!hasEmbed(raw)) continue;
       if (rewriteText(raw, (r, inFence) => mapper(r, inFence, f)).count === 0) continue;
@@ -2077,7 +2236,7 @@ class CodeEmbedPlugin extends Plugin {
 
   async renameFileRefs(file: TFile, oldPath: string) {
     await this.withRenameMute(async () => {
-      if (file.name === MARKER || oldPath.split("/").pop() === MARKER) return;
+      if (isMarker(file.name) || isMarker(oldPath.split("/").pop())) return;
       const index = this.packages(),
         oldRoot = index.root(oldPath);
       if (index.root(file.path) !== oldRoot) return;
@@ -2090,6 +2249,7 @@ class CodeEmbedPlugin extends Plugin {
       };
       const previous = new PackageIndex<IndexedFile>(
         this.app.vault.getFiles().map((f) => (f === file ? oldFile : f)),
+        this.hiddenRoots,
       );
       const res = await this.rewriteAll((ref, inFence, src) => {
         const p = parseRef(ref);

@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.3.0 (in development)
+## 0.3.1
+
+- Align block actions on the right in both reading and editing modes and add optional localized labels.
+- Add and remove formats in contextual settings and follow package boundaries without a fixed nesting limit.
+- Create localized descriptions in .code-embed-root.md and open them from the folder toolbar. Existing underscore-prefixed markers remain supported.
 
 - Add copy, preview, lock and contextual settings actions to notes and selected fenced blocks.
 - Expand canonical references in place within a block or create a dated, versioned note with all references expanded.

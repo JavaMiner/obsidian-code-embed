@@ -17,7 +17,6 @@ function fixture(notes: Record<string, string>) {
     }),
   );
   const plugin = new Plugin();
-  plugin.settings.maxDepth = 8;
   plugin.cache = new Map();
   plugin.app = hostFixture<App>({
     vault: {
@@ -516,4 +515,15 @@ test("the note lock opens distinct sibling snapshots and never overwrites the so
   stored.set(original.path, "![Part] ![Missing]");
   await assert.rejects(plugin.actions.run(view, "permanent"), /Missing/);
   assert.equal(stored.has("P/test.v4.md"), false);
+});
+
+test("a chain can cross many fragments within a package and still reports a cycle", async () => {
+  const notes: Record<string, string> = { "P/.code-embed-root.md": "", "P/End.md": "done" };
+  for (let i = 0; i < 30; i++)
+    notes["P/N" + i + ".md"] = i === 29 ? "![End]" : "![N" + (i + 1) + "]";
+  const { plugin, files } = fixture(notes);
+  assert.equal(await plugin.expand("![N0]", "P/Entry.md"), "done");
+  files.find((f) => f.name === "End.md")!.body = "![N0]";
+  plugin.cache.clear();
+  assert.match(await plugin.expand("![N0]", "P/Entry.md"), /cycl/i);
 });
