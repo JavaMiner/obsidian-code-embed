@@ -47,6 +47,8 @@
   font-weight: var(--font-semibold);
 }
 
-.ce-hidden {
-  display: none !important;
+pre.ce-pre code.ce-hidden,
+.ce-native-section .ce-native-body.ce-hidden,
+.ce-native-section .ce-children.ce-hidden {
+  display: none;
 }
