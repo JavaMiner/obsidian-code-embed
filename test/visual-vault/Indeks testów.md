@@ -2,6 +2,12 @@
 
 Otwórz tę notatkę w trybie czytania z włączoną wtyczką **Code Embed**. Każdy link prowadzi do osobnej karty. Pod linkiem Obsidian wyświetla rzeczywistą próbę z tej karty. Wejdź na kartę, aby skopiować dokładny zapis i porównać wynik.
 
+## Walidacja z Code Runner
+
+Włącz Code Runner i wybierz jedną wersję walidatora. Każda obsługuje 14 prób CE i 33 przypadki AT. Python przyjmuje dane przez stdin, a JavaScript i TypeScript przez edytowalny blok.
+
+[[Walidacja/Python]] · [[Walidacja/JavaScript]] · [[Walidacja/TypeScript]]
+
 ## Próby wizualne
 
 ### [[Próby/CE-01|CE-01 · Cała notatka]]
