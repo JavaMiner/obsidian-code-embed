@@ -20,6 +20,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci
+      - run: npm run lint
       - run: npm run build && npm test && node --check dist/main.js
       - run: test "$GITHUB_REF_NAME" = "$(node -p 'require("./manifest.json").version')"
       - uses: actions/attest@v4

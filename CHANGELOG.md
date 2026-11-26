@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.8 — Community review fixes
+
+- Use searchable settings on Obsidian 1.13 and later and retain the settings tab on older supported versions.
+- Respect the vault trash preference when removing a package marker and keep rendered embeds and their event handlers working in popout windows.
+- Check the tagged source against the official Obsidian lint rules before publishing release assets.
+
 ## 0.2.7 — TypeScript migration
 
 - Migrate the plugin, development scripts and regression tests to TypeScript.
