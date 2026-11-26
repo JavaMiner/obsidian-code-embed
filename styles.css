@@ -1,5 +1,9 @@
 .ce-pre { position: relative; }
 .ce-bar { position: absolute; top: .35em; inset-inline-end: 2.5em; z-index: 1; display: flex; gap: .3em; }
+.ce-note-actions, .ce-editor-actions { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .35em; }
+.ce-note-actions { flex: 0 0 auto; justify-content: flex-end; padding: .25em var(--size-4-3); }
+.ce-editor-actions { float: right; position: relative; z-index: 1; max-width: 100%; justify-content: flex-end; vertical-align: middle; }
+.ce-editor-actions button, .ce-note-actions button, .ce-bar button { font-size: var(--font-ui-smaller); }
 .ce-rendered { padding-block-start: 2em; white-space: normal; }
 .ce-plain { white-space: pre-wrap; }
 .ce-inline-import { display: inline; white-space: nowrap; }
@@ -52,3 +56,16 @@ pre.ce-pre code.ce-hidden,
 .ce-native-section .ce-children.ce-hidden {
   display: none;
 }
+
+.ce-package-link { font-size: var(--font-ui-smaller); overflow-wrap: anywhere; }
+.ce-bar button:disabled, .ce-editor-actions button:disabled, .ce-note-actions button:disabled { opacity: .4; filter: grayscale(1); cursor: default; }
+
+.ce-action-label { margin-inline-start: .3em; }
+.ce-icons-only .ce-action-label { display: none; }
+.ce-bar button, .ce-editor-actions button, .ce-note-actions button { display: inline-flex; align-items: center; }
+.ce-bar svg, .ce-editor-actions svg, .ce-note-actions svg { width: 1em; height: 1em; }
+
+.ce-marker-editor { width: 100%; min-height: 12em; }
+.ce-marker-preview { font-size: var(--font-ui-smaller); margin-inline-start: .25em; }
+
+.cm-line:has(> .ce-editor-actions)::after { content: ""; display: block; clear: both; }

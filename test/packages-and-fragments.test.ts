@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { loadBundle, hostFixture } from "./bundle";
-import type { App, MarkdownPostProcessorContext, TFile } from "obsidian";
+import type { App, MarkdownPostProcessorContext, MarkdownView, TFile } from "obsidian";
 import type { EditorView } from "@codemirror/view";
 const { context: ctx, api, Plugin } = loadBundle();
 const { REF_RE, formatEmbed, rewriteText } = api;
@@ -17,7 +17,6 @@ function fixture(notes: Record<string, string>) {
     }),
   );
   const plugin = new Plugin();
-  plugin.settings.maxDepth = 8;
   plugin.cache = new Map();
   plugin.app = hostFixture<App>({
     vault: {
@@ -26,6 +25,7 @@ function fixture(notes: Record<string, string>) {
       getAbstractFileByPath: (path: string) => files.find((f) => f.path === path),
       cachedRead: async (file: Note) => file.body,
     },
+    workspace: { getActiveViewOfType: () => null },
     metadataCache: {
       getFirstLinkpathDest: (name: string) => files.find((f) => f.basename === name),
     },
@@ -394,4 +394,136 @@ test("Live Preview unwraps inline embeds before measuring the widget", async () 
   } finally {
     delete ctx.createEl;
   }
+});
+
+test("block actions resolve nested references and use the unsaved note snapshot", async () => {
+  const { plugin } = fixture({ "A.md": "## Start\nstale", "B.md": "## Step\n![A:##Start]" });
+  const rules = {
+    source: { path: "A.md", text: "## Start\ncurrent" },
+  };
+  assert.equal(
+    await plugin.expand("![B:##Step]", "A.md", [], false, null, undefined, rules),
+    "current",
+  );
+});
+
+test("Permanent distinguishes errors in source text from unresolved references", async () => {
+  const { plugin } = fixture({ "Example.md": "[error: expected output]" });
+  const rules = { failOnError: true };
+  const expand = (source: string) =>
+    plugin.expand(source, "Example.md", [], false, null, undefined, rules);
+  assert.equal(await expand("![Example]"), "[error: expected output]");
+  await assert.rejects(expand("![Missing]"));
+});
+
+test("new broken references wait for the caret to leave, including through imports", async () => {
+  const { plugin, files } = fixture({ "Edit.md": "![Half]", "Uses.md": "![Edit]" });
+  const typed = files[0];
+  let cursor = 4;
+  Object.assign(plugin.app.workspace, {
+    getActiveViewOfType: () => ({
+      file: typed,
+      getMode: () => "source",
+      editor: {
+        getValue: () => typed.body,
+        listSelections: () => [{ head: { line: 0, ch: cursor } }],
+        posToOffset: (position: { ch: number }) => position.ch,
+      },
+    }),
+  });
+  plugin.previousBrokenReferences = new Set();
+  const alerts: string[] = [];
+  plugin.notifyBroken = (list) => {
+    alerts.push(...list.map((e) => e.file.path));
+  };
+  await plugin.validate(false);
+  assert.deepEqual(alerts, []);
+  cursor = typed.body.length;
+  await plugin.validate(false);
+  assert.deepEqual(alerts.sort(), ["Edit.md", "Uses.md"]);
+  await plugin.validate(false);
+  assert.equal(alerts.length, 2);
+});
+
+for (const change of ["move across packages", "rename file", "rename heading", "rename tag"]) {
+  test("validation reports a broken reference after " + change, async () => {
+    const selector = change === "rename tag" ? "<<voice>>" : "##Tone";
+    const { plugin, files } = fixture({
+      "P/_code-embed-root.md": "",
+      "Q/_code-embed-root.md": "",
+      "P/Entry.md": "![Source:" + selector + "]",
+      "P/Source.md": "## Tone\n<voice>text</voice>",
+    });
+    const source = files.find((f) => f.basename === "Source")!;
+    const warnings: string[] = [];
+    plugin.notifyBroken = (items) => {
+      warnings.push(...items.map((it) => it.ref));
+    };
+    plugin.scheduleValidate = () => {};
+    await plugin.validate(true);
+    assert.equal(plugin.previousBrokenReferences?.size, 0);
+    await plugin.withRenameMute(async () => {
+      if (change === "move across packages") source.path = "Q/Source.md";
+      else if (change === "rename file")
+        Object.assign(source, { path: "P/New.md", name: "New.md", basename: "New" });
+      else source.body = source.body.replaceAll(change === "rename tag" ? "voice" : "Tone", "new");
+      plugin.cache.clear();
+      plugin.rawReferences.clear();
+      plugin.packageIndex = null;
+    });
+    await plugin.validate(false);
+    assert.deepEqual(warnings, ["Source:" + selector]);
+  });
+}
+
+test("the note lock opens distinct sibling snapshots and never overwrites the source", async () => {
+  const { plugin, files } = fixture({
+    "P/_code-embed-root.md": "",
+    "P/Part.md": "expanded",
+    "P/test.md": "~~~java\n![Part]\n~~~",
+    "P/test.v1.md": "existing",
+  });
+  const original = files.find((file) => file.basename === "test")!;
+  const stored = new Map(files.map((file) => [file.path, file.body]));
+  const opened: string[] = [];
+  plugin.settings.snapshotTemplate = "[name].v[version].md";
+  plugin.settings.blockActionKinds = "markdown";
+  Object.assign(plugin.app.workspace, { getLeavesOfType: () => [] });
+  Object.assign(plugin.app.vault, {
+    read: async (file: TFile) => stored.get(file.path),
+    adapter: { exists: async (path: string) => stored.has(path) },
+    create: async (path: string, text: string) => {
+      assert.ok(!stored.has(path));
+      stored.set(path, text);
+      return { path };
+    },
+  });
+  const view = hostFixture<MarkdownView>({
+    file: original,
+    getMode: () => "preview",
+    leaf: {
+      openFile: async (file: TFile) => {
+        opened.push(file.path);
+      },
+    },
+  });
+  await Promise.all([plugin.actions.run(view, "permanent"), plugin.actions.run(view, "permanent")]);
+  assert.deepEqual(opened.sort(), ["P/test.v2.md", "P/test.v3.md"]);
+  assert.equal(stored.get("P/test.v2.md"), "~~~java\nexpanded\n~~~");
+  assert.equal(stored.get("P/test.v1.md"), "existing");
+  assert.equal(stored.get(original.path), original.body);
+  stored.set(original.path, "![Part] ![Missing]");
+  await assert.rejects(plugin.actions.run(view, "permanent"), /Missing/);
+  assert.equal(stored.has("P/test.v4.md"), false);
+});
+
+test("a chain can cross many fragments within a package and still reports a cycle", async () => {
+  const notes: Record<string, string> = { "P/.code-embed-root.md": "", "P/End.md": "done" };
+  for (let i = 0; i < 30; i++)
+    notes["P/N" + i + ".md"] = i === 29 ? "![End]" : "![N" + (i + 1) + "]";
+  const { plugin, files } = fixture(notes);
+  assert.equal(await plugin.expand("![N0]", "P/Entry.md"), "done");
+  files.find((f) => f.name === "End.md")!.body = "![N0]";
+  plugin.cache.clear();
+  assert.match(await plugin.expand("![N0]", "P/Entry.md"), /cycl/i);
 });

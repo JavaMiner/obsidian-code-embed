@@ -12,7 +12,7 @@ Guarda la instrucción final de varios prompts en una nota llamada `Plantillas`.
 <VARIABLE>Da tres ejemplos.</VARIABLE>
 ```
 
-Inserta el siguiente bloque en otra nota. Pulsa **Copy+** y pega el resultado: `Da tres ejemplos.`
+Inserta el siguiente bloque en otra nota. Pulsa **⧉ Copy+** y pega el resultado: `Da tres ejemplos.`
 
 ```ce
 ![Plantillas:<<VARIABLE>>]
@@ -62,19 +62,25 @@ Responde en español. Tono: directo.
 
 ## Previsualizar y copiar
 
-`ce` y `codeembed` muestran la estructura. En `md` o `xml`, pulsa Vista previa. Copy+ copia el texto expandido. El lenguaje del bloque controla la presentación.
+⧉ copia el texto expandido. 👁️ muestra el bloque o abre un panel de lectura vinculado a la nota. ⚙️ abre los ajustes del lenguaje o de la nota. Por defecto se seleccionan los bloques sin lenguaje, Markdown, XML y CE.
+
+En un bloque, 🔒 sustituye referencias como `![Plantillas]` por su contenido. En la parte superior de la nota, 🔒 crea y abre una copia en la misma carpeta, con las referencias expandidas en el texto y en todos los bloques. Conserva las propiedades, el código en línea y la nota original.
+
+En ⚙️ puedes eliminar formatos o añadirlos al final de la lista. Desactiva las etiquetas para mostrar solo iconos en bloques y notas. La vista del directorio abre la descripción del paquete. Los marcadores anteriores con guion bajo siguen funcionando.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Limitar la búsqueda a un paquete
 
-Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta de comandos. Confirma la ruta del marcador al quitarlo. Cada carpeta marcada muestra su color y **◆ Raíz**. La opción, desactivada por defecto, muestra **+ Raíz** en las demás carpetas.
+Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta de comandos. Confirma la ruta del marcador al quitarlo. Cada carpeta marcada muestra su color y **🔷 Raíz**. La opción, desactivada por defecto, muestra **+ Raíz** en las demás carpetas.
 
-**Mostrar acciones en todas las carpetas** — Muestra «+ Raíz» en las carpetas sin marcador y «◆ Raíz» en todas las raíces de paquete.
+**Mostrar acciones en todas las carpetas** — Muestra «+ Raíz» en las carpetas sin marcador y «🔷 Raíz» en todas las raíces de paquete.
 
-Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar una carpeta manualmente, crea dentro una nota `_code-embed-root` (archivo `_code-embed-root.md`).
+Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar una carpeta manualmente, crea dentro una nota `.code-embed-root` (archivo `.code-embed-root.md`).
 
 ```text
 Prompts/
-  _code-embed-root.md
+  .code-embed-root.md
   Inicio.md
   Compartido/
     Estilo.md
@@ -96,3 +102,7 @@ Copia `dist/{main.js,manifest.json,styles.css}` a `.obsidian/plugins/code-embed/
 Se permite el uso comercial. Al distribuir una versión modificada, incluye la licencia, conserva la atribución a Jakub Wajda (JavaMiner) de NOTICE para el código reutilizado e identifica los archivos modificados.
 
 [Versiones](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Apoyo
+
+Apoya el desarrollo en [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)

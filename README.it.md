@@ -12,7 +12,7 @@ Salva l’istruzione finale comune a più prompt in una nota chiamata `Modelli`.
 <VARIABILE>Fornisci tre esempi.</VARIABILE>
 ```
 
-Inserisci il blocco seguente in un’altra nota. Premi **Copy+** e incolla il risultato: `Fornisci tre esempi.`
+Inserisci il blocco seguente in un’altra nota. Premi **⧉ Copy+** e incolla il risultato: `Fornisci tre esempi.`
 
 ```ce
 ![Modelli:<<VARIABILE>>]
@@ -62,19 +62,25 @@ Rispondi in italiano. Tono: diretto.
 
 ## Visualizzare e copiare
 
-`ce` e `codeembed` mostrano la struttura. In `md` o `xml`, premi Anteprima. Copy+ copia il testo espanso. Il linguaggio del blocco controlla la presentazione.
+⧉ copia il testo espanso. 👁️ mostra il blocco o apre un pannello di lettura collegato alla nota. ⚙️ apre le impostazioni del linguaggio o della nota. Per impostazione predefinita sono selezionati i blocchi senza linguaggio, Markdown, XML e CE.
+
+Nel blocco, 🔒 sostituisce i riferimenti come `![Modelli]` con il loro contenuto. In cima alla nota, 🔒 crea e apre una copia nella stessa cartella con i riferimenti espansi nel testo e in tutti i blocchi. Conserva le proprietà, il codice in linea e la nota originale.
+
+In ⚙️ puoi eliminare un formato o aggiungerne uno in fondo alla lista. Disattiva le etichette per visualizzare solo le icone nei blocchi e nelle note. L’anteprima della cartella apre la descrizione del pacchetto. I marcatori precedenti con trattino basso restano validi.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Limitare la ricerca a un pacchetto
 
-Apri il menu della cartella con un clic destro o una pressione prolungata, oppure scegli una cartella dalla tavolozza dei comandi. Conferma il percorso del marcatore prima di rimuoverlo. Ogni cartella contrassegnata mostra il suo colore e **◆ Radice**. L’opzione, disattivata per impostazione predefinita, mostra **+ Radice** sulle altre cartelle.
+Apri il menu della cartella con un clic destro o una pressione prolungata, oppure scegli una cartella dalla tavolozza dei comandi. Conferma il percorso del marcatore prima di rimuoverlo. Ogni cartella contrassegnata mostra il suo colore e **🔷 Radice**. L’opzione, disattivata per impostazione predefinita, mostra **+ Radice** sulle altre cartelle.
 
-**Mostra le azioni su tutte le cartelle** — Mostra «+ Radice» sulle cartelle senza marcatore e «◆ Radice» su tutte le radici dei pacchetti.
+**Mostra le azioni su tutte le cartelle** — Mostra «+ Radice» sulle cartelle senza marcatore e «🔷 Radice» su tutte le radici dei pacchetti.
 
-Code Embed usa la lingua dell’interfaccia di Obsidian. Le impostazioni mostrano la versione installata, il collegamento alla guida italiana e **Scegli la cartella del pacchetto**. Per contrassegnare una cartella manualmente, crea al suo interno una nota `_code-embed-root` (file `_code-embed-root.md`).
+Code Embed usa la lingua dell’interfaccia di Obsidian. Le impostazioni mostrano la versione installata, il collegamento alla guida italiana e **Scegli la cartella del pacchetto**. Per contrassegnare una cartella manualmente, crea al suo interno una nota `.code-embed-root` (file `.code-embed-root.md`).
 
 ```text
 Prompt/
-  _code-embed-root.md
+  .code-embed-root.md
   Inizio.md
   Condivisi/
     Stile.md
@@ -96,3 +102,7 @@ Copia `dist/{main.js,manifest.json,styles.css}` in `.obsidian/plugins/code-embed
 L’uso commerciale è consentito. Se distribuisci una versione modificata, includi la licenza, conserva l’attribuzione a Jakub Wajda (JavaMiner) riportata in NOTICE per il codice riutilizzato e indica i file modificati.
 
 [Versioni](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Sostegno
+
+Sostieni lo sviluppo su [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)

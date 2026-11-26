@@ -4,16 +4,19 @@ export type Settings = typeof DEFAULTS & {
 export type KeysOfType<T> = {
   [K in keyof typeof DEFAULTS]: (typeof DEFAULTS)[K] extends T ? K : never;
 }[keyof typeof DEFAULTS];
+export const DEFAULT_SNAPSHOT_TEMPLATE = "[name].perm.[date].v[version].md";
+
 export const DEFAULTS = {
+  snapshotTemplate: DEFAULT_SNAPSHOT_TEMPLATE,
   showAllFolderActions: false,
   packageColor: "#498b78",
-  maxDepth: 5,
+  showActionLabels: true,
   livePreview: true,
   viewTree: true,
   xmlPlain: true,
   treeOpenDepth: 2,
   inlineMax: 80,
-  buttonsOnPlain: true,
+  blockActionKinds: "plain, markdown, xml, ce",
   showPanels: true,
   panelNested: true,
   panelMaxVh: 55,
@@ -60,6 +63,8 @@ export function readSettings(data: unknown): Settings {
     const value = data[key];
     if (typeof value === typeof initial) Object.assign(settings, { [key]: value });
   }
+  if (data.blockActionKinds === undefined && data.buttonsOnPlain === false)
+    settings.blockActionKinds = "ce";
   if (isRecord(data.movedReferences)) {
     settings.movedReferences = Object.fromEntries(
       Object.entries(data.movedReferences)

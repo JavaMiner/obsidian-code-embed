@@ -12,7 +12,7 @@ Piszesz kilka promptów, które mają kończyć się takim samym poleceniem. Zap
 <ZMIENNA>Podaj trzy przykłady.</ZMIENNA>
 ```
 
-W innej notatce wstaw poniższy blok. Stuknij **Copy+** i wklej wynik. Otrzymasz `Podaj trzy przykłady.`
+W innej notatce wstaw poniższy blok. Stuknij **⧉ Copy+** i wklej wynik. Otrzymasz `Podaj trzy przykłady.`
 
 ```ce
 ![Szablony:<<ZMIENNA>>]
@@ -62,19 +62,25 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Podejrzyj i skopiuj
 
-W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuknij Podgląd. Copy+ kopiuje rozwinięty tekst. Język bloku zmienia prezentację.
+⧉ kopiuje rozwinięty tekst. 👁️ pokazuje podgląd bloku, a dla notatki otwiera powiązany widok czytania. ⚙️ otwiera ustawienia danego typu bloku lub całej notatki. Domyślnie wybrane są bloki bez oznaczenia, Markdown, XML i CE.
+
+W bloku 🔒 zastępuje odwołania takie jak `![Szablony]` ich treścią. Na górze notatki 🔒 tworzy w tym samym folderze nową notatkę i ją otwiera. Rozwija odwołania w tekście i we wszystkich blokach. Zachowuje właściwości notatki i przykłady w kodzie śródliniowym. Oryginał pozostaje do dalszej edycji.
+
+W ⚙️ możesz usunąć format lub dodać go na końcu listy. Wyłącz Etykiety, aby w blokach i notatkach pokazywać same ikony. Podgląd przy folderze otwiera opis pakietu. Wtyczka nadal rozpoznaje wcześniejsze znaczniki z podkreśleniem.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Ogranicz wyszukiwanie do pakietu
 
-Otwórz menu folderu prawym kliknięciem lub długim przytrzymaniem albo wybierz folder z palety poleceń. Przy zdejmowaniu oznaczenia potwierdź ścieżkę znacznika. Każdy oznaczony folder zawsze ma kolor i **◆ Korzeń**. Przełącznik pokazuje **+ Korzeń** przy pozostałych folderach. Domyślnie jest wyłączony.
+Otwórz menu folderu prawym kliknięciem lub długim przytrzymaniem albo wybierz folder z palety poleceń. Przy zdejmowaniu oznaczenia potwierdź ścieżkę znacznika. Każdy oznaczony folder zawsze ma kolor i **🔷 Korzeń**. Przełącznik pokazuje **+ Korzeń** przy pozostałych folderach. Domyślnie jest wyłączony.
 
-**Pokaż akcje przy wszystkich folderach** — Wyświetla „+ Korzeń” przy nieoznaczonych folderach i „◆ Korzeń” przy wszystkich korzeniach.
+**Pokaż akcje przy wszystkich folderach** — Wyświetla „+ Korzeń” przy nieoznaczonych folderach i „🔷 Korzeń” przy wszystkich korzeniach.
 
-Wtyczka używa języka interfejsu Obsidiana. W ustawieniach Code Embed znajdziesz numer wersji, odnośnik do polskiego przewodnika i przycisk **Wybierz katalog pakietu**. Aby ręcznie oznaczyć katalog, utwórz w nim notatkę `_code-embed-root` (pełna nazwa pliku to `_code-embed-root.md`).
+Wtyczka używa języka interfejsu Obsidiana. W ustawieniach Code Embed znajdziesz numer wersji, odnośnik do polskiego przewodnika i przycisk **Wybierz katalog pakietu**. Aby ręcznie oznaczyć katalog, utwórz w nim notatkę `.code-embed-root` (pełna nazwa pliku to `.code-embed-root.md`).
 
 ```text
 Prompts/
-  _code-embed-root.md
+  .code-embed-root.md
   Start.md
   Wspólne/
     Styl.md
@@ -96,3 +102,7 @@ npm test
 Licencja zezwala na użycie komercyjne. Rozpowszechniając przeróbkę, dołącz licencję, zachowaj informację z pliku NOTICE o autorze wykorzystanego kodu (Jakub Wajda, JavaMiner) i oznacz zmienione pliki.
 
 [Releases](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Wsparcie
+
+Rozwój wtyczki możesz wesprzeć przez [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.pl.md)

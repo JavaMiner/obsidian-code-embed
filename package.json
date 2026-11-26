@@ -1,6 +1,6 @@
 {
   "name": "obsidian-code-embed",
-  "version": "0.2.9",
+  "version": "0.3.1",
   "private": true,
   "scripts": {
     "build": "npm run typecheck && tsx scripts/build.ts",

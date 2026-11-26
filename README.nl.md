@@ -12,7 +12,7 @@ Bewaar de gedeelde slotinstructie van meerdere prompts in een notitie met de naa
 <VARIABELE>Geef drie voorbeelden.</VARIABELE>
 ```
 
-Plaats het volgende blok in een andere notitie. Kies **Copy+** en plak de tekst: `Geef drie voorbeelden.`
+Plaats het volgende blok in een andere notitie. Kies **⧉ Copy+** en plak de tekst: `Geef drie voorbeelden.`
 
 ```ce
 ![Sjablonen:<<VARIABELE>>]
@@ -62,19 +62,25 @@ Antwoord in het Nederlands. Toon: direct.
 
 ## Bekijken en kopiëren
 
-`ce` en `codeembed` tonen de structuur. Kies bij `md` of `xml` de optie Voorbeeld. Copy+ kopieert de uitgewerkte tekst. De bloktaal bepaalt de weergave.
+⧉ kopieert de uitgewerkte tekst. 👁️ toont het blok of opent een gekoppeld leesvenster voor de notitie. ⚙️ opent de instellingen voor de bloktaal of de notitie. Standaard zijn blokken zonder taal, Markdown, XML en CE geselecteerd.
+
+In een blok vervangt 🔒 verwijzingen zoals `![Sjablonen]` door hun inhoud. Bovenaan de notitie maakt en opent 🔒 een kopie in dezelfde map met uitgewerkte verwijzingen in de tekst en alle blokken. Eigenschappen, inlinecode en de oorspronkelijke notitie blijven behouden.
+
+In ⚙️ kun je een formaat verwijderen of onderaan toevoegen. Schakel Labels uit om alleen pictogrammen te tonen in blokken en notities. Het voorbeeld bij de map opent de pakketbeschrijving. Bestaande markeringen met een onderstrepingsteken blijven werken.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Zoeken binnen een pakket
 
-Open het mapmenu met een rechtermuisklik of door de map ingedrukt te houden. Je kunt ook een map kiezen via het opdrachtenpalet. Bevestig het pad van de markering voordat je die verwijdert. Elke gemarkeerde map toont haar kleur en **◆ Hoofdmap**. De standaard uitgeschakelde optie toont **+ Hoofdmap** bij de overige mappen.
+Open het mapmenu met een rechtermuisklik of door de map ingedrukt te houden. Je kunt ook een map kiezen via het opdrachtenpalet. Bevestig het pad van de markering voordat je die verwijdert. Elke gemarkeerde map toont haar kleur en **🔷 Hoofdmap**. De standaard uitgeschakelde optie toont **+ Hoofdmap** bij de overige mappen.
 
-**Acties bij alle mappen tonen** — Toont ‘+ Hoofdmap’ bij ongemarkeerde mappen en ‘◆ Hoofdmap’ bij elke hoofdmap van een pakket.
+**Acties bij alle mappen tonen** — Toont ‘+ Hoofdmap’ bij ongemarkeerde mappen en ‘🔷 Hoofdmap’ bij elke hoofdmap van een pakket.
 
-Code Embed volgt de interfacetaal van Obsidian. In de instellingen staan de geïnstalleerde versie, een link naar de Nederlandse handleiding en **Pakketmap kiezen**. Maak voor handmatige markering in de map de notitie `_code-embed-root` (bestandsnaam `_code-embed-root.md`).
+Code Embed volgt de interfacetaal van Obsidian. In de instellingen staan de geïnstalleerde versie, een link naar de Nederlandse handleiding en **Pakketmap kiezen**. Maak voor handmatige markering in de map de notitie `.code-embed-root` (bestandsnaam `.code-embed-root.md`).
 
 ```text
 Prompts/
-  _code-embed-root.md
+  .code-embed-root.md
   Begin.md
   Gedeeld/
     Stijl.md
@@ -96,3 +102,7 @@ Kopieer `dist/{main.js,manifest.json,styles.css}` naar `.obsidian/plugins/code-e
 Commercieel gebruik is toegestaan. Als je een aangepaste versie verspreidt, voeg dan de licentie toe, behoud de naamsvermelding van Jakub Wajda (JavaMiner) uit NOTICE voor de overgenomen code en markeer gewijzigde bestanden.
 
 [Versies](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Ondersteuning
+
+Steun de ontwikkeling via [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)

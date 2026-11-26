@@ -1,4 +1,5 @@
 import {
+  Modal,
   Plugin,
   requireApiVersion,
   MarkdownRenderer,
@@ -15,6 +16,15 @@ import {
   type MarkdownPostProcessorContext,
   type Menu,
 } from "obsidian";
+import { actionBar, NoteActions } from "./note-actions";
+import {
+  validationDocument,
+  referencesIn,
+  noteReferences,
+  blockKind,
+  findFences,
+  selectedKinds,
+} from "./action-markdown";
 import type { EditorView } from "@codemirror/view";
 import {
   refresh,
@@ -36,6 +46,8 @@ import {
   isVaultFile,
   isVaultFolder,
   MARKER,
+  LEGACY_MARKER,
+  isMarker,
   markerPath,
   relativeTo,
   PackageIndex,
@@ -51,7 +63,6 @@ import {
   hasEmbed,
   FENCE_RE,
   HEADING_RE,
-  firstError,
   formatError,
   markErrors,
   hasErrors,
@@ -84,6 +95,12 @@ import type {
   RenameSnapshot,
   ExplorerView,
 } from "./model";
+
+interface ExpansionRules {
+  failOnError?: boolean;
+  source?: { path: string; text: string };
+  read?: (file: TFile) => Promise<string>;
+}
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -122,11 +139,21 @@ class CodeEmbedPlugin extends Plugin {
   folderUpdateFrame: number | null = null;
   renameSnapshots = new Map<string, RenameSnapshot>();
   renameScanTimers = new Map<string, number>();
+  private scanningRenames = 0;
   forceRenameUpdate = false;
+
+  readonly actions = new NoteActions(this);
+
+  private settingsTab?: CodeEmbedSettings;
+
+  openActionSettings(kind?: string) {
+    this.settingsTab?.openFor(kind);
+  }
 
   async onload() {
     this.settings = readSettings(await this.loadData());
-    this.addSettingTab(new CodeEmbedSettings(this.app, this));
+    this.settingsTab = new CodeEmbedSettings(this.app, this);
+    this.addSettingTab(this.settingsTab);
 
     const funding = (
       this.manifest as typeof this.manifest & { fundingUrl?: string | Record<string, string> }
@@ -163,27 +190,15 @@ class CodeEmbedPlugin extends Plugin {
       id: "copy-expanded",
       name: t("copyBlock"),
       editorCallback: async (editor, view) => {
-        const lines = editor.getValue().split("\n");
-        const cur = editor.getCursor().line;
-        let s = -1,
-          e = -1;
-        for (let i = cur; i >= 0; i--)
-          if (FENCE_RE.test(lines[i])) {
-            s = i;
-            break;
-          }
-        for (let i = Math.max(cur, s + 1); i < lines.length; i++)
-          if (FENCE_RE.test(lines[i]) && i > s) {
-            e = i;
-            break;
-          }
-        if (s < 0 || e < 0) {
+        const source = editor.getValue();
+        const at = editor.posToOffset(editor.getCursor());
+        const fence = findFences(source).find((block) => at >= block.start && at < block.end);
+        if (!fence) {
           new Notice(t("notInBlock"));
           return;
         }
-        const block = lines.slice(s + 1, e).join("\n");
-        const expanded = await this.expand(block, view.file?.path ?? "", [], false, block);
-        await navigator.clipboard.writeText(applyArgs(expanded, [], false));
+        const body = source.slice(fence.bodyStart, fence.bodyEnd).replace(/\r?\n$/, "");
+        await this.actions.copyBlock(body, view.file?.path ?? "", source);
         new Notice(t("blockCopied"));
       },
     });
@@ -192,6 +207,7 @@ class CodeEmbedPlugin extends Plugin {
       v = this.app.vault;
     this.registerEvent(
       v.on("modify", (f) => {
+        this.cache.delete(f.path);
         this.resolvedReferences.delete(f.path);
         this.rawReferences.delete(f.path);
         this.invalidate();
@@ -214,6 +230,15 @@ class CodeEmbedPlugin extends Plugin {
     this.registerEvent(v.on("delete", refreshFiles));
     this.registerEvent(
       v.on("rename", (file, oldPath) => {
+        if (isVaultFolder(file)) {
+          this.hiddenRoots = new Set(
+            [...this.hiddenRoots].map((root) =>
+              root === oldPath || root.startsWith(oldPath + "/")
+                ? file.path + root.slice(oldPath.length)
+                : root,
+            ),
+          );
+        }
         refreshFiles();
         this.trackMovedSources(file, oldPath).catch(console.error);
       }),
@@ -224,9 +249,6 @@ class CodeEmbedPlugin extends Plugin {
     this.registerEvent(ws.on("layout-change", () => this.scheduleInject()));
     this.app.workspace.onLayoutReady(() => {
       this.scheduleInject();
-      window.setTimeout(() => {
-        this.validate(true).catch(console.error);
-      }, 3000);
     });
 
     this.setupFolders();
@@ -246,6 +268,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   onunload() {
+    this.markerRevision++;
     for (const doc of this.documents.keys()) this.detachDocument(doc);
     if (this.folderUpdateFrame !== null) window.cancelAnimationFrame(this.folderUpdateFrame);
     window.clearTimeout(this.timer);
@@ -300,12 +323,13 @@ class CodeEmbedPlugin extends Plugin {
   private detachDocument(doc: Document) {
     this.documents.get(doc)?.();
     this.documents.delete(doc);
-    doc.querySelectorAll(".ce-folder-action").forEach((el) => el.remove());
+    doc.querySelectorAll(".ce-folder-action, .ce-marker-preview").forEach((el) => el.remove());
     doc
       .querySelectorAll(".ce-package-folder, .ce-folder-with-action")
       .forEach((el) => el.classList.remove("ce-package-folder", "ce-folder-with-action"));
-    doc.querySelectorAll(".ce-native-section").forEach((e) => e.remove());
+    doc.querySelectorAll(".ce-note-actions, .ce-native-section").forEach((e) => e.remove());
     doc.querySelectorAll(".ce-host").forEach((e) => e.classList.remove("ce-host"));
+    doc.body.classList.remove("ce-icons-only");
     const st = doc.body.style;
     [
       "--ce-panel-max",
@@ -326,6 +350,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   private applyDocumentColors(doc: Document) {
+    doc.body.classList.toggle("ce-icons-only", !this.settings.showActionLabels);
     const s = this.settings,
       st = doc.body.style;
     const setColor = (name: string, val: string | null) => {
@@ -351,7 +376,7 @@ class CodeEmbedPlugin extends Plugin {
     this.rawReferences.clear();
     this.invalidate();
     this.scheduleInject();
-    if (key === "warnBroken" || key === "maxDepth" || key === "all") {
+    if (key === "warnBroken" || key === "all") {
       if (this.settings.warnBroken) this.validate(true).catch(console.error);
       else this.previousBrokenReferences = null;
     }
@@ -373,30 +398,18 @@ class CodeEmbedPlugin extends Plugin {
     }, 500);
   }
 
-  rawRefs(text: string) {
-    const lines = text.split("\n"),
-      out = [];
-    let inFence = false,
-      block = null;
-    for (let idx = 0; idx < lines.length; idx++) {
-      const line = lines[idx];
-      if (FENCE_RE.test(line)) {
-        if (!inFence) {
-          const b = [];
-          for (let k = idx + 1; k < lines.length && !FENCE_RE.test(lines[k]); k++) b.push(lines[k]);
-          block = b.join("\n");
-        }
-        inFence = !inFence;
-        continue;
+  rawRefs(text: string): RawReference[] {
+    const out = [];
+    let line = 0;
+    let start = 0;
+    let newline = text.indexOf("\n");
+    for (const { ref, from, local } of noteReferences(text)) {
+      while (newline >= 0 && newline < from) {
+        line++;
+        start = newline + 1;
+        newline = text.indexOf("\n", start);
       }
-      if (!hasEmbed(line)) continue;
-      const re = REF_RE();
-      let m;
-      while ((m = re.exec(line)) !== null) {
-        if (m.groups!.esc) continue;
-        const p = parseRef(m.groups!.ref);
-        out.push({ ref: m.groups!.ref, p, line: idx, ch: m.index, local: inFence ? block : null });
-      }
+      out.push({ ref, p: parseRef(ref), line, ch: from - start, local });
     }
     return out;
   }
@@ -410,24 +423,42 @@ class CodeEmbedPlugin extends Plugin {
     return hit;
   }
 
-  async checkItem(it: RawReference, file: TFile) {
-    const expanded = await this.resolve(it.ref, file.path, [], false, it.local);
-    return firstError(expanded) || null;
+  async checkItem(it: RawReference, file: TFile, source?: { path: string; text: string }) {
+    try {
+      await this.resolve(it.ref, file.path, [], false, it.local, undefined, {
+        failOnError: true,
+        source,
+      });
+      return null;
+    } catch (error) {
+      return errorMessage(error);
+    }
   }
 
-  async collectErrors() {
-    const out = [];
-    for (const f of this.app.vault.getMarkdownFiles()) {
-      if (f.name === MARKER) continue;
-      for (const it of await this.rawOf(f)) {
-        const why = await this.checkItem(it, f);
-        if (why) out.push({ file: f, line: it.line, ch: it.ch, ref: it.ref, why });
+  async collectErrors(deferred = new Set<string>()) {
+    const out: BrokenReference[] = [];
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const editor = view?.getMode() === "source" ? view.editor : null;
+    let draft: { path: string; text: string } | undefined;
+    if (editor && view?.file) {
+      const carets = editor.listSelections().map((range) => editor.posToOffset(range.head));
+      const doc = validationDocument(editor.getValue(), carets);
+      draft = { path: view.file.path, text: doc.text };
+      for (const ref of doc.deferred) deferred.add(view.file.path + "|" + ref + "|");
+    }
+    for (const file of this.app.vault.getMarkdownFiles()) {
+      if (isMarker(file.name)) continue;
+      const items = draft?.path === file.path ? this.rawRefs(draft.text) : await this.rawOf(file);
+      for (const it of items) {
+        const why = await this.checkItem(it, file, draft);
+        if (why) out.push({ file, line: it.line, ch: it.ch, ref: it.ref, why });
       }
     }
     return out;
   }
 
   scheduleValidate() {
+    this.validationRevision++;
     if (!this.settings.warnBroken) return;
     window.clearTimeout(this.validationTimer);
     this.validationTimer = window.setTimeout(() => {
@@ -437,9 +468,10 @@ class CodeEmbedPlugin extends Plugin {
 
   async validate(silent: boolean) {
     if (!this.settings.warnBroken) return;
-    if (this.activeRenameCount) return;
+    if (this.activeRenameCount || this.scanningRenames || this.renameScanTimers.size) return;
     const revision = ++this.validationRevision;
-    const list = await this.collectErrors();
+    const deferred = new Set<string>();
+    const list = await this.collectErrors(deferred);
     if (revision !== this.validationRevision || this.activeRenameCount) return;
     const cur = new Map<string, BrokenReference>();
     for (const e of list) {
@@ -448,6 +480,13 @@ class CodeEmbedPlugin extends Plugin {
     }
     const prev = this.previousBrokenReferences;
     this.previousBrokenReferences = new Set(cur.keys());
+    if (prev && deferred.size) {
+      const prefixes = [...deferred];
+      for (const key of prev) {
+        if (prefixes.some((prefix) => key.startsWith(prefix)))
+          this.previousBrokenReferences.add(key);
+      }
+    }
     if (silent || !prev) return;
     const fresh = [...cur.entries()].filter(([k]) => !prev.has(k)).map(([, v]) => v);
     if (fresh.length) this.notifyBroken(fresh);
@@ -495,11 +534,16 @@ class CodeEmbedPlugin extends Plugin {
           actual: file,
         };
       }),
+      [...this.hiddenRoots].map((root) =>
+        root === item.path || root.startsWith(item.path + "/")
+          ? oldPath + root.slice(item.path.length)
+          : root,
+      ),
     );
     const guards: Record<string, Record<string, string>> = (this.settings.movedReferences ??= {});
     let changed = false;
     for (const [file, before] of oldPaths) {
-      if (file.extension !== "md" || file.name === MARKER) continue;
+      if (file.extension !== "md" || isMarker(file.name)) continue;
       const oldRoot = previous.root(before);
       const root = this.packages().root(file.path);
       const names = new Map(Object.entries(guards[before] || {}));
@@ -528,9 +572,88 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
+  private hiddenRoots = new Set<string>();
+  private markerRevision = 0;
+
+  private async scanHiddenRoots() {
+    const revision = ++this.markerRevision;
+    const { vault } = this.app;
+    const folders = new Set([
+      "",
+      ...vault
+        .getAllLoadedFiles()
+        .filter(isVaultFolder)
+        .map((f) => (f.path === "/" ? "" : f.path)),
+    ]);
+    const found = new Set<string>();
+    for (const folder of folders) {
+      if (revision !== this.markerRevision) return;
+      if ((await vault.adapter.stat(markerPath(folder)))?.type === "file") found.add(folder);
+    }
+    if (revision !== this.markerRevision) return;
+    this.hiddenRoots = found;
+    this.packageIndex = null;
+    this.resolvedReferences.clear();
+    this.invalidate();
+    this.scheduleFolders();
+    this.scheduleInject();
+    this.scheduleValidate();
+  }
+
+  private packageMarker(root: string) {
+    const path = markerPath(root);
+    if (
+      this.hiddenRoots.has(root === "/" ? "" : root) ||
+      this.app.vault.getAbstractFileByPath(path)
+    )
+      return path;
+    const legacy = path.slice(0, -MARKER.length) + LEGACY_MARKER;
+    return this.app.vault.getAbstractFileByPath(legacy) ? legacy : path;
+  }
+
+  async previewMarker(root: string) {
+    const path = this.packageMarker(root);
+    const { vault, workspace } = this.app;
+    const file = vault.getAbstractFileByPath(path);
+    if (isVaultFile(file)) {
+      await workspace.getLeaf(false).openFile(file);
+      return;
+    }
+    const original = await vault.adapter.read(path);
+    const modal = new Modal(this.app);
+    modal.titleEl.setText(path);
+    modal.open();
+    const content = modal.contentEl.createDiv({ cls: "markdown-rendered" });
+    const owner = this.addChild(new Component());
+    modal.onClose = () => {
+      this.removeChild(owner);
+    };
+    await this.renderMd(original, content, path, owner);
+    const edit = modal.contentEl.createEl("button", { text: t("editDescription") });
+    edit.onclick = () => {
+      content.empty();
+      const field = content.createEl("textarea", { cls: "ce-marker-editor" });
+      field.value = original;
+      field.focus();
+      edit.setText(t("saveDescription"));
+      edit.onclick = () => {
+        const save = async () => {
+          if ((await vault.adapter.read(path)) !== original) throw new Error(t("sourceChanged"));
+          await vault.adapter.write(path, field.value);
+          modal.close();
+        };
+        save().catch((error: unknown) => new Notice(errorMessage(error)));
+      };
+    };
+  }
+
   folderActionLabel(folder: TFolder) {
-    const marker = this.app.vault.getAbstractFileByPath(markerPath(folder.path));
-    return marker && !isVaultFolder(marker) ? t("unmarkFolder") : t("markFolder");
+    const path = this.packageMarker(folder.path);
+    const marker = this.app.vault.getAbstractFileByPath(path);
+    return this.hiddenRoots.has(folder.path === "/" ? "" : folder.path) ||
+      (marker && !isVaultFolder(marker))
+      ? t("unmarkFolder")
+      : t("markFolder");
   }
 
   async choosePackageFolder() {
@@ -580,7 +703,18 @@ class CodeEmbedPlugin extends Plugin {
       callback: chooseFolder,
     });
     this.addRibbonIcon("folder-cog", t("chooseFolder"), chooseFolder);
-    this.app.workspace.onLayoutReady(() => this.scheduleFolders());
+    const scan = () => this.scanHiddenRoots().catch(console.error);
+    this.app.workspace.onLayoutReady(() => {
+      this.scanHiddenRoots()
+        .then(() => this.validate(true))
+        .catch(console.error);
+    });
+    const refreshFolderMarkers = (file: TAbstractFile) => {
+      if (isVaultFolder(file)) void scan();
+    };
+    this.registerEvent(this.app.vault.on("rename", refreshFolderMarkers));
+    this.registerEvent(this.app.vault.on("create", refreshFolderMarkers));
+    this.registerEvent(this.app.vault.on("delete", refreshFolderMarkers));
     this.registerEvent(this.app.workspace.on("layout-change", () => this.scheduleFolders()));
     this.scheduleFolders();
   }
@@ -622,6 +756,8 @@ class CodeEmbedPlugin extends Plugin {
     const marked = this.packages().roots.has(folderPath);
     row.classList.toggle("ce-package-folder", marked);
     row.classList.toggle("ce-folder-with-action", marked || showAll);
+    let preview = row.querySelector<HTMLButtonElement>(".ce-marker-preview");
+    if (!marked) preview?.remove();
     let button = row.querySelector<HTMLButtonElement>(".ce-folder-action");
     if (!showAll && !marked) {
       button?.remove();
@@ -644,16 +780,70 @@ class CodeEmbedPlugin extends Plugin {
     if (button.textContent !== label) button.textContent = label;
     button.title = marked ? t("unmarkFolder") : t("markFolder");
     button.setAttribute("aria-label", button.title + " — " + folder.path);
+    if (marked) {
+      if (!preview) {
+        preview = row.createEl("button", {
+          cls: "ce-marker-preview",
+          text: "👁️ " + t("previewLabel"),
+        });
+        preview.type = "button";
+        preview.addEventListener("mousedown", (event) => event.stopPropagation());
+        preview.addEventListener("pointerdown", (event) => event.stopPropagation());
+        preview.addEventListener("click", (event) => {
+          event.stopPropagation();
+          event.preventDefault();
+          this.previewMarker(preview!.dataset.folderPath!).catch(
+            (error: unknown) => new Notice(errorMessage(error)),
+          );
+        });
+      }
+      preview.dataset.folderPath = folder.path;
+    }
   }
 
   async toggleFolder(folder: TFolder) {
-    const path = markerPath(folder.path),
+    const path = this.packageMarker(folder.path),
       existing = this.app.vault.getAbstractFileByPath(path);
+    const root = folder.path === "/" ? "" : folder.path;
+    const { adapter } = this.app.vault;
     try {
       if (!existing) {
-        await this.app.vault.create(path, "");
+        const stat = await adapter.stat(path);
+        if (stat?.type === "folder") {
+          new Notice(t("markerIsFolder", { path }));
+          return;
+        }
+        if (stat) {
+          const choice = await pickOne(this.app, t("confirmUnmark", { path }), [
+            { label: t("cancel") },
+            { label: t("removeMarker", { path }), remove: true },
+          ]);
+          if (!choice?.remove) return;
+          const now = await adapter.stat(path);
+          if (
+            !now ||
+            now.mtime !== stat.mtime ||
+            now.ctime !== stat.ctime ||
+            now.size !== stat.size
+          )
+            return;
+          await adapter.trashLocal(path);
+          this.hiddenRoots.delete(root);
+          new Notice(t("rootRemoved", { path: folder.path }));
+        } else {
+          const name = folder.name || this.app.vault.getName();
+          await this.app.vault.create(
+            path,
+            "# " + t("packageHeading", { name }) + "\n\n" + t("packagePrompt") + "\n",
+          );
+          this.hiddenRoots.add(root);
+          new Notice(t("rootCreated", { path: folder.path }));
+        }
+        this.markerRevision++;
+        this.packageIndex = null;
         this.scheduleFolders();
-        new Notice(t("rootCreated", { path: folder.path }));
+        this.scheduleInject();
+        this.scheduleValidate();
         return;
       }
       if (isVaultFolder(existing)) {
@@ -675,6 +865,8 @@ class CodeEmbedPlugin extends Plugin {
       } else if (!(await this.app.fileManager.promptForDeletion(existing))) {
         return;
       }
+      this.hiddenRoots.delete(root);
+      this.packageIndex = null;
       this.scheduleFolders();
       new Notice(t("rootRemoved", { path: folder.path }));
     } catch (error) {
@@ -683,7 +875,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   packages() {
-    return (this.packageIndex ||= new PackageIndex(this.app.vault.getFiles()));
+    return (this.packageIndex ||= new PackageIndex(this.app.vault.getFiles(), this.hiddenRoots));
   }
 
   lookup(name: string, sourcePath: string, root = this.packages().root(sourcePath)): Lookup<TFile> {
@@ -711,11 +903,7 @@ class CodeEmbedPlugin extends Plugin {
   lookupWithin(name: string, sourcePath: string, root: string | null): Lookup<TFile> {
     if (name !== "." && name && root !== null) return this.packages().lookup(name, root);
     const file = this.unscopedFile(name, sourcePath);
-    if (
-      !file ||
-      file.name === MARKER ||
-      (root !== null && this.packages().root(file.path) !== root)
-    )
+    if (!file || isMarker(file.name) || (root !== null && this.packages().root(file.path) !== root))
       return {
         error:
           t("missingNote") +
@@ -754,6 +942,7 @@ class CodeEmbedPlugin extends Plugin {
     mark = false,
     local: string | null = null,
     root = this.packages().root(sourcePath),
+    rules: ExpansionRules = {},
   ): Promise<string> {
     const re = REF_RE();
     const parts = [];
@@ -762,7 +951,8 @@ class CodeEmbedPlugin extends Plugin {
     while ((m = re.exec(text)) !== null) {
       parts.push(text.slice(last, m.index));
       if (m.groups!.esc) parts.push(m.groups!.all);
-      else parts.push(await this.resolve(m.groups!.ref, sourcePath, stack, mark, local, root));
+      else
+        parts.push(await this.resolve(m.groups!.ref, sourcePath, stack, mark, local, root, rules));
       last = re.lastIndex;
     }
     parts.push(text.slice(last));
@@ -777,7 +967,12 @@ class CodeEmbedPlugin extends Plugin {
     mark = false,
     local: string | null = null,
     root = this.packages().root(sourcePath),
+    rules: ExpansionRules = {},
   ): Promise<string> {
+    const unresolved = (message: string) => {
+      if (rules.failOnError) throw new Error(message);
+      return formatError(message);
+    };
     const p = parseRef(ref);
     const range = p.range;
     const { file, error } = this.lookup(p.name, sourcePath, root);
@@ -801,20 +996,24 @@ class CodeEmbedPlugin extends Plugin {
     } else if (file) {
       path = file.path;
       key = path + "|" + range;
-      loadFragment = async () => slice(await this.read(file), range);
+      loadFragment = async () =>
+        slice(
+          rules.source?.path === path
+            ? rules.source.text
+            : await (rules.read?.(file) ?? this.read(file)),
+          range,
+        );
     } else {
-      return formatError(error);
+      return unresolved(error);
     }
-    if (stack.length >= this.settings.maxDepth)
-      return formatError(t("depthExceeded") + " (" + this.settings.maxDepth + ")" + scope);
     if (stack.includes(key))
-      return formatError(t("cycle") + ": " + [...stack, key].join(" → ") + scope);
+      return unresolved(t("cycle") + ": " + [...stack, key].join(" → ") + scope);
     let fragment: string;
     try {
       fragment = await loadFragment();
     } catch (error) {
       const where = searchBlock ? " (" + t("searchedBlock", { path }) + ")" : "";
-      return formatError(errorMessage(error).replace(/\]/g, ")") + where + scope);
+      return unresolved(errorMessage(error).replace(/\]/g, ")") + where + scope);
     }
     const text = applyArgs(fragment, p.args ?? [], p.args !== null);
     const out = await this.expand(
@@ -824,6 +1023,7 @@ class CodeEmbedPlugin extends Plugin {
       mark,
       localText === undefined ? null : local,
       root,
+      rules,
     );
     return mark ? markImport(ref, out) : out;
   }
@@ -890,7 +1090,7 @@ class CodeEmbedPlugin extends Plugin {
     refs: ResolvedReference[],
     depth: number,
     stack: string[],
-    limit = this.settings.maxDepth,
+    limit = Infinity,
     root = this.packages().root(src.path),
   ): Promise<ReferenceNode[]> {
     const groups = new Map<string, ReferenceNode>();
@@ -922,7 +1122,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   panelLimit() {
-    return this.settings.panelNested ? this.settings.maxDepth : 0;
+    return this.settings.panelNested ? Infinity : 0;
   }
 
   async outgoing(file: TFile) {
@@ -941,7 +1141,7 @@ class CodeEmbedPlugin extends Plugin {
   async incoming(file: TFile) {
     const res: Incoming[] = [];
     for (const f of this.app.vault.getMarkdownFiles()) {
-      if (f.name === MARKER) continue;
+      if (isMarker(f.name)) continue;
       const refs = await this.refsOf(f);
       if (!refs.length) continue;
       const nodes = await this.buildNodes(f, refs, 0, [], this.panelLimit());
@@ -970,6 +1170,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   async injectAll() {
+    this.actions.mountNoteBars();
     this.trackFile();
     try {
       await this.injectPanes();
@@ -1175,6 +1376,7 @@ class CodeEmbedPlugin extends Plugin {
         e.preventDefault();
         this.goTo(first.file, first.line, first.ch).catch(console.error);
       };
+      this.renderPackageLink(row, n.file);
       row.createSpan({ cls: "ce-count", text: "×" + n.occ.length });
       for (const o of n.occ) this.chip(row, o, file);
     }
@@ -1204,6 +1406,7 @@ class CodeEmbedPlugin extends Plugin {
       name.textContent =
         g.root.basename + (g.root.path === file.path ? " (" + t("currentNote") + ")" : "");
       name.title = g.root.path;
+      this.renderPackageLink(head, g.root);
       head.createSpan({ cls: "ce-count", text: "×" + g.total });
       const kids = wrap.createDiv({ cls: "ce-children" });
       const upd = () => {
@@ -1227,6 +1430,7 @@ class CodeEmbedPlugin extends Plugin {
         const label = row.createSpan({ cls: "ce-label" });
         label.textContent = this.labelOf(n);
         label.title = n.file.path;
+        this.renderPackageLink(row, n.file);
         const f0 = n.occ[0];
         label.onclick = (e) => {
           e.preventDefault();
@@ -1251,6 +1455,26 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
+  renderPackageLink(row: HTMLElement, file: TFile) {
+    const root = this.packages().root(file.path);
+    if (root === null) {
+      row.createSpan({ cls: "ce-package-link", text: t("outsidePackage") });
+      return;
+    }
+    const path = this.packageMarker(root);
+    const link = row.createEl("a", {
+      cls: "ce-package-link internal-link",
+      text: t("package") + " · " + (root || "/"),
+      href: path,
+      attr: { "data-href": path, title: path },
+    });
+    link.onclick = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.previewMarker(root).catch(console.error);
+    };
+  }
+
   renderErrors(body: HTMLElement, errs: BrokenReference[], file: TFile | null) {
     if (!errs.length) {
       this.emptyNote(body, t("noErrors"));
@@ -1272,6 +1496,7 @@ class CodeEmbedPlugin extends Plugin {
       const head = wrap.createDiv({ cls: "ce-native-row ce-group" });
       const arrow = head.createSpan({ cls: "ce-arrow" });
       const name = head.createSpan({ cls: "ce-label", text: g.file.path });
+      this.renderPackageLink(head, g.file);
       head.createSpan({ cls: "ce-count", text: "×" + g.list.length });
       const kids = wrap.createDiv({ cls: "ce-children" });
       const upd = () => {
@@ -1460,6 +1685,45 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
+  private codeFence(text: string, language: string) {
+    const ticks = "`".repeat(
+      text.split(/[^`]+/).reduce((n, run) => Math.max(n, run.length + 1), 3),
+    );
+    return ticks + language + "\n" + text + (text.endsWith("\n") ? "" : "\n") + ticks;
+  }
+
+  async renderBlockPreview(
+    raw: string,
+    language: string,
+    path: string,
+    box: HTMLElement,
+    owner: Component,
+  ) {
+    const kind = blockKind(language);
+    const treeView =
+      kind === "ce" || (this.settings.viewTree && (kind === "markdown" || kind === "xml"));
+    const expanded = applyArgs(await this.expand(raw, path, [], false, raw), [], false);
+    box.classList.toggle("ce-has-error", hasErrors(expanded));
+    if (treeView) {
+      const marked = applyArgs(await this.expand(raw, path, [], true, raw), [], false);
+      const tree = parseTree(marked);
+      if (hasStructure(tree)) {
+        await this.renderTree(
+          tree.children,
+          box,
+          path,
+          kind === "xml" && this.settings.xmlPlain,
+          0,
+        );
+        return;
+      }
+    }
+    const markdown = ["ce", "markdown", "xml", "plain"].includes(kind)
+      ? markErrors(expanded)
+      : this.codeFence(expanded, language);
+    await this.renderMd(markdown, box, path, owner);
+  }
+
   async postProcess(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     if (el.closest("[data-ce-rendered]")) return;
     const path = ctx.sourcePath;
@@ -1467,83 +1731,59 @@ class CodeEmbedPlugin extends Plugin {
       const code = pre.querySelector("code");
       if (!code || pre.dataset.ce) continue;
       const raw = code.textContent ?? "";
-      const lang = (pre.className + " " + code.className).match(/language-(\w+)/)?.[1] ?? "";
-      const has = hasEmbed(raw);
-      const isMd = lang === "markdown" || lang === "md";
-      const isXml = lang === "xml";
-      const autoView = lang === "ce" || lang === "codeembed";
-      if (!autoView && !has && !(this.settings.buttonsOnPlain && (isMd || isXml))) continue;
+      const lang =
+        (pre.className + " " + code.className).match(/language-([\w+#.-]+)/i)?.[1]?.toLowerCase() ??
+        "";
+      const kind = blockKind(lang);
+      const showActions = selectedKinds(this.settings.blockActionKinds).has(kind);
+      const autoView = kind === "ce";
+      if (!showActions && !autoView && !hasEmbed(raw)) continue;
       pre.dataset.ce = "1";
-      const expandedRaw = has ? await this.expand(raw, path, [], false, raw) : raw;
-      const expanded = applyArgs(expandedRaw, [], false);
+      const expanded = hasEmbed(raw)
+        ? applyArgs(await this.expand(raw, path, [], false, raw), [], false)
+        : raw;
 
       if (!autoView && expanded !== raw) {
         const holder = createDiv();
         holder.dataset.ceRendered = "1";
-        const ticks = "`".repeat(
-          expanded.split(/[^`]+/).reduce((n, x) => Math.max(n, x.length + 1), 3),
-        );
         const owner = new MarkdownRenderChild(pre);
         ctx.addChild(owner);
-        await this.renderMd(
-          ticks + lang + "\n" + expanded + (expanded.endsWith("\n") ? "" : "\n") + ticks,
-          holder,
-          path,
-          owner,
-        );
+        await this.renderMd(this.codeFence(expanded, lang), holder, path, owner);
         const rendered = holder.querySelector("pre code");
         if (rendered) code.replaceChildren(...rendered.childNodes);
         else code.textContent = expanded;
       }
-      const bar = createDiv();
-      bar.className = "ce-bar";
-      const copy = bar.createEl("button", { text: t("copy") });
-      copy.onclick = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await navigator.clipboard.writeText(expanded);
-        copy.setText("OK");
-        window.setTimeout(() => copy.setText(t("copy")), 1200);
-      };
-      const view = autoView ? createEl("button") : bar.createEl("button", { text: t("view") });
-      let box: HTMLDivElement | null = null;
+      let box: HTMLElement | null = null;
+      const owner = new MarkdownRenderChild(pre);
+      ctx.addChild(owner);
       const togglePreview = async () => {
         if (box) {
           box.remove();
           box = null;
           code.classList.remove("ce-hidden");
-          view.setText(t("view"));
-          return;
-        }
-        box = createDiv();
-        box.className = "ce-rendered markdown-rendered";
-        if (hasErrors(expanded)) box.classList.add("ce-has-error");
-        pre.appendChild(box);
-        if (!autoView && lang && !isXml && !isMd) {
-          const display = code.cloneNode(true) as HTMLElement;
-          display.classList.remove("ce-hidden");
-          const frame = createEl("pre");
-          frame.append(display);
-          box.append(frame);
-        } else if (autoView || ((isXml || isMd) && this.settings.viewTree)) {
-          const marked = applyArgs(await this.expand(raw, path, [], true, raw), [], false);
-          const tree = parseTree(marked);
-          if (hasStructure(tree))
-            await this.renderTree(tree.children, box, path, isXml && this.settings.xmlPlain, 0);
-          else await this.renderMd(markErrors(expanded), box, path);
         } else {
-          await this.renderMd(markErrors(expanded), box, path);
+          box = pre.createDiv({ cls: "ce-rendered markdown-rendered" });
+          box.dataset.ceRendered = "1";
+          await this.renderBlockPreview(raw, lang, path, box, owner);
+          code.classList.add("ce-hidden");
         }
-        code.classList.add("ce-hidden");
-        view.setText(t("code"));
+        pre
+          .querySelector('button[data-action="view"]')
+          ?.setAttribute("aria-pressed", String(!!box));
       };
       pre.classList.add("ce-pre");
-      pre.prepend(bar);
-      view.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        return togglePreview();
-      };
+      if (showActions) {
+        const bar = actionBar(pre, "ce-bar", !referencesIn(raw).next().done, async (action) => {
+          if (action === "actionSettings") return this.openActionSettings(kind);
+          if (action === "view") return togglePreview();
+          if (action === "copy") return this.actions.copyBlock(raw.replace(/\r?\n$/, ""), path);
+          const info = ctx.getSectionInfo(pre);
+          if (!info) throw new Error(t("sourceChanged"));
+          const view = this.actions.viewForElement(pre, path);
+          await this.actions.run(view, action, { line: info.lineStart, language: lang, body: raw });
+        });
+        pre.prepend(bar);
+      }
       if (autoView) await togglePreview();
     }
     await this.processEmbeds(el, path, ctx);
@@ -1569,7 +1809,7 @@ class CodeEmbedPlugin extends Plugin {
     else this.addChild(owner);
     el.replaceChildren();
     try {
-      const md = await this.resolve(ref, path, []);
+      const md = await this.resolve(ref, path, [], false, null);
       el.classList.toggle("ce-has-error", hasErrors(md));
       await this.renderEmbedMarkdown(md, el, path, owner);
     } catch (error) {
@@ -1661,7 +1901,7 @@ class CodeEmbedPlugin extends Plugin {
     // Custom references can survive Markdown rendering as plain text nodes.
     const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) =>
-        hasEmbed(node.nodeValue ?? "") &&
+        REF_RE().test(node.nodeValue ?? "") &&
         !node.parentElement?.closest("pre, code, a, .internal-embed, [data-ce-rendered]")
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT,
@@ -1847,7 +2087,8 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   teardownRename() {
-    for (const t of this.renameScanTimers?.values() ?? []) window.clearTimeout(t);
+    for (const t of this.renameScanTimers.values()) window.clearTimeout(t);
+    this.renameScanTimers.clear();
   }
 
   // Validate after the outermost rename has updated both definitions and references.
@@ -1857,15 +2098,7 @@ class CodeEmbedPlugin extends Plugin {
       return await fn();
     } finally {
       this.activeRenameCount--;
-      if (!this.activeRenameCount) {
-        this.previousBrokenReferences = null;
-        if (this.settings.warnBroken) {
-          window.clearTimeout(this.validationTimer);
-          this.validationTimer = window.setTimeout(() => {
-            this.validate(false).catch(console.error);
-          }, this.settings.validateDelay);
-        }
-      }
+      if (!this.activeRenameCount) this.scheduleValidate();
     }
   }
 
@@ -1889,11 +2122,19 @@ class CodeEmbedPlugin extends Plugin {
       this.renameSnapshots.delete(file.path);
       return;
     }
-    window.clearTimeout(this.renameScanTimers.get(file.path));
+    const path = file.path;
+    window.clearTimeout(this.renameScanTimers.get(path));
     this.renameScanTimers.set(
-      file.path,
+      path,
       window.setTimeout(() => {
-        this.scanRename(file).catch((e) => console.error("code-embed rename", e));
+        this.renameScanTimers.delete(path);
+        this.scanningRenames++;
+        this.scanRename(file)
+          .catch((error: unknown) => console.error("code-embed rename", error))
+          .finally(() => {
+            this.scanningRenames--;
+            this.scheduleValidate();
+          });
       }, 1500),
     );
   }
@@ -1961,7 +2202,7 @@ class CodeEmbedPlugin extends Plugin {
     let files = 0,
       refs = 0;
     for (const f of this.app.vault.getMarkdownFiles()) {
-      if (f.name === MARKER) continue;
+      if (isMarker(f.name)) continue;
       const raw = await this.app.vault.cachedRead(f);
       if (!hasEmbed(raw)) continue;
       if (rewriteText(raw, (r, inFence) => mapper(r, inFence, f)).count === 0) continue;
@@ -1972,6 +2213,9 @@ class CodeEmbedPlugin extends Plugin {
         return res.text;
       });
       if (n) {
+        this.cache.delete(f.path);
+        this.rawReferences.delete(f.path);
+        this.resolvedReferences.delete(f.path);
         files++;
         refs += n;
       }
@@ -1992,7 +2236,7 @@ class CodeEmbedPlugin extends Plugin {
 
   async renameFileRefs(file: TFile, oldPath: string) {
     await this.withRenameMute(async () => {
-      if (file.name === MARKER || oldPath.split("/").pop() === MARKER) return;
+      if (isMarker(file.name) || isMarker(oldPath.split("/").pop())) return;
       const index = this.packages(),
         oldRoot = index.root(oldPath);
       if (index.root(file.path) !== oldRoot) return;
@@ -2005,6 +2249,7 @@ class CodeEmbedPlugin extends Plugin {
       };
       const previous = new PackageIndex<IndexedFile>(
         this.app.vault.getFiles().map((f) => (f === file ? oldFile : f)),
+        this.hiddenRoots,
       );
       const res = await this.rewriteAll((ref, inFence, src) => {
         const p = parseRef(ref);

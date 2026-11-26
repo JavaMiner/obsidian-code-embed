@@ -1,3 +1,11 @@
+import {
+  caretInsideReference,
+  referencesIn,
+  findFences,
+  selectedKinds,
+  blockKind,
+} from "./action-markdown";
+import { actionBar, type BlockTarget } from "./note-actions";
 import { Component, editorInfoField, editorLivePreviewField } from "obsidian";
 import {
   ViewPlugin,
@@ -11,7 +19,6 @@ import { RangeSetBuilder, StateEffect, StateField, type EditorState } from "@cod
 import type CodeEmbedPlugin from "./main";
 import {
   wikiLinks,
-  FENCE_RE,
   REF_RE,
   hasEmbed,
   hasErrors,
@@ -88,6 +95,46 @@ class EmbedWidget extends WidgetType {
   }
 }
 
+class BlockActionsWidget extends WidgetType {
+  constructor(
+    readonly plugin: CodeEmbedPlugin,
+    readonly path: string,
+    readonly target: BlockTarget,
+  ) {
+    super();
+  }
+  eq(other: BlockActionsWidget) {
+    return (
+      this.path === other.path &&
+      this.target.line === other.target.line &&
+      this.target.language === other.target.language &&
+      this.target.body === other.target.body
+    );
+  }
+  toDOM(view: EditorView) {
+    return actionBar(
+      createSpan(),
+      "ce-editor-actions",
+      !referencesIn(this.target.body).next().done,
+      (action) =>
+        this.plugin.actions.run(
+          this.plugin.actions.viewForElement(view.dom, this.path),
+          action,
+          this.target,
+        ),
+    );
+  }
+}
+
+function editingReference(state: EditorState) {
+  return state.selection.ranges.some(({ head }) => {
+    const line = state.doc.lineAt(head);
+    return [...referencesIn(line.text)].some((match) =>
+      caretInsideReference(head - line.from, match),
+    );
+  });
+}
+
 export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
   return ViewPlugin.fromClass(
     class {
@@ -96,6 +143,14 @@ export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
         this.deco = this.build(view);
       }
       update(u: ViewUpdate) {
+        if (
+          u.docChanged ||
+          u.focusChanged ||
+          (u.selectionSet && (editingReference(u.startState) || editingReference(u.state)))
+        ) {
+          plugin.scheduleValidate();
+          plugin.scheduleInject();
+        }
         if (
           u.docChanged ||
           u.selectionSet ||
@@ -107,44 +162,57 @@ export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
       }
       build(view: EditorView) {
         const b = new RangeSetBuilder<Decoration>();
-        if (!plugin.settings.livePreview) return b.finish();
-        const doc = view.state.doc,
-          sel = view.state.selection.ranges;
-        let inFence = false,
-          block = "",
-          lang = "";
-        const path = view.state.field(editorInfoField, false)?.file?.path ?? "";
-        for (let n = 1; n <= doc.lines; n++) {
-          const line = doc.line(n);
-          if (FENCE_RE.test(line.text)) {
-            if (!inFence) {
-              lang = /^\s*(?:`{3,}|~{3,})\s*([\w+-]+)/.exec(line.text)?.[1] ?? "";
-              const out = [];
-              for (let k = n + 1; k <= doc.lines; k++) {
-                const t = doc.line(k).text;
-                if (FENCE_RE.test(t)) break;
-                out.push(t);
-              }
-              block = out.join("\n");
-            }
-            inFence = !inFence;
-            continue;
-          }
-          if (!inFence || !hasEmbed(line.text)) continue;
-          if (sel.some((r) => r.from <= line.to && r.to >= line.from)) continue;
-          const re = REF_RE();
-          let m;
-          while ((m = re.exec(line.text)) !== null) {
-            if (m.groups!.esc) continue;
-            const from = line.from + m.index,
-              to = from + m[0].length;
+        const doc = view.state.doc;
+        const source = doc.toString();
+        const sel = view.state.selection.ranges;
+        const path = view.state.field(editorInfoField, false)?.file?.path;
+        if (!path) return b.finish();
+        const kinds = selectedKinds(plugin.settings.blockActionKinds);
+        for (const fence of findFences(source)) {
+          const lang = fence.language;
+          const block = source.slice(fence.bodyStart, fence.bodyEnd).replace(/\n$/, "");
+          const opening = doc.line(fence.line + 1);
+          if (kinds.has(blockKind(lang))) {
             b.add(
-              from,
-              to,
-              Decoration.replace({
-                widget: new EmbedWidget(plugin, m.groups!.ref, plugin.revision, block, lang, path),
+              opening.to,
+              opening.to,
+              Decoration.widget({
+                side: 1,
+                widget: new BlockActionsWidget(plugin, path, {
+                  line: fence.line,
+                  language: lang,
+                  body: source.slice(fence.bodyStart, fence.bodyEnd),
+                }),
               }),
             );
+          }
+          if (!plugin.settings.livePreview) continue;
+          for (let n = opening.number + 1; n <= doc.lines; n++) {
+            const line = doc.line(n);
+            if (line.from >= fence.bodyEnd) break;
+            if (!hasEmbed(line.text)) continue;
+            if (sel.some((r) => r.from <= line.to && r.to >= line.from)) continue;
+            const re = REF_RE();
+            let m;
+            while ((m = re.exec(line.text)) !== null) {
+              if (m.groups!.esc) continue;
+              const from = line.from + m.index,
+                to = from + m[0].length;
+              b.add(
+                from,
+                to,
+                Decoration.replace({
+                  widget: new EmbedWidget(
+                    plugin,
+                    m.groups!.ref,
+                    plugin.revision,
+                    block,
+                    lang,
+                    path,
+                  ),
+                }),
+              );
+            }
           }
         }
         return b.finish();

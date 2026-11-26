@@ -64,7 +64,7 @@ function loadPlugin(
     navigator: { language: locale },
     document: {
       addEventListener: noop,
-      body: { style: { setProperty: noop, removeProperty: noop } },
+      body: { classList: { toggle: noop }, style: { setProperty: noop, removeProperty: noop } },
     },
     MutationObserver: class {
       observe() {}
@@ -83,7 +83,7 @@ function loadPlugin(
       iterateAllLeaves: noop,
       containerEl: { ownerDocument: globals.document },
     },
-    vault: { on: noop },
+    vault: { on: noop, adapter: { stat: async () => null } },
     fileManager: {},
   });
   return { plugin, commands, context };
@@ -121,7 +121,7 @@ test("marked folders stay visible across note switches and only unmarked actions
   const roots = ["Prompts", "Prompts/Nested", "Other"];
   plugin.app.vault.getFiles = () =>
     hostFixture(
-      roots.map((root) => ({ path: root + "/_code-embed-root.md", name: "_code-embed-root.md" })),
+      roots.map((root) => ({ path: root + "/.code-embed-root.md", name: ".code-embed-root.md" })),
     );
   const rows = roots.concat("Unmarked").map((path) => {
     let button:
@@ -144,8 +144,10 @@ test("marked folders stay visible across note switches and only unmarked actions
           else classes.delete(key);
         },
       },
-      querySelector: () => button,
-      createEl() {
+      querySelector: (selector = ".ce-folder-action") =>
+        selector === ".ce-folder-action" ? button : undefined,
+      createEl(_tag: string, options: { cls: string }) {
+        if (options.cls === "ce-marker-preview") return { dataset: {}, addEventListener() {} };
         button = {
           dataset: {},
           setAttribute() {},
@@ -194,7 +196,7 @@ test("marked folders stay visible across note switches and only unmarked actions
       roots,
     );
     for (const row of rows.filter((row) => row.querySelector()))
-      assert.equal(row.querySelector()!.textContent, "◆ Korzeń");
+      assert.equal(row.querySelector()!.textContent, "🔷 Korzeń");
   }
   check("Prompts/Nested/Note.md");
   check("Prompts/Note.md");
@@ -220,7 +222,7 @@ test("marked folders stay visible across note switches and only unmarked actions
   assert.ok(rows.every((row) => row.classes.has("ce-folder-with-action")));
   assert.deepEqual(
     rows.map((row) => row.querySelector()!.textContent),
-    ["◆ Korzeń", "◆ Korzeń", "◆ Korzeń", "+ Korzeń"],
+    ["🔷 Korzeń", "🔷 Korzeń", "🔷 Korzeń", "+ Korzeń"],
   );
   assert.deepEqual(
     rows.filter((row) => row.classes.has("ce-package-folder")).map((row) => row.folder.path),
@@ -265,17 +267,17 @@ test("app language determines folder labels for every documented locale", () => 
     const folder = { path: "My $& folder" };
     plugin.packages = () => hostFixture({ roots: new Set([folder.path]) });
     plugin.decorateFolder(hostFixture<HTMLElement>(row), hostFixture<TFolder>(folder));
-    assert.equal(button.textContent, "◆ " + root);
+    assert.equal(button.textContent, "🔷 " + root);
     assert.ok(guide.includes(button.textContent));
     assert.equal(button.title, labels.unmarkFolder);
     assert.equal(button["aria-label"], button.title + " — " + folder.path);
     const confirm = vm.runInNewContext(
-      't("confirmUnmark", {path: "My $& folder/_code-embed-root.md"})',
+      't("confirmUnmark", {path: "My $& folder/.code-embed-root.md"})',
       context,
     );
     assert.equal(
       confirm,
-      labels.confirmUnmark.replace("{path}", () => folder.path + "/_code-embed-root.md"),
+      labels.confirmUnmark.replace("{path}", () => folder.path + "/.code-embed-root.md"),
     );
     assert.ok(confirm.includes(folder.path));
   }
@@ -303,7 +305,7 @@ test("single-folder context menus support both explorer events and add one worki
     context,
   );
   plugin.setupFolders();
-  const folder = { path: "Prompts", children: [] };
+  const folder = { path: "Prompts", name: "Prompts", children: [] };
   const titles: string[] = [],
     menu = {
       click: async () => {},
@@ -329,12 +331,12 @@ test("single-folder context menus support both explorer events and add one worki
   events.get("file-menu")(menu, folder);
   assert.deepEqual(titles, ["Ustaw katalog jako korzeń Code Embed"]);
   await menu.click();
-  assert.equal(paths.get("Prompts/_code-embed-root.md").content, "");
+  assert.match(paths.get("Prompts/.code-embed-root.md").content, /^# Pakiet Prompts\n\n.+/);
   const markedMenu = { ...menu };
   events.get("file-menu")(markedMenu, folder);
   assert.equal(titles[1], "Usuń oznaczenie korzenia Code Embed");
   await markedMenu.click();
-  assert.equal(paths.has("Prompts/_code-embed-root.md"), false);
+  assert.equal(paths.has("Prompts/.code-embed-root.md"), false);
 });
 
 test("documentation follows the app language including unsupported-language fallback", () => {
@@ -367,7 +369,7 @@ test("older hosts use the legacy locale, panel activation and native deletion pr
   assert.ok(activated);
 
   const folder = hostFixture<TFolder>({ path: "Examples", children: [] });
-  const marker = hostFixture<import("obsidian").TFile>({ path: "Examples/_code-embed-root.md" });
+  const marker = hostFixture<import("obsidian").TFile>({ path: "Examples/.code-embed-root.md" });
   plugin.app.vault.getAbstractFileByPath = () => marker;
   let prompts = 0;
   plugin.app.fileManager.promptForDeletion = async (file) => {
@@ -381,7 +383,7 @@ test("older hosts use the legacy locale, panel activation and native deletion pr
 
 test("a replaced package marker survives a pending confirmation", async () => {
   const { plugin, context } = loadPlugin("dist/main.js", "en");
-  const path = "Examples/_code-embed-root.md";
+  const path = "Examples/.code-embed-root.md";
   const original = hostFixture<import("obsidian").TFile>({ path });
   const replacement = hostFixture<import("obsidian").TFile>({ path });
   let current = original;

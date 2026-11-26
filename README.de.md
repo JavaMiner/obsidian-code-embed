@@ -12,7 +12,7 @@ Speichere die gemeinsame Schlussanweisung mehrerer Prompts in einer Notiz namens
 <VARIABLE>Nenne drei Beispiele.</VARIABLE>
 ```
 
-Füge den folgenden Block in eine andere Notiz ein. Wähle **Copy+** und füge das Ergebnis ein: `Nenne drei Beispiele.`
+Füge den folgenden Block in eine andere Notiz ein. Wähle **⧉ Copy+** und füge das Ergebnis ein: `Nenne drei Beispiele.`
 
 ```ce
 ![Vorlagen:<<VARIABLE>>]
@@ -62,17 +62,23 @@ Antworte auf Deutsch. Ton: sachlich.
 
 ## Vorschau und Kopieren
 
-`ce` und `codeembed` öffnen die Strukturansicht. Wähle bei `md` oder `xml` die Option Ansicht. Copy+ kopiert den aufgelösten Text. Die Blocksprache bestimmt die Darstellung.
+⧉ kopiert den aufgelösten Text. 👁️ zeigt den Block oder öffnet eine verknüpfte Leseansicht der Notiz. ⚙️ öffnet die Einstellungen der Blocksprache oder der Notiz. Standardmäßig sind Blöcke ohne Sprache, Markdown, XML und CE ausgewählt.
+
+Im Block ersetzt 🔒 Verweise wie `![Vorlagen]` durch ihren Inhalt. Oben in der Notiz erstellt und öffnet 🔒 eine neue Notiz im selben Ordner. Sie enthält aufgelöste Verweise im Text und in allen Codeblöcken. Eigenschaften, Inline-Code und Original bleiben erhalten.
+
+Unter ⚙️ kannst du Formate entfernen oder am Listenende hinzufügen. Deaktiviere Beschriftungen für reine Symbolschaltflächen in Blöcken und Notizen. Die Vorschau am Ordner öffnet die Paketbeschreibung. Bisherige Marker mit Unterstrich werden weiterhin erkannt.
+
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
 
 ## Suche auf ein Paket begrenzen
 
-Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. Jeder markierte Ordner zeigt seine Farbe und **◆ Wurzel**. Aktiviere **Aktionen bei allen Ordnern anzeigen**, um bei unmarkierten Ordnern auch **+ Wurzel** anzuzeigen. Die Option ist standardmäßig deaktiviert.
+Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. Jeder markierte Ordner zeigt seine Farbe und **🔷 Wurzel**. Aktiviere **Aktionen bei allen Ordnern anzeigen**, um bei unmarkierten Ordnern auch **+ Wurzel** anzuzeigen. Die Option ist standardmäßig deaktiviert.
 
-Code Embed verwendet die Oberflächensprache von Obsidian. Die Einstellungen zeigen die installierte Version, einen Link zur deutschen Anleitung und **Paketordner auswählen**. Lege zum manuellen Markieren im Ordner eine Notiz namens `_code-embed-root` an (Dateiname `_code-embed-root.md`).
+Code Embed verwendet die Oberflächensprache von Obsidian. Die Einstellungen zeigen die installierte Version, einen Link zur deutschen Anleitung und **Paketordner auswählen**. Lege zum manuellen Markieren im Ordner eine Notiz namens `.code-embed-root` an (Dateiname `.code-embed-root.md`).
 
 ```text
 Prompts/
-  _code-embed-root.md
+  .code-embed-root.md
   Start.md
   Gemeinsam/
     Stil.md
@@ -94,3 +100,7 @@ Kopiere `dist/{main.js,manifest.json,styles.css}` nach `.obsidian/plugins/code-e
 Kommerzielle Nutzung ist erlaubt. Wenn du eine bearbeitete Fassung weitergibst, lege die Lizenz bei, behalte den zutreffenden Urheberhinweis auf Jakub Wajda (JavaMiner) aus NOTICE bei und kennzeichne geänderte Dateien.
 
 [Versionen](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6)
+
+## Unterstützung
+
+Unterstütze die Entwicklung über [Ko-fi](https://ko-fi.com/x480447). [Support](SUPPORT.md)
