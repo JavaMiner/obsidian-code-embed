@@ -1,0 +1,3 @@
+Czerwony
+Zielony
+Niebieski
