@@ -36,8 +36,6 @@
   "treeOpenDepthHelp": "Do jakiej głębokości węzły są domyślnie otwarte (0 = wszystko zwinięte).",
   "inlineMax": "Zwijanie krótkich importów (znaki)",
   "inlineMaxHelp": "Import ![…], którego rozwinięcie jest jedną krótką linią (jak zmienna), jest domyślnie zwinięty do chipa z wartością. 0 = zawsze rozwinięte.",
-  "buttonsOnPlain": "Przyciski na blokach bez importów",
-  "buttonsOnPlainHelp": "Pokazuje View i Copy+ także na blokach md i xml, które nie zawierają ![…].",
   "showPanels": "Sekcja Code Embed w panelach natywnych",
   "showPanelsHelp": "Dodatkowe wpisy w Łączach wychodzących i Linkach zwrotnych.",
   "panelOnTop": "Sekcja na górze panelu",
@@ -154,5 +152,12 @@
   "rootCreated": "Ustawiono korzeń Code Embed: {path}",
   "rootRemoved": "Usunięto oznaczenie korzenia: {path}",
   "showAllFolderActions": "Pokaż akcje przy wszystkich folderach",
-  "showAllFolderActionsHelp": "Każdy oznaczony folder zawsze ma kolor i ◆ Korzeń. Przełącznik pokazuje + Korzeń przy pozostałych folderach. Domyślnie jest wyłączony."
+  "showAllFolderActionsHelp": "Każdy oznaczony folder zawsze ma kolor i ◆ Korzeń. Przełącznik pokazuje + Korzeń przy pozostałych folderach. Domyślnie jest wyłączony.",
+  "blockKinds": "Typy bloków z przyciskami",
+  "blockKindsHelp": "Oddziel nazwy przecinkami, np. java, python.",
+  "sourceChanged": "Źródło się zmieniło. Otwórz ponownie notatkę lub blok i spróbuj jeszcze raz.",
+  "nothingToReplace": "Brak odwołań ze znakiem dolara do zastąpienia.",
+  "permanent": "Permanent",
+  "unlabelledBlocks": "Bloki bez oznaczenia języka",
+  "additionalLanguages": "Dodatkowe języki"
 }

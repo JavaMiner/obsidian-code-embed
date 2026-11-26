@@ -62,7 +62,9 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ## Podejrzyj i skopiuj
 
-W bloku `ce` lub `codeembed` otwiera się widok struktury. W `md` lub `xml` stuknij Podgląd. Copy+ kopiuje rozwinięty tekst. Język bloku zmienia prezentację.
+W trybie edycji i czytania **Copy+** kopiuje rozwinięty blok, **Podgląd** go wyświetla, a **Permanent** zastępuje w źródle odwołania takie jak `$[Szablony]`. Brak fragmentu anuluje całą podmianę. Bloki CE od razu pokazują podgląd struktury.
+
+Przyciski u góry działają na całą notatkę. Podgląd otwiera powiązany edytor i widok czytania obok siebie. Na telefonie przełącza tryb. Copy+ i Permanent obejmują tekst i wybrane bloki. Zachowują właściwości notatki i przykłady w kodzie śródliniowym. Domyślnie włączone są bloki bez oznaczenia, Markdown, XML i CE. W ustawieniach można dodać np. `java`. Ogrodzenie może składać się z trzech lub więcej grawisów lub tyld.
 
 ## Ogranicz wyszukiwanie do pakietu
 

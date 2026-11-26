@@ -15,6 +15,8 @@ import {
   type MarkdownPostProcessorContext,
   type Menu,
 } from "obsidian";
+import { actionBar, NoteActions } from "./note-actions";
+import { actionReferences, blockKind, findFences, selectedKinds } from "./action-markdown";
 import type { EditorView } from "@codemirror/view";
 import {
   refresh,
@@ -85,6 +87,13 @@ import type {
   ExplorerView,
 } from "./model";
 
+interface ExpansionRules {
+  failOnError?: boolean;
+  references?: () => RegExp;
+  source?: { path: string; text: string };
+  read?: (file: TFile) => Promise<string>;
+}
+
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
@@ -123,6 +132,8 @@ class CodeEmbedPlugin extends Plugin {
   renameSnapshots = new Map<string, RenameSnapshot>();
   renameScanTimers = new Map<string, number>();
   forceRenameUpdate = false;
+
+  readonly actions = new NoteActions(this);
 
   async onload() {
     this.settings = readSettings(await this.loadData());
@@ -163,27 +174,15 @@ class CodeEmbedPlugin extends Plugin {
       id: "copy-expanded",
       name: t("copyBlock"),
       editorCallback: async (editor, view) => {
-        const lines = editor.getValue().split("\n");
-        const cur = editor.getCursor().line;
-        let s = -1,
-          e = -1;
-        for (let i = cur; i >= 0; i--)
-          if (FENCE_RE.test(lines[i])) {
-            s = i;
-            break;
-          }
-        for (let i = Math.max(cur, s + 1); i < lines.length; i++)
-          if (FENCE_RE.test(lines[i]) && i > s) {
-            e = i;
-            break;
-          }
-        if (s < 0 || e < 0) {
+        const source = editor.getValue();
+        const at = editor.posToOffset(editor.getCursor());
+        const fence = findFences(source).find((block) => at >= block.start && at < block.end);
+        if (!fence) {
           new Notice(t("notInBlock"));
           return;
         }
-        const block = lines.slice(s + 1, e).join("\n");
-        const expanded = await this.expand(block, view.file?.path ?? "", [], false, block);
-        await navigator.clipboard.writeText(applyArgs(expanded, [], false));
+        const body = source.slice(fence.bodyStart, fence.bodyEnd).replace(/\r?\n$/, "");
+        await this.actions.copyBlock(body, view.file?.path ?? "", source);
         new Notice(t("blockCopied"));
       },
     });
@@ -304,7 +303,7 @@ class CodeEmbedPlugin extends Plugin {
     doc
       .querySelectorAll(".ce-package-folder, .ce-folder-with-action")
       .forEach((el) => el.classList.remove("ce-package-folder", "ce-folder-with-action"));
-    doc.querySelectorAll(".ce-native-section").forEach((e) => e.remove());
+    doc.querySelectorAll(".ce-note-actions, .ce-native-section").forEach((e) => e.remove());
     doc.querySelectorAll(".ce-host").forEach((e) => e.classList.remove("ce-host"));
     const st = doc.body.style;
     [
@@ -754,15 +753,17 @@ class CodeEmbedPlugin extends Plugin {
     mark = false,
     local: string | null = null,
     root = this.packages().root(sourcePath),
+    rules: ExpansionRules = {},
   ): Promise<string> {
-    const re = REF_RE();
+    const re = (rules.references ?? REF_RE)();
     const parts = [];
     let last = 0,
       m;
     while ((m = re.exec(text)) !== null) {
       parts.push(text.slice(last, m.index));
       if (m.groups!.esc) parts.push(m.groups!.all);
-      else parts.push(await this.resolve(m.groups!.ref, sourcePath, stack, mark, local, root));
+      else
+        parts.push(await this.resolve(m.groups!.ref, sourcePath, stack, mark, local, root, rules));
       last = re.lastIndex;
     }
     parts.push(text.slice(last));
@@ -777,7 +778,12 @@ class CodeEmbedPlugin extends Plugin {
     mark = false,
     local: string | null = null,
     root = this.packages().root(sourcePath),
+    rules: ExpansionRules = {},
   ): Promise<string> {
+    const unresolved = (message: string) => {
+      if (rules.failOnError) throw new Error(message);
+      return formatError(message);
+    };
     const p = parseRef(ref);
     const range = p.range;
     const { file, error } = this.lookup(p.name, sourcePath, root);
@@ -801,20 +807,26 @@ class CodeEmbedPlugin extends Plugin {
     } else if (file) {
       path = file.path;
       key = path + "|" + range;
-      loadFragment = async () => slice(await this.read(file), range);
+      loadFragment = async () =>
+        slice(
+          rules.source?.path === path
+            ? rules.source.text
+            : await (rules.read?.(file) ?? this.read(file)),
+          range,
+        );
     } else {
-      return formatError(error);
+      return unresolved(error);
     }
     if (stack.length >= this.settings.maxDepth)
-      return formatError(t("depthExceeded") + " (" + this.settings.maxDepth + ")" + scope);
+      return unresolved(t("depthExceeded") + " (" + this.settings.maxDepth + ")" + scope);
     if (stack.includes(key))
-      return formatError(t("cycle") + ": " + [...stack, key].join(" → ") + scope);
+      return unresolved(t("cycle") + ": " + [...stack, key].join(" → ") + scope);
     let fragment: string;
     try {
       fragment = await loadFragment();
     } catch (error) {
       const where = searchBlock ? " (" + t("searchedBlock", { path }) + ")" : "";
-      return formatError(errorMessage(error).replace(/\]/g, ")") + where + scope);
+      return unresolved(errorMessage(error).replace(/\]/g, ")") + where + scope);
     }
     const text = applyArgs(fragment, p.args ?? [], p.args !== null);
     const out = await this.expand(
@@ -824,6 +836,7 @@ class CodeEmbedPlugin extends Plugin {
       mark,
       localText === undefined ? null : local,
       root,
+      rules,
     );
     return mark ? markImport(ref, out) : out;
   }
@@ -970,6 +983,7 @@ class CodeEmbedPlugin extends Plugin {
   }
 
   async injectAll() {
+    this.actions.mountNoteBars();
     this.trackFile();
     try {
       await this.injectPanes();
@@ -1460,6 +1474,53 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
+  private codeFence(text: string, language: string) {
+    const ticks = "`".repeat(
+      text.split(/[^`]+/).reduce((n, run) => Math.max(n, run.length + 1), 3),
+    );
+    return ticks + language + "\n" + text + (text.endsWith("\n") ? "" : "\n") + ticks;
+  }
+
+  async renderBlockPreview(
+    raw: string,
+    language: string,
+    path: string,
+    box: HTMLElement,
+    owner: Component,
+  ) {
+    const kind = blockKind(language);
+    const treeView =
+      kind === "ce" || (this.settings.viewTree && (kind === "markdown" || kind === "xml"));
+    const expanded = applyArgs(
+      await this.expand(raw, path, [], false, raw, undefined, { references: actionReferences }),
+      [],
+      false,
+    );
+    box.classList.toggle("ce-has-error", hasErrors(expanded));
+    if (treeView) {
+      const marked = applyArgs(
+        await this.expand(raw, path, [], true, raw, undefined, { references: actionReferences }),
+        [],
+        false,
+      );
+      const tree = parseTree(marked);
+      if (hasStructure(tree)) {
+        await this.renderTree(
+          tree.children,
+          box,
+          path,
+          kind === "xml" && this.settings.xmlPlain,
+          0,
+        );
+        return;
+      }
+    }
+    const markdown = ["ce", "markdown", "xml", "plain"].includes(kind)
+      ? markErrors(expanded)
+      : this.codeFence(expanded, language);
+    await this.renderMd(markdown, box, path, owner);
+  }
+
   async postProcess(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
     if (el.closest("[data-ce-rendered]")) return;
     const path = ctx.sourcePath;
@@ -1467,86 +1528,71 @@ class CodeEmbedPlugin extends Plugin {
       const code = pre.querySelector("code");
       if (!code || pre.dataset.ce) continue;
       const raw = code.textContent ?? "";
-      const lang = (pre.className + " " + code.className).match(/language-(\w+)/)?.[1] ?? "";
-      const has = hasEmbed(raw);
-      const isMd = lang === "markdown" || lang === "md";
-      const isXml = lang === "xml";
-      const autoView = lang === "ce" || lang === "codeembed";
-      if (!autoView && !has && !(this.settings.buttonsOnPlain && (isMd || isXml))) continue;
+      const lang =
+        (pre.className + " " + code.className).match(/language-([\w+#.-]+)/i)?.[1]?.toLowerCase() ??
+        "";
+      const kind = blockKind(lang);
+      const showActions = selectedKinds(this.settings.blockActionKinds).has(kind);
+      const autoView = kind === "ce";
+      if (!showActions && !autoView && !hasEmbed(raw)) continue;
       pre.dataset.ce = "1";
-      const expandedRaw = has ? await this.expand(raw, path, [], false, raw) : raw;
-      const expanded = applyArgs(expandedRaw, [], false);
+      const references = showActions ? actionReferences : REF_RE;
+      const expanded = references().test(raw)
+        ? applyArgs(
+            await this.expand(raw, path, [], false, raw, undefined, { references }),
+            [],
+            false,
+          )
+        : raw;
 
       if (!autoView && expanded !== raw) {
         const holder = createDiv();
         holder.dataset.ceRendered = "1";
-        const ticks = "`".repeat(
-          expanded.split(/[^`]+/).reduce((n, x) => Math.max(n, x.length + 1), 3),
-        );
         const owner = new MarkdownRenderChild(pre);
         ctx.addChild(owner);
-        await this.renderMd(
-          ticks + lang + "\n" + expanded + (expanded.endsWith("\n") ? "" : "\n") + ticks,
-          holder,
-          path,
-          owner,
-        );
+        await this.renderMd(this.codeFence(expanded, lang), holder, path, owner);
         const rendered = holder.querySelector("pre code");
         if (rendered) code.replaceChildren(...rendered.childNodes);
         else code.textContent = expanded;
       }
-      const bar = createDiv();
-      bar.className = "ce-bar";
-      const copy = bar.createEl("button", { text: t("copy") });
-      copy.onclick = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await navigator.clipboard.writeText(expanded);
-        copy.setText("OK");
-        window.setTimeout(() => copy.setText(t("copy")), 1200);
-      };
-      const view = autoView ? createEl("button") : bar.createEl("button", { text: t("view") });
-      let box: HTMLDivElement | null = null;
+      let box: HTMLElement | null = null;
+      const owner = new MarkdownRenderChild(pre);
+      ctx.addChild(owner);
       const togglePreview = async () => {
         if (box) {
           box.remove();
           box = null;
           code.classList.remove("ce-hidden");
-          view.setText(t("view"));
-          return;
-        }
-        box = createDiv();
-        box.className = "ce-rendered markdown-rendered";
-        if (hasErrors(expanded)) box.classList.add("ce-has-error");
-        pre.appendChild(box);
-        if (!autoView && lang && !isXml && !isMd) {
-          const display = code.cloneNode(true) as HTMLElement;
-          display.classList.remove("ce-hidden");
-          const frame = createEl("pre");
-          frame.append(display);
-          box.append(frame);
-        } else if (autoView || ((isXml || isMd) && this.settings.viewTree)) {
-          const marked = applyArgs(await this.expand(raw, path, [], true, raw), [], false);
-          const tree = parseTree(marked);
-          if (hasStructure(tree))
-            await this.renderTree(tree.children, box, path, isXml && this.settings.xmlPlain, 0);
-          else await this.renderMd(markErrors(expanded), box, path);
         } else {
-          await this.renderMd(markErrors(expanded), box, path);
+          box = pre.createDiv({ cls: "ce-rendered markdown-rendered" });
+          box.dataset.ceRendered = "1";
+          await this.renderBlockPreview(raw, lang, path, box, owner);
+          code.classList.add("ce-hidden");
         }
-        code.classList.add("ce-hidden");
-        view.setText(t("code"));
+        pre
+          .querySelector('button[data-action="view"]')
+          ?.setAttribute("aria-pressed", String(!!box));
       };
       pre.classList.add("ce-pre");
-      pre.prepend(bar);
-      view.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        return togglePreview();
-      };
+      if (showActions) {
+        const bar = actionBar(pre, "ce-bar", async (action) => {
+          if (action === "view") return togglePreview();
+          if (action === "copy") return this.actions.copyBlock(raw.replace(/\r?\n$/, ""), path);
+          const info = ctx.getSectionInfo(pre);
+          if (!info) throw new Error(t("sourceChanged"));
+          const view = this.actions.viewForElement(pre, path);
+          await this.actions.run(view, action, { line: info.lineStart, language: lang, body: raw });
+        });
+        pre.prepend(bar);
+      }
       if (autoView) await togglePreview();
     }
-    await this.processEmbeds(el, path, ctx);
+    await this.processEmbeds(
+      el,
+      path,
+      ctx,
+      this.actions.previewsNote(path) ? actionReferences : REF_RE,
+    );
     this.processLinks(el, path);
   }
 
@@ -1555,6 +1601,7 @@ class CodeEmbedPlugin extends Plugin {
     ref: string,
     path: string,
     ctx?: MarkdownPostProcessorContext,
+    references = REF_RE,
   ) {
     if (el.dataset.ce) return;
     el.dataset.ce = "1";
@@ -1569,7 +1616,7 @@ class CodeEmbedPlugin extends Plugin {
     else this.addChild(owner);
     el.replaceChildren();
     try {
-      const md = await this.resolve(ref, path, []);
+      const md = await this.resolve(ref, path, [], false, null, undefined, { references });
       el.classList.toggle("ce-has-error", hasErrors(md));
       await this.renderEmbedMarkdown(md, el, path, owner);
     } catch (error) {
@@ -1577,10 +1624,16 @@ class CodeEmbedPlugin extends Plugin {
     }
   }
 
-  async restoreLocalTagEmbeds(root: HTMLElement, path: string, ctx: MarkdownPostProcessorContext) {
+  async restoreLocalTagEmbeds(
+    root: HTMLElement,
+    path: string,
+    ctx: MarkdownPostProcessorContext,
+    references = REF_RE,
+  ) {
     // Markdown treats <bi> inside ![<<bi>>] as inline HTML. After sanitization
     // the name can be missing and the brackets can span several text nodes.
-    const lost = /!\[(?:<>)?\](?![[(])/g;
+    const lost =
+      references === actionReferences ? /[!$]\[(?:<>)?\](?![[(])/g : /!\[(?:<>)?\](?![[(])/g;
     if (!ctx?.getSectionInfo || !root.textContent.match(lost)) return;
     const section = ctx.getSectionInfo(root);
     if (!section) return;
@@ -1595,7 +1648,7 @@ class CodeEmbedPlugin extends Plugin {
     for (const [index, line] of lines.entries()) {
       if (fence[index]) continue;
       const prose = line.replace(/(`+).*?\1/g, "");
-      for (const match of prose.matchAll(REF_RE())) {
+      for (const match of prose.matchAll(references())) {
         if (match.groups!.esc) continue;
         const ref = match.groups!.ref;
         if (!/^(?:<[\w:.-]+>|<<[\w:.-]+>>)$/.test(ref)) continue;
@@ -1649,19 +1702,24 @@ class CodeEmbedPlugin extends Plugin {
         const host = createSpan();
         matches[i].deleteContents();
         matches[i].insertNode(host);
-        await this.renderMarkdownRef(host, refs[i], path, ctx);
+        await this.renderMarkdownRef(host, refs[i], path, ctx, references);
       }
     }
   }
 
-  async processEmbeds(root: HTMLElement, path: string, ctx: MarkdownPostProcessorContext) {
+  async processEmbeds(
+    root: HTMLElement,
+    path: string,
+    ctx: MarkdownPostProcessorContext,
+    references = REF_RE,
+  ) {
     if (root.closest("[data-ce-rendered]")) return;
-    await this.restoreLocalTagEmbeds(root, path, ctx);
+    await this.restoreLocalTagEmbeds(root, path, ctx, references);
 
     // Custom references can survive Markdown rendering as plain text nodes.
     const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) =>
-        hasEmbed(node.nodeValue ?? "") &&
+        references().test(node.nodeValue ?? "") &&
         !node.parentElement?.closest("pre, code, a, .internal-embed, [data-ce-rendered]")
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT,
@@ -1673,7 +1731,7 @@ class CodeEmbedPlugin extends Plugin {
     }
     for (const textNode of nodes) {
       const text = textNode.data,
-        re = REF_RE(),
+        re = references(),
         frag = createFragment();
       const pending: [HTMLElement, string][] = [];
       let last = 0,
@@ -1689,7 +1747,8 @@ class CodeEmbedPlugin extends Plugin {
       if (!pending.length) continue;
       frag.append(root.ownerDocument.createTextNode(text.slice(last)));
       textNode.replaceWith(frag);
-      for (const [host, ref] of pending) await this.renderMarkdownRef(host, ref, path, ctx);
+      for (const [host, ref] of pending)
+        await this.renderMarkdownRef(host, ref, path, ctx, references);
     }
   }
 

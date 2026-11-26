@@ -1,5 +1,5 @@
 {
-  "view": "View",
+  "view": "Preview",
   "code": "Code",
   "copy": "Copy+",
   "copied": "Copied",
@@ -36,8 +36,6 @@
   "treeOpenDepthHelp": "Levels expanded on opening. Use 0 to collapse all.",
   "inlineMax": "Compact imports (characters)",
   "inlineMaxHelp": "Maximum length for compact single-line imports. Use 0 to disable.",
-  "buttonsOnPlain": "Controls on plain blocks",
-  "buttonsOnPlainHelp": "Show preview and Copy+ on Markdown and XML blocks without imports.",
   "showPanels": "Native sidebar panels",
   "showPanelsHelp": "Include Code Embed in outgoing links and backlinks.",
   "panelOnTop": "Place section first",
@@ -154,5 +152,12 @@
   "rootCreated": "Code Embed root set: {path}",
   "rootRemoved": "Root marker removed: {path}",
   "showAllFolderActions": "Show actions on all folders",
-  "showAllFolderActionsHelp": "Every marked folder always shows its color and ◆ Root. Enable the setting to show + Root on unmarked folders. It defaults to off."
+  "showAllFolderActionsHelp": "Every marked folder always shows its color and ◆ Root. Enable the setting to show + Root on unmarked folders. It defaults to off.",
+  "blockKinds": "Block action languages",
+  "blockKindsHelp": "Separate language names with commas, for example java, python.",
+  "sourceChanged": "The source changed. Reopen the note or block and try again.",
+  "nothingToReplace": "No dollar references to replace.",
+  "permanent": "Permanent",
+  "unlabelledBlocks": "Unlabelled blocks",
+  "additionalLanguages": "Additional languages"
 }

@@ -62,7 +62,9 @@ Antwoord in het Nederlands. Toon: direct.
 
 ## Bekijken en kopiëren
 
-`ce` en `codeembed` tonen de structuur. Kies bij `md` of `xml` de optie Voorbeeld. Copy+ kopieert de uitgewerkte tekst. De bloktaal bepaalt de weergave.
+Bij het bewerken en lezen kopieert **Copy+** het uitgewerkte blok. **Voorbeeld** toont het resultaat en **Permanent** vervangt verwijzingen zoals `$[Sjablonen]` in de bron. Ontbreekt een fragment, dan wordt de hele wijziging geannuleerd. CE-blokken openen in de structuurweergave.
+
+De knoppen bovenaan gelden voor de hele notitie. Voorbeeld opent de editor en de leesweergave naast elkaar in gekoppelde panelen. Op telefoons wisselt de weergave. Standaard zijn blokken zonder taal, Markdown, XML en CE geselecteerd. Andere talen kun je toevoegen in de instellingen. Zowel backticks als tildes werken als afbakening vanaf drie tekens.
 
 ## Zoeken binnen een pakket
 

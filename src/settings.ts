@@ -13,7 +13,7 @@ export const DEFAULTS = {
   xmlPlain: true,
   treeOpenDepth: 2,
   inlineMax: 80,
-  buttonsOnPlain: true,
+  blockActionKinds: "plain, markdown, xml, ce",
   showPanels: true,
   panelNested: true,
   panelMaxVh: 55,
@@ -60,6 +60,8 @@ export function readSettings(data: unknown): Settings {
     const value = data[key];
     if (typeof value === typeof initial) Object.assign(settings, { [key]: value });
   }
+  if (data.blockActionKinds === undefined && data.buttonsOnPlain === false)
+    settings.blockActionKinds = "ce";
   if (isRecord(data.movedReferences)) {
     settings.movedReferences = Object.fromEntries(
       Object.entries(data.movedReferences)

@@ -62,7 +62,9 @@ Antworte auf Deutsch. Ton: sachlich.
 
 ## Vorschau und Kopieren
 
-`ce` und `codeembed` öffnen die Strukturansicht. Wähle bei `md` oder `xml` die Option Ansicht. Copy+ kopiert den aufgelösten Text. Die Blocksprache bestimmt die Darstellung.
+Beim Bearbeiten und Lesen kopiert **Copy+** den aufgelösten Block. **Vorschau** zeigt ihn an. **Permanent** ersetzt Dollar-Verweise wie `$[Vorlagen]` im Quelltext. Fehlt ein Fragment, wird die Änderung abgebrochen. CE-Blöcke öffnen die Strukturansicht.
+
+Oben gelten die Aktionen für die ganze Notiz. Die Vorschau öffnet Editor und Leseansicht als verknüpfte Bereiche nebeneinander. Auf Smartphones wechselt sie den Modus. Standardmäßig sind Blöcke ohne Sprache, Markdown, XML und CE ausgewählt. Weitere Sprachen lassen sich in den Einstellungen ergänzen. Backticks und Tilden werden ab drei Zeichen unterstützt.
 
 ## Suche auf ein Paket begrenzen
 

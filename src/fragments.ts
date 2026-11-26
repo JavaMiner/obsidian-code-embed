@@ -1,8 +1,8 @@
+import { canonicalReferences } from "./action-markdown";
 import { CE_LOCALES, t } from "./locale";
 
 // A local selector starts with # or <. Named sources require a colon before a selector.
-export const REF_RE = () =>
-  /(?<esc>\\)?(?<all>!\[(?!\s*(?:\.\s*(?:[:\]]|$)|:))(?<ref>(?:\s*[#<][^[\]\r\n]*|[^[\]:#\r\n]+(?::[^[\]\r\n]+)?))\](?![[(\]]))/g;
+export const REF_RE = canonicalReferences;
 export const hasEmbed = (text: string) => REF_RE().test(text);
 
 const errorLabels = [...new Set(Object.values(CE_LOCALES).map((labels) => labels.errorLabel))];

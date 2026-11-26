@@ -62,7 +62,9 @@ Reply in English. Tone: direct.
 
 ## Preview and copy
 
-A `ce` or `codeembed` block opens in structured View. Select View on `md` or `xml` blocks. Copy+ copies the expanded text. The block language controls presentation.
+In editing and reading views, **Copy+** copies the expanded block, **Preview** renders it, and **Permanent** replaces dollar references such as `$[Templates]` in the source. A missing reference cancels the entire replacement. CE blocks open in structured preview.
+
+The same buttons at the top act on the whole note. Preview opens a linked editor and reading pane side by side. On a phone it switches modes. Copy+ and Permanent act on prose and selected fences, preserving properties and inline code. Settings include unlabelled fences, Markdown, XML and CE by default. Add languages such as `java` if needed. Backticks and tildes both work, including fences longer than three characters.
 
 ## Limit lookup to a package
 

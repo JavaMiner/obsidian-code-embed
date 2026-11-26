@@ -1,3 +1,4 @@
+import { actionReferences } from "../src/action-markdown";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { loadBundle, hostFixture } from "./bundle";
@@ -394,4 +395,25 @@ test("Live Preview unwraps inline embeds before measuring the widget", async () 
   } finally {
     delete ctx.createEl;
   }
+});
+
+test("block actions resolve nested dollar references and use the unsaved note snapshot", async () => {
+  const { plugin } = fixture({ "A.md": "## Start\nstale", "B.md": "## Step\n$[A:##Start]" });
+  const rules = {
+    references: actionReferences,
+    source: { path: "A.md", text: "## Start\ncurrent" },
+  };
+  assert.equal(
+    await plugin.expand("$[B:##Step]", "A.md", [], false, null, undefined, rules),
+    "current",
+  );
+});
+
+test("Permanent distinguishes errors in source text from unresolved references", async () => {
+  const { plugin } = fixture({ "Example.md": "[error: expected output]" });
+  const rules = { failOnError: true, references: actionReferences };
+  const expand = (source: string) =>
+    plugin.expand(source, "Example.md", [], false, null, undefined, rules);
+  assert.equal(await expand("$[Example]"), "[error: expected output]");
+  await assert.rejects(expand("$[Missing]"));
 });

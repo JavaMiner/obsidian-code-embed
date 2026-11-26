@@ -1,5 +1,5 @@
 {
-  "view": "Ansicht",
+  "view": "Vorschau",
   "code": "Code",
   "copy": "Copy+",
   "copied": "Kopiert",
@@ -36,8 +36,6 @@
   "treeOpenDepthHelp": "Anzahl anfangs geöffneter Ebenen. 0 klappt alle zu.",
   "inlineMax": "Kompakte Importe (Zeichen)",
   "inlineMaxHelp": "Höchstlänge für kompakte einzeilige Importe. 0 deaktiviert sie.",
-  "buttonsOnPlain": "Schaltflächen bei einfachen Blöcken",
-  "buttonsOnPlainHelp": "Vorschau und Copy+ für Markdown- und XML-Blöcke ohne Importe anzeigen.",
   "showPanels": "Native Seitenleisten",
   "showPanelsHelp": "Code Embed bei ausgehenden Links und Rückverweisen anzeigen.",
   "panelOnTop": "Abschnitt oben anzeigen",
@@ -154,5 +152,12 @@
   "rootCreated": "Code-Embed-Paketwurzel festgelegt: {path}",
   "rootRemoved": "Wurzelmarkierung entfernt: {path}",
   "showAllFolderActions": "Aktionen bei allen Ordnern anzeigen",
-  "showAllFolderActionsHelp": "Jeder markierte Ordner zeigt immer seine Farbe und ◆ Wurzel. Die standardmäßig deaktivierte Option zeigt + Wurzel bei unmarkierten Ordnern."
+  "showAllFolderActionsHelp": "Jeder markierte Ordner zeigt immer seine Farbe und ◆ Wurzel. Die standardmäßig deaktivierte Option zeigt + Wurzel bei unmarkierten Ordnern.",
+  "blockKinds": "Sprachen für Blockaktionen",
+  "blockKindsHelp": "Sprachnamen durch Kommas trennen, zum Beispiel java, python.",
+  "sourceChanged": "Die Quelle hat sich geändert. Öffne die Notiz oder den Block erneut.",
+  "nothingToReplace": "Keine Dollar-Verweise zum Ersetzen.",
+  "permanent": "Permanent",
+  "unlabelledBlocks": "Blöcke ohne Sprachangabe",
+  "additionalLanguages": "Weitere Sprachen"
 }

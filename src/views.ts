@@ -15,6 +15,7 @@ import {
 } from "obsidian";
 import type CodeEmbedPlugin from "./main";
 import type { BrokenReference } from "./model";
+import { selectedKinds } from "./action-markdown";
 import { DEFAULTS, COLOR_FALLBACK, type KeysOfType, type Settings } from "./settings";
 import { formatEmbed, headingsOf, tagsOf } from "./fragments";
 import { t, guideUrl } from "./locale";
@@ -125,6 +126,50 @@ export class CodeEmbedSettings extends PluginSettingTab {
     else this.renderLegacySettings();
   }
 
+  private blockKinds(): SettingsRow[] {
+    const builtIn = new Map([
+      ["plain", t("unlabelledBlocks")],
+      ["markdown", "Markdown"],
+      ["xml", "XML"],
+      ["ce", "CE / XMLCE"],
+    ]);
+    const current = () => selectedKinds(this.plugin.settings.blockActionKinds);
+    const save = (kinds: Set<string>) => this.set("blockActionKinds", [...kinds].join(", "));
+    return [
+      ...Array.from(builtIn, ([kind, name]) => ({
+        name,
+        render: (row: Setting) => {
+          row.addToggle((toggle) =>
+            toggle.setValue(current().has(kind)).onChange((enabled) => {
+              const kinds = current();
+              if (enabled) kinds.add(kind);
+              else kinds.delete(kind);
+              return save(kinds);
+            }),
+          );
+        },
+      })),
+      {
+        name: t("additionalLanguages"),
+        desc: t("blockKindsHelp"),
+        render: (row) => {
+          row.addText((field) =>
+            field
+              .setValue([...current()].filter((kind) => !builtIn.has(kind)).join(", "))
+              .onChange((value) =>
+                save(
+                  new Set([
+                    ...[...current()].filter((kind) => builtIn.has(kind)),
+                    ...[...selectedKinds(value)].filter((kind) => !builtIn.has(kind)),
+                  ]),
+                ),
+              ),
+          );
+        },
+      },
+    ];
+  }
+
   private groups(): SettingsGroup[] {
     return [
       {
@@ -175,9 +220,9 @@ export class CodeEmbedSettings extends PluginSettingTab {
           this.toggle("xmlPlain", t("xmlPlain"), t("xmlPlainHelp")),
           this.slider("treeOpenDepth", t("treeOpenDepth"), t("treeOpenDepthHelp"), 0, 10, 1),
           this.slider("inlineMax", t("inlineMax"), t("inlineMaxHelp"), 0, 200, 10),
-          this.toggle("buttonsOnPlain", t("buttonsOnPlain"), t("buttonsOnPlainHelp")),
         ],
       },
+      { type: "group", heading: t("blockKinds"), items: this.blockKinds() },
       {
         type: "group",
         heading: t("sidebars"),

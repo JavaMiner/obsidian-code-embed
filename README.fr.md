@@ -62,7 +62,9 @@ Répondez en français. Ton : direct.
 
 ## Prévisualiser et copier
 
-Les blocs `ce` et `codeembed` affichent la structure. Sélectionnez Aperçu pour les blocs `md` ou `xml`. Copy+ copie le texte développé. Le langage du bloc détermine la présentation.
+En édition et en lecture, **Copy+** copie le bloc développé, **Aperçu** l’affiche et **Permanent** remplace dans la source les références comme `$[Modèles]`. Si un fragment manque, le remplacement est annulé. Les blocs CE affichent leur structure dès l’ouverture.
+
+En haut de la note, ces boutons agissent sur toute la note. L’aperçu ouvre deux volets liés, en édition et en lecture. Sur téléphone, il change de mode. Les blocs sans langage, Markdown, XML et CE sont sélectionnés par défaut. Les réglages permettent d’ajouter d’autres langages. Les délimiteurs peuvent contenir trois accents graves ou tildes, ou davantage.
 
 ## Limiter la recherche à un paquet
 

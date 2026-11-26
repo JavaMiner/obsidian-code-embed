@@ -36,8 +36,6 @@
   "treeOpenDepthHelp": "Niveaux ouverts au départ. 0 replie tout.",
   "inlineMax": "Imports compacts (caractères)",
   "inlineMaxHelp": "Longueur maximale des imports compacts sur une ligne. 0 les désactive.",
-  "buttonsOnPlain": "Boutons sur les blocs sans import",
-  "buttonsOnPlainHelp": "Afficher l’aperçu et Copy+ sur les blocs Markdown et XML sans import.",
   "showPanels": "Panneaux latéraux natifs",
   "showPanelsHelp": "Inclure Code Embed dans les liens sortants et entrants.",
   "panelOnTop": "Placer la section en premier",
@@ -154,5 +152,12 @@
   "rootCreated": "Racine Code Embed définie : {path}",
   "rootRemoved": "Marqueur de racine retiré : {path}",
   "showAllFolderActions": "Afficher les actions sur tous les dossiers",
-  "showAllFolderActionsHelp": "Chaque dossier marqué affiche toujours sa couleur et ◆ Racine. L’option, désactivée par défaut, affiche + Racine sur les autres dossiers."
+  "showAllFolderActionsHelp": "Chaque dossier marqué affiche toujours sa couleur et ◆ Racine. L’option, désactivée par défaut, affiche + Racine sur les autres dossiers.",
+  "blockKinds": "Langages des blocs avec actions",
+  "blockKindsHelp": "Séparez les langages par des virgules, par exemple java, python.",
+  "sourceChanged": "La source a changé. Rouvrez la note ou le bloc et réessayez.",
+  "nothingToReplace": "Aucune référence avec un signe dollar à remplacer.",
+  "permanent": "Permanent",
+  "unlabelledBlocks": "Blocs sans langage",
+  "additionalLanguages": "Autres langages"
 }

@@ -51,7 +51,8 @@ test("seven guides share examples, using only canonical syntax", () => {
     );
     if (expected) assert.deepEqual(samples, expected);
     expected = samples;
-    assert.doesNotMatch(sections.join("\n"), /!\[\[|\$\[|!\[\.:|!\[[\p{L}]+#/u);
+    const guideText = sections.join("\n").replace(/`\$\[[\p{L}]+\]`/gu, "");
+    assert.doesNotMatch(guideText, /!\[\[|\$\[|!\[\.:|!\[[\p{L}]+#/u);
   }
 });
 

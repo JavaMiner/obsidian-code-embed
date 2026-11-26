@@ -36,8 +36,6 @@
   "treeOpenDepthHelp": "Aanvankelijk geopende niveaus. 0 klapt alles in.",
   "inlineMax": "Compacte imports (tekens)",
   "inlineMaxHelp": "Maximumlengte voor compacte eenregelige imports. 0 schakelt dit uit.",
-  "buttonsOnPlain": "Knoppen op blokken zonder imports",
-  "buttonsOnPlainHelp": "Toon voorbeeld en Copy+ op Markdown- en XML-blokken zonder imports.",
   "showPanels": "Ingebouwde zijpanelen",
   "showPanelsHelp": "Toon Code Embed bij uitgaande links en terugverwijzingen.",
   "panelOnTop": "Sectie bovenaan",
@@ -154,5 +152,12 @@
   "rootCreated": "Code Embed-hoofdmap ingesteld: {path}",
   "rootRemoved": "Hoofdmapmarkering verwijderd: {path}",
   "showAllFolderActions": "Acties bij alle mappen tonen",
-  "showAllFolderActionsHelp": "Elke gemarkeerde map toont altijd de kleur en ◆ Hoofdmap. De standaard uitgeschakelde optie toont + Hoofdmap bij de overige mappen."
+  "showAllFolderActionsHelp": "Elke gemarkeerde map toont altijd de kleur en ◆ Hoofdmap. De standaard uitgeschakelde optie toont + Hoofdmap bij de overige mappen.",
+  "blockKinds": "Talen voor blokacties",
+  "blockKindsHelp": "Scheid talen met komma’s, bijvoorbeeld java, python.",
+  "sourceChanged": "De bron is gewijzigd. Open de notitie of het blok opnieuw.",
+  "nothingToReplace": "Geen verwijzingen met een dollarteken om te vervangen.",
+  "permanent": "Permanent",
+  "unlabelledBlocks": "Blokken zonder taal",
+  "additionalLanguages": "Extra talen"
 }

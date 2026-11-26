@@ -62,7 +62,9 @@ Rispondi in italiano. Tono: diretto.
 
 ## Visualizzare e copiare
 
-`ce` e `codeembed` mostrano la struttura. In `md` o `xml`, premi Anteprima. Copy+ copia il testo espanso. Il linguaggio del blocco controlla la presentazione.
+In modifica e lettura, **Copy+** copia il blocco espanso, **Anteprima** lo visualizza e **Permanent** sostituisce nel testo le referenze come `$[Modelli]`. Se manca un frammento, la modifica viene annullata. I blocchi CE si aprono in anteprima strutturata.
+
+I pulsanti in alto agiscono sull’intera nota. L’anteprima apre due pannelli collegati, uno per la modifica e uno per la lettura. Sul telefono cambia modalità. I blocchi senza linguaggio, Markdown, XML e CE sono selezionati per impostazione predefinita. Puoi aggiungere altri linguaggi nelle impostazioni. I delimitatori possono contenere tre o più accenti gravi o tilde.
 
 ## Limitare la ricerca a un pacchetto
 

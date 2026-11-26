@@ -10,7 +10,7 @@ test("parameterized XML reference", () => {
   assert.equal(p.range, "<<lh>>");
   assert.equal(p.args?.[0], "8000");
 });
-test("default English", () => assert.equal(api.t("view"), "View"));
+test("default English", () => assert.equal(api.t("view"), "Preview"));
 test("Polish locale", () => {
   context.moment = { locale: () => "pl" };
   assert.equal(api.t("view"), "Podgląd");

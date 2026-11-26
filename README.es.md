@@ -62,7 +62,9 @@ Responde en español. Tono: directo.
 
 ## Previsualizar y copiar
 
-`ce` y `codeembed` muestran la estructura. En `md` o `xml`, pulsa Vista previa. Copy+ copia el texto expandido. El lenguaje del bloque controla la presentación.
+Al editar o leer, **Copy+** copia el bloque expandido, **Vista previa** lo muestra y **Permanent** reemplaza referencias como `$[Plantillas]` en el texto original. Si falta un fragmento, se cancela el cambio completo. Los bloques CE se abren en vista estructurada.
+
+Los botones superiores actúan sobre toda la nota. La vista previa abre el editor y la lectura en dos paneles vinculados. En teléfonos cambia de modo. Los bloques sin lenguaje, Markdown, XML y CE están seleccionados por defecto. Puedes añadir otros lenguajes en los ajustes. Se admiten delimitadores de tres o más acentos graves o virgulillas.
 
 ## Limitar la búsqueda a un paquete
 
