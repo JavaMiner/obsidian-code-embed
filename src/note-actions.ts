@@ -15,7 +15,6 @@ import {
   expandBlock,
   expandNote,
   findFences,
-  replaceFenceBody,
   selectedKinds,
   type ResolveReference,
 } from "./action-markdown";
@@ -34,13 +33,13 @@ export interface BlockTarget {
 export function actionBar(
   parent: HTMLElement,
   cls: string,
-  canExpand: boolean,
   run: (action: Action) => Promise<void>,
-  lockLabel: "permanent" | "saveSnapshot" = "permanent",
+  noteHasReferences?: boolean,
 ) {
   const bar = parent.createSpan({ cls });
   for (const action of ["copy", "view", "permanent", "actionSettings"] as const) {
-    const label = t(action === "permanent" ? lockLabel : action);
+    if (action === "permanent" && noteHasReferences === undefined) continue;
+    const label = t(action === "permanent" ? "saveSnapshot" : action);
     const button = bar.createEl("button", {
       attr: { type: "button", "data-action": action, "aria-label": label, title: label },
     });
@@ -59,7 +58,7 @@ export function actionBar(
         )[action],
       ),
     });
-    button.disabled = action === "permanent" && !canExpand;
+    button.disabled = action === "permanent" && !noteHasReferences;
     let busy = false;
     button.onmousedown = (event) => event.preventDefault();
     button.onclick = (event) => {
@@ -136,21 +135,45 @@ export class NoteActions {
       const view = leaf.view;
       if (!(view instanceof MarkdownView) || !view.file) continue;
       const hasRefs = !noteReferences(view.getViewData()).next().done;
-      const existing = view.contentEl.querySelector<HTMLButtonElement>(
-        ":scope > .ce-note-actions [data-action=permanent]",
-      );
-      if (existing) existing.disabled = !hasRefs;
-      else {
-        const bar = actionBar(
-          view.contentEl,
-          "ce-note-actions",
-          hasRefs,
-          (action) => this.run(view, action),
-          "saveSnapshot",
-        );
-        view.contentEl.prepend(bar);
-      }
+      const mobile = Platform.isMobile;
+      const host = mobile
+        ? view.contentEl.querySelector<HTMLElement>(
+            view.getMode() === "source"
+              ? ".markdown-source-view .cm-sizer"
+              : ".markdown-reading-view .markdown-preview-sizer > .mod-header",
+          )
+        : view.contentEl;
+      if (!host) continue;
+      let bar = view.contentEl.querySelector<HTMLElement>(".ce-note-actions");
+      if (!bar)
+        bar = actionBar(host, "ce-note-actions", (action) => this.run(view, action), hasRefs);
+      if (host.firstElementChild !== bar) host.prepend(bar);
+      const lock = bar.querySelector<HTMLButtonElement>("[data-action=permanent]");
+      if (lock) lock.disabled = !hasRefs;
+      if (mobile) this.updatePackageAction(bar, view.file);
     }
+  }
+
+  private updatePackageAction(bar: HTMLElement, file: TFile) {
+    const root = this.plugin.packages().root(file.path);
+    let button = bar.querySelector<HTMLButtonElement>(".ce-note-root");
+    if (root === null) {
+      button?.remove();
+      return;
+    }
+    if (!button) {
+      button = bar.createEl("button", { cls: "ce-note-root", attr: { type: "button" } });
+      button.createSpan({ text: "📝", attr: { "aria-hidden": "true" } });
+      button.createSpan({ cls: "ce-action-label" });
+      bar.prepend(button);
+    }
+    const name = root.split("/").pop() || this.plugin.app.vault.getName();
+    button.lastElementChild?.setText(name);
+    button.title = t("editDescription") + " · " + (root || name);
+    button.setAttribute("aria-label", button.title);
+    button.onclick = () => {
+      this.plugin.editMarker(root).catch((error: unknown) => new Notice(String(error)));
+    };
   }
 
   viewForElement(element: HTMLElement, path: string) {
@@ -212,25 +235,7 @@ export class NoteActions {
     const body = source.slice(fence.bodyStart, fence.bodyEnd);
     const normalize = (value: string) => value.replace(/\r\n/g, "\n").replace(/\n$/, "");
     if (normalize(body) !== normalize(target.body)) throw new Error(t("sourceChanged"));
-    if (action === "copy") return this.copyBlock(body.replace(/\r?\n$/, ""), file.path, source);
-
-    const replacement = replaceFenceBody(source, fence, await expandBlock(body, resolve));
-    const { start: from, end: to } = fence;
-    if (source.slice(from, to) === replacement) return;
-    if (editor && sourceView) {
-      if (
-        sourceView.file !== file ||
-        sourceView.getMode() !== "source" ||
-        editor.getValue() !== source
-      )
-        throw new Error(t("sourceChanged"));
-      editor.replaceRange(replacement, editor.offsetToPos(from), editor.offsetToPos(to));
-    } else {
-      await this.plugin.app.vault.process(file, (current) => {
-        if (current !== source || view.file !== file) throw new Error(t("sourceChanged"));
-        return source.slice(0, from) + replacement + source.slice(to);
-      });
-    }
+    if (action === "copy") await this.copyBlock(body.replace(/\r?\n$/, ""), file.path, source);
   }
 
   private async createSnapshot(file: TFile, text: string) {

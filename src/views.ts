@@ -98,6 +98,10 @@ export class CodeEmbedSettings extends PluginSettingTab {
     };
   }
 
+  private blockOpacity() {
+    return this.slider("blockOpacity", t("blockOpacity"), "", 0, 100, 1);
+  }
+
   private color(key: keyof typeof COLOR_FALLBACK, name: string, desc: string): SettingsRow {
     return {
       name,
@@ -220,6 +224,7 @@ export class CodeEmbedSettings extends PluginSettingTab {
         );
       }
       const controls = [this.toggle("showActionLabels", t("showActionLabels"), "")];
+      if (kind) controls.push(this.blockOpacity());
       if (!kind) controls.push(this.templateRow());
       if (kind === "markdown" || kind === "xml")
         controls.push(this.toggle("viewTree", t("viewTree"), t("viewTreeHelp")));
@@ -301,7 +306,11 @@ export class CodeEmbedSettings extends PluginSettingTab {
       {
         type: "group",
         heading: t("blockKinds"),
-        items: [this.toggle("showActionLabels", t("showActionLabels"), ""), ...this.blockKinds()],
+        items: [
+          this.toggle("showActionLabels", t("showActionLabels"), ""),
+          this.blockOpacity(),
+          ...this.blockKinds(),
+        ],
       },
       { type: "group", heading: t("noteActions"), items: [this.templateRow()] },
       {

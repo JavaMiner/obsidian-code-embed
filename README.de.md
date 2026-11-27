@@ -64,15 +64,15 @@ Antworte auf Deutsch. Ton: sachlich.
 
 ⧉ kopiert den aufgelösten Text. 👁️ zeigt den Block oder öffnet eine verknüpfte Leseansicht der Notiz. ⚙️ öffnet die Einstellungen der Blocksprache oder der Notiz. Standardmäßig sind Blöcke ohne Sprache, Markdown, XML und CE ausgewählt.
 
-Im Block ersetzt 🔒 Verweise wie `![Vorlagen]` durch ihren Inhalt. Oben in der Notiz erstellt und öffnet 🔒 eine neue Notiz im selben Ordner. Sie enthält aufgelöste Verweise im Text und in allen Codeblöcken. Eigenschaften, Inline-Code und Original bleiben erhalten.
+Oben in der Notiz erstellt und öffnet 🔒 eine neue Notiz im selben Ordner. Sie enthält aufgelöste Verweise im Text und in allen Codeblöcken. Eigenschaften, Inline-Code und Original bleiben erhalten.
 
-Unter ⚙️ kannst du Formate entfernen oder am Listenende hinzufügen. Deaktiviere Beschriftungen für reine Symbolschaltflächen in Blöcken und Notizen. Die Vorschau am Ordner öffnet die Paketbeschreibung. Bisherige Marker mit Unterstrich werden weiterhin erkannt.
+Unter ⚙️ kannst du Formate entfernen oder am Listenende hinzufügen. Die Blockleiste hat standardmäßig 20 % Deckkraft. Über ⚙️ lässt sie sich anpassen. Beim Überfahren des Blocks wird sie vollständig sichtbar. 📝 Bearbeiten öffnet die Paketbeschreibung in einem Editor-Tab. Die Beschriftung lässt sich ebenfalls ausblenden. Bisherige Marker mit Unterstrich werden weiterhin erkannt.
 
-⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md` Bisherige Marker mit Unterstrich werden weiterhin erkannt.
 
 ## Suche auf ein Paket begrenzen
 
-Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. Jeder markierte Ordner zeigt seine Farbe und **🔷 Wurzel**. Aktiviere **Aktionen bei allen Ordnern anzeigen**, um bei unmarkierten Ordnern auch **+ Wurzel** anzuzeigen. Die Option ist standardmäßig deaktiviert.
+Öffne das Ordnermenü per Rechtsklick oder langem Drücken oder wähle einen Ordner über die Befehlspalette. Bestätige beim Entfernen den Pfad der Markierung. Jeder markierte Ordner zeigt seine Farbe und **📝 Bearbeiten**. Aktiviere **Aktionen bei allen Ordnern anzeigen**, um bei unmarkierten Ordnern auch **+ Wurzel** anzuzeigen. Die Option ist standardmäßig deaktiviert.
 
 Code Embed verwendet die Oberflächensprache von Obsidian. Die Einstellungen zeigen die installierte Version, einen Link zur deutschen Anleitung und **Paketordner auswählen**. Lege zum manuellen Markieren im Ordner eine Notiz namens `.code-embed-root` an (Dateiname `.code-embed-root.md`).
 

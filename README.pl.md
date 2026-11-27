@@ -64,17 +64,17 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ⧉ kopiuje rozwinięty tekst. 👁️ pokazuje podgląd bloku, a dla notatki otwiera powiązany widok czytania. ⚙️ otwiera ustawienia danego typu bloku lub całej notatki. Domyślnie wybrane są bloki bez oznaczenia, Markdown, XML i CE.
 
-W bloku 🔒 zastępuje odwołania takie jak `![Szablony]` ich treścią. Na górze notatki 🔒 tworzy w tym samym folderze nową notatkę i ją otwiera. Rozwija odwołania w tekście i we wszystkich blokach. Zachowuje właściwości notatki i przykłady w kodzie śródliniowym. Oryginał pozostaje do dalszej edycji.
+Na górze notatki 🔒 tworzy w tym samym folderze nową notatkę i ją otwiera. Rozwija odwołania w tekście i we wszystkich blokach. Zachowuje właściwości notatki i przykłady w kodzie śródliniowym. Oryginał pozostaje do dalszej edycji.
 
-W ⚙️ możesz usunąć format lub dodać go na końcu listy. Wyłącz Etykiety, aby w blokach i notatkach pokazywać same ikony. Podgląd przy folderze otwiera opis pakietu. Wtyczka nadal rozpoznaje wcześniejsze znaczniki z podkreśleniem.
+W ⚙️ możesz usunąć format lub dodać go na końcu listy. Pasek bloku ma domyślnie 20% krycia. Możesz to zmienić w ⚙️. Po najechaniu na blok pasek jest w pełni widoczny. 📝 Edytuj otwiera opis pakietu w karcie edytora. Przełącznik Etykiety obejmuje również ten przycisk. Wtyczka nadal rozpoznaje wcześniejsze znaczniki z podkreśleniem.
 
-⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md` Wtyczka nadal rozpoznaje wcześniejsze znaczniki z podkreśleniem.
 
 ## Ogranicz wyszukiwanie do pakietu
 
-Otwórz menu folderu prawym kliknięciem lub długim przytrzymaniem albo wybierz folder z palety poleceń. Przy zdejmowaniu oznaczenia potwierdź ścieżkę znacznika. Każdy oznaczony folder zawsze ma kolor i **🔷 Korzeń**. Przełącznik pokazuje **+ Korzeń** przy pozostałych folderach. Domyślnie jest wyłączony.
+Otwórz menu folderu prawym kliknięciem lub długim przytrzymaniem albo wybierz folder z palety poleceń. Przy zdejmowaniu oznaczenia potwierdź ścieżkę znacznika. Każdy oznaczony folder zawsze ma kolor i **📝 Edytuj**. Przełącznik pokazuje **+ Korzeń** przy pozostałych folderach. Domyślnie jest wyłączony.
 
-**Pokaż akcje przy wszystkich folderach** — Wyświetla „+ Korzeń” przy nieoznaczonych folderach i „🔷 Korzeń” przy wszystkich korzeniach.
+**Pokaż akcje przy wszystkich folderach** — Wyświetla „+ Korzeń” przy nieoznaczonych folderach i „📝 Edytuj” przy wszystkich korzeniach.
 
 Wtyczka używa języka interfejsu Obsidiana. W ustawieniach Code Embed znajdziesz numer wersji, odnośnik do polskiego przewodnika i przycisk **Wybierz katalog pakietu**. Aby ręcznie oznaczyć katalog, utwórz w nim notatkę `.code-embed-root` (pełna nazwa pliku to `.code-embed-root.md`).
 

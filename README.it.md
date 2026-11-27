@@ -64,17 +64,17 @@ Rispondi in italiano. Tono: diretto.
 
 ⧉ copia il testo espanso. 👁️ mostra il blocco o apre un pannello di lettura collegato alla nota. ⚙️ apre le impostazioni del linguaggio o della nota. Per impostazione predefinita sono selezionati i blocchi senza linguaggio, Markdown, XML e CE.
 
-Nel blocco, 🔒 sostituisce i riferimenti come `![Modelli]` con il loro contenuto. In cima alla nota, 🔒 crea e apre una copia nella stessa cartella con i riferimenti espansi nel testo e in tutti i blocchi. Conserva le proprietà, il codice in linea e la nota originale.
+In cima alla nota, 🔒 crea e apre una copia nella stessa cartella con i riferimenti espansi nel testo e in tutti i blocchi. Conserva le proprietà, il codice in linea e la nota originale.
 
-In ⚙️ puoi eliminare un formato o aggiungerne uno in fondo alla lista. Disattiva le etichette per visualizzare solo le icone nei blocchi e nelle note. L’anteprima della cartella apre la descrizione del pacchetto. I marcatori precedenti con trattino basso restano validi.
+In ⚙️ puoi eliminare un formato o aggiungerne uno in fondo alla lista. La barra del blocco ha un’opacità iniziale del 20 %, regolabile da ⚙️. Diventa opaca al passaggio del puntatore sul blocco. 📝 Modifica apre la descrizione del pacchetto in una scheda dell’editor. Anche questa etichetta può essere nascosta. I marcatori precedenti con trattino basso restano validi.
 
-⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md` I marcatori precedenti con trattino basso restano validi.
 
 ## Limitare la ricerca a un pacchetto
 
-Apri il menu della cartella con un clic destro o una pressione prolungata, oppure scegli una cartella dalla tavolozza dei comandi. Conferma il percorso del marcatore prima di rimuoverlo. Ogni cartella contrassegnata mostra il suo colore e **🔷 Radice**. L’opzione, disattivata per impostazione predefinita, mostra **+ Radice** sulle altre cartelle.
+Apri il menu della cartella con un clic destro o una pressione prolungata, oppure scegli una cartella dalla tavolozza dei comandi. Conferma il percorso del marcatore prima di rimuoverlo. Ogni cartella contrassegnata mostra il suo colore e **📝 Modifica**. L’opzione, disattivata per impostazione predefinita, mostra **+ Radice** sulle altre cartelle.
 
-**Mostra le azioni su tutte le cartelle** — Mostra «+ Radice» sulle cartelle senza marcatore e «🔷 Radice» su tutte le radici dei pacchetti.
+**Mostra le azioni su tutte le cartelle** — Mostra «+ Radice» sulle cartelle senza marcatore e «📝 Modifica» su tutte le radici dei pacchetti.
 
 Code Embed usa la lingua dell’interfaccia di Obsidian. Le impostazioni mostrano la versione installata, il collegamento alla guida italiana e **Scegli la cartella del pacchetto**. Per contrassegnare una cartella manualmente, crea al suo interno una nota `.code-embed-root` (file `.code-embed-root.md`).
 

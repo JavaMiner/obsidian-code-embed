@@ -35,6 +35,7 @@ function loadPlugin(
     Object.assign(Plugin.prototype, { [method]: noop });
   const obsidian: Record<string, unknown> = {
     Plugin,
+    setIcon: noop,
     requireApiVersion: supportsApi,
     getLanguage: () => {
       assert.ok(supportsApi("1.8.7"));
@@ -83,7 +84,7 @@ function loadPlugin(
       iterateAllLeaves: noop,
       containerEl: { ownerDocument: globals.document },
     },
-    vault: { on: noop, adapter: { stat: async () => null } },
+    vault: { getAbstractFileByPath: () => null, on: noop, adapter: { stat: async () => null } },
     fileManager: {},
   });
   return { plugin, commands, context };
@@ -112,6 +113,87 @@ test("all bundled languages define the English translation keys", () => {
     assert.deepEqual(Object.keys(labels).sort(), Object.keys(languages.en).sort());
 });
 
+function folderButton() {
+  const parts: string[] = [];
+  return {
+    dataset: {} as Record<string, string>,
+    title: "",
+    attributes: new Map<string, string>(),
+    setAttribute(key: string, value: string) {
+      this.attributes.set(key, value);
+    },
+    get textContent() {
+      return parts.join(" ");
+    },
+    replaceChildren() {
+      parts.length = 0;
+    },
+    createSpan(options: { text: string }) {
+      parts.push(options.text);
+    },
+    addEventListener() {},
+    remove() {},
+  };
+}
+
+test("only note actions offer a snapshot, enabled when references exist", () => {
+  const { context } = loadPlugin("dist/main.js", "en");
+  const actionBar: typeof import("../src/note-actions").actionBar = vm.runInNewContext(
+    "actionBar",
+    context,
+  );
+  for (const hasRefs of [undefined, false, true]) {
+    const buttons = new Map<string, { disabled: boolean }>();
+    const bar = {
+      createEl(_tag: string, options: { attr: Record<string, string> }) {
+        const button = { createSpan() {}, disabled: false };
+        buttons.set(options.attr["data-action"], button);
+        return button;
+      },
+    };
+    actionBar(hostFixture({ createSpan: () => bar }), "toolbar", async () => {}, hasRefs);
+    assert.deepEqual(
+      [...buttons.keys()],
+      hasRefs === undefined
+        ? ["copy", "view", "actionSettings"]
+        : ["copy", "view", "permanent", "actionSettings"],
+    );
+    if (hasRefs !== undefined) assert.equal(buttons.get("permanent")?.disabled, !hasRefs);
+  }
+});
+
+test("the hidden root opens in one editor tab and indexed markers open in source mode", async () => {
+  const { plugin } = loadPlugin("dist/main.js", "en");
+  const ws = plugin.app.workspace;
+  let state: import("obsidian").ViewState | undefined;
+  let newTabs = 0;
+  let mode: unknown;
+  const leaf = hostFixture<import("obsidian").WorkspaceLeaf>({
+    getViewState: () => state,
+    setViewState: async (next: import("obsidian").ViewState) => {
+      state = next;
+    },
+    openFile: async (_file: unknown, open: { state: { mode: string } }) => {
+      mode = open.state.mode;
+    },
+  });
+  ws.getLeavesOfType = () => (state ? [leaf] : []);
+  ws.getLeaf = () => {
+    newTabs++;
+    return leaf;
+  };
+  ws.revealLeaf = async (opened) => {
+    assert.equal(opened, leaf);
+  };
+  await plugin.editMarker("Example");
+  assert.equal(state?.state?.path, "Example/.code-embed-root.md");
+  await plugin.editMarker("Example");
+  assert.equal(newTabs, 1);
+  plugin.app.vault.getAbstractFileByPath = () => hostFixture({ extension: "md" });
+  await plugin.editMarker("Example");
+  assert.equal(mode, "source");
+});
+
 test("marked folders stay visible across note switches and only unmarked actions depend on settings", () => {
   const { plugin, context } = loadPlugin("dist/main.js", "pl");
   const events = new Map();
@@ -124,15 +206,7 @@ test("marked folders stay visible across note switches and only unmarked actions
       roots.map((root) => ({ path: root + "/.code-embed-root.md", name: ".code-embed-root.md" })),
     );
   const rows = roots.concat("Unmarked").map((path) => {
-    let button:
-      | {
-          dataset: object;
-          setAttribute(): void;
-          addEventListener(): void;
-          remove(): void;
-          textContent?: string;
-        }
-      | undefined;
+    let button: ReturnType<typeof folderButton> | undefined;
     const classes = new Set();
     return {
       classes,
@@ -147,14 +221,10 @@ test("marked folders stay visible across note switches and only unmarked actions
       querySelector: (selector = ".ce-folder-action") =>
         selector === ".ce-folder-action" ? button : undefined,
       createEl(_tag: string, options: { cls: string }) {
-        if (options.cls === "ce-marker-preview") return { dataset: {}, addEventListener() {} };
-        button = {
-          dataset: {},
-          setAttribute() {},
-          addEventListener() {},
-          remove() {
-            button = undefined;
-          },
+        assert.equal(options.cls, "ce-folder-action");
+        button = folderButton();
+        button.remove = () => {
+          button = undefined;
         };
         return button;
       },
@@ -196,7 +266,7 @@ test("marked folders stay visible across note switches and only unmarked actions
       roots,
     );
     for (const row of rows.filter((row) => row.querySelector()))
-      assert.equal(row.querySelector()!.textContent, "🔷 Korzeń");
+      assert.equal(row.querySelector()!.textContent, "📝 Edytuj");
   }
   check("Prompts/Nested/Note.md");
   check("Prompts/Note.md");
@@ -222,7 +292,7 @@ test("marked folders stay visible across note switches and only unmarked actions
   assert.ok(rows.every((row) => row.classes.has("ce-folder-with-action")));
   assert.deepEqual(
     rows.map((row) => row.querySelector()!.textContent),
-    ["🔷 Korzeń", "🔷 Korzeń", "🔷 Korzeń", "+ Korzeń"],
+    ["📝 Edytuj", "📝 Edytuj", "📝 Edytuj", "+ Korzeń"],
   );
   assert.deepEqual(
     rows.filter((row) => row.classes.has("ce-package-folder")).map((row) => row.folder.path),
@@ -254,23 +324,17 @@ test("app language determines folder labels for every documented locale", () => 
     assert.deepEqual(Object.keys(dictionaries).sort(), documented);
     const labels = dictionaries[lang];
     const guide = fs.readFileSync(lang === "en" ? "README.md" : "README." + lang + ".md", "utf8");
-    const button = {
-      dataset: {},
-      title: "",
-      textContent: "",
-      "aria-label": "",
-      setAttribute(key: "aria-label", value: string) {
-        this[key] = value;
-      },
-    };
+    const button = folderButton();
     const row = { classList: { toggle() {} }, querySelector: () => button };
     const folder = { path: "My $& folder" };
     plugin.packages = () => hostFixture({ roots: new Set([folder.path]) });
+    plugin.app.vault.getAbstractFileByPath = () => null;
     plugin.decorateFolder(hostFixture<HTMLElement>(row), hostFixture<TFolder>(folder));
-    assert.equal(button.textContent, "🔷 " + root);
+    assert.equal(labels.rootSet, "+ " + root);
+    assert.equal(button.textContent, "📝 " + labels.editDescription);
     assert.ok(guide.includes(button.textContent));
-    assert.equal(button.title, labels.unmarkFolder);
-    assert.equal(button["aria-label"], button.title + " — " + folder.path);
+    assert.ok(button.title.includes(folder.path + "/.code-embed-root.md"));
+    assert.equal(button.attributes.get("aria-label"), button.title + " — " + folder.path);
     const confirm = vm.runInNewContext(
       't("confirmUnmark", {path: "My $& folder/.code-embed-root.md"})',
       context,

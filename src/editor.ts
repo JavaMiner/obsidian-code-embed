@@ -3,6 +3,7 @@ import {
   referencesIn,
   findFences,
   selectedKinds,
+  type Fence,
   blockKind,
 } from "./action-markdown";
 import { actionBar, type BlockTarget } from "./note-actions";
@@ -112,17 +113,15 @@ class BlockActionsWidget extends WidgetType {
     );
   }
   toDOM(view: EditorView) {
-    return actionBar(
-      createSpan(),
-      "ce-editor-actions",
-      !referencesIn(this.target.body).next().done,
-      (action) =>
-        this.plugin.actions.run(
-          this.plugin.actions.viewForElement(view.dom, this.path),
-          action,
-          this.target,
-        ),
+    const bar = actionBar(createSpan(), "ce-editor-actions", (action) =>
+      this.plugin.actions.run(
+        this.plugin.actions.viewForElement(view.dom, this.path),
+        action,
+        this.target,
+      ),
     );
+    bar.dataset.fenceStart = String(this.target.line);
+    return bar;
   }
 }
 
@@ -139,6 +138,23 @@ export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
   return ViewPlugin.fromClass(
     class {
       deco: DecorationSet;
+      ranges: Fence[] = [];
+      hovered?: HTMLElement;
+      hover(view: EditorView, target?: EventTarget | null) {
+        const node = target as Node | null;
+        const line = node?.instanceOf(Element) ? node.closest(".cm-line") : null;
+        const pos = line ? view.posAtDOM(line) : -1;
+        const fence = this.ranges.find((range) => range.start <= pos && pos < range.end);
+        const bar =
+          fence &&
+          view.dom.querySelector<HTMLElement>(
+            `.ce-editor-actions[data-fence-start="${fence.line}"]`,
+          );
+        if (this.hovered === bar) return;
+        this.hovered?.classList.remove("ce-hovered");
+        bar?.classList.add("ce-hovered");
+        this.hovered = bar ?? undefined;
+      }
       constructor(view: EditorView) {
         this.deco = this.build(view);
       }
@@ -167,12 +183,21 @@ export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
         const sel = view.state.selection.ranges;
         const path = view.state.field(editorInfoField, false)?.file?.path;
         if (!path) return b.finish();
+        this.ranges = [];
         const kinds = selectedKinds(plugin.settings.blockActionKinds);
         for (const fence of findFences(source)) {
           const lang = fence.language;
           const block = source.slice(fence.bodyStart, fence.bodyEnd).replace(/\n$/, "");
           const opening = doc.line(fence.line + 1);
           if (kinds.has(blockKind(lang))) {
+            this.ranges.push(fence);
+            const containsCaret = sel.some(
+              ({ head }) =>
+                head >= fence.start &&
+                (head < fence.end || (head === doc.length && fence.end === head)),
+            );
+            if (containsCaret)
+              b.add(opening.from, opening.from, Decoration.line({ class: "ce-caret-in-block" }));
             b.add(
               opening.to,
               opening.to,
@@ -218,7 +243,17 @@ export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
         return b.finish();
       }
     },
-    { decorations: (v) => v.deco },
+    {
+      decorations: (v) => v.deco,
+      eventHandlers: {
+        pointerover(event, view) {
+          this.hover(view, event.target);
+        },
+        pointerleave(_event, view) {
+          this.hover(view);
+        },
+      },
+    },
   );
 }
 
