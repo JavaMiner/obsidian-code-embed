@@ -1,32 +1,42 @@
-name: Fix release 0.3.2 assets
+name: Bump and publish 0.3.3
 on:
   push:
     branches: ['fix/release-0.3.2-assets']
 permissions:
   contents: read
 jobs:
-  upload:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 0.3.2
-          persist-credentials: false
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - run: npm ci
+      - run: npm version 0.3.3 --no-git-tag-version
+      - run: npm run version:sync
+      - run: npm run lint
       - run: npm run build && npm test && node --check dist/main.js
-      - run: test "$(node -p 'require("./manifest.json").version')" = "0.3.2"
-      - name: Upload assets to existing release
-        run: gh release upload 0.3.2 dist/main.js dist/manifest.json dist/styles.css --clobber
+      - name: Commit version bump to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json manifest.json versions.json
+          git commit -m "chore: release 0.3.3"
+          git push origin HEAD:main
+      - name: Create release with assets
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-      - name: Verify assets
-        run: gh release view 0.3.2 --json assets -q '.assets[].name'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
+        run: |
+          SHA=$(git rev-parse HEAD)
+          gh release create 0.3.3 dist/main.js dist/manifest.json dist/styles.css --target "$SHA" --title 0.3.3 --generate-notes --draft
+          gh release download 0.3.3 --dir "$RUNNER_TEMP/release-assets"
+          for file in main.js manifest.json styles.css; do
+            cmp "dist/$file" "$RUNNER_TEMP/release-assets/$file"
+          done
+          gh release edit 0.3.3 --draft=false --latest
+          gh release view 0.3.3 --json assets -q '.assets[].name'
