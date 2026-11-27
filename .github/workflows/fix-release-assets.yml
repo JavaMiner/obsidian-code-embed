@@ -1,0 +1,32 @@
+name: Fix release 0.3.2 assets
+on:
+  push:
+    branches: ['fix/release-0.3.2-assets']
+permissions:
+  contents: read
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 0.3.2
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run build && npm test && node --check dist/main.js
+      - run: test "$(node -p 'require("./manifest.json").version')" = "0.3.2"
+      - name: Upload assets to existing release
+        run: gh release upload 0.3.2 dist/main.js dist/manifest.json dist/styles.css --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+      - name: Verify assets
+        run: gh release view 0.3.2 --json assets -q '.assets[].name'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
