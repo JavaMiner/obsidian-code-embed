@@ -29,6 +29,16 @@ Odpowiedz po $1. Ton: ${2:rzeczowy}.
 <styl>Odpowiedz po $1. Ton: ${2:rzeczowy}.</styl>
 ```
 
+### Zmienne i odwołania w kodzie śródliniowym
+
+Selektory tagów działają również między apostrofami i wewnątrz kodu śródliniowego. Użyj `\![<<sys:package>>]`, żeby zachować przykład dosłownie.
+
+```md
+Pakiet `![<<sys:package>>]`, notatka `![<<sys:note>>]`
+```
+
+[Pełna lista zmiennych i zasady rozwijania](SYSTEM-VARIABLES.md)
+
 ## Osadź fragment
 
 `![źródło:selektor(argumenty)]`
@@ -64,7 +74,7 @@ Odpowiedz po polsku. Ton: rzeczowy.
 
 ⧉ kopiuje rozwinięty tekst. 👁️ pokazuje podgląd bloku, a dla notatki otwiera powiązany widok czytania. ⚙️ otwiera ustawienia danego typu bloku lub całej notatki. Domyślnie wybrane są bloki bez oznaczenia, Markdown, XML i CE.
 
-Na górze notatki 🔒 tworzy w tym samym folderze nową notatkę i ją otwiera. Rozwija odwołania w tekście i we wszystkich blokach. Zachowuje właściwości notatki i przykłady w kodzie śródliniowym. Oryginał pozostaje do dalszej edycji.
+Na górze notatki 🔒 tworzy w tym samym folderze nową notatkę i ją otwiera. Rozwija odwołania w tekście i we wszystkich blokach. Zachowuje właściwości notatki i przykłady poprzedzone ukośnikiem odwrotnym. Oryginał pozostaje do dalszej edycji.
 
 W ⚙️ możesz usunąć format lub dodać go na końcu listy. Pasek bloku ma domyślnie 20% krycia. Możesz to zmienić w ⚙️. Po najechaniu na blok pasek jest w pełni widoczny. 📝 Edytuj otwiera opis pakietu w karcie edytora. Przełącznik Etykiety obejmuje również ten przycisk. Wtyczka nadal rozpoznaje wcześniejsze znaczniki z podkreśleniem.
 

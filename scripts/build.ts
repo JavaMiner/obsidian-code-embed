@@ -9,7 +9,7 @@ buildSync({
   format: "cjs",
   platform: "browser",
   target: "es2018",
-  external: ["obsidian", "@codemirror/view", "@codemirror/state"],
+  external: ["obsidian", "@codemirror/view", "@codemirror/state", "@codemirror/commands"],
   outfile: "dist/main.js",
   banner: { js: "/*!\n" + attribution + "\n*/" },
 });

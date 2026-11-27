@@ -145,12 +145,13 @@ export class NoteActions {
         : view.contentEl;
       if (!host) continue;
       let bar = view.contentEl.querySelector<HTMLElement>(".ce-note-actions");
-      if (!bar)
-        bar = actionBar(host, "ce-note-actions", (action) => this.run(view, action), hasRefs);
-      if (host.firstElementChild !== bar) host.prepend(bar);
+      if (!bar || bar.parentElement !== host) {
+        bar ??= actionBar(host, "ce-note-actions", (action) => this.run(view, action), hasRefs);
+        host.prepend(bar);
+      }
       const lock = bar.querySelector<HTMLButtonElement>("[data-action=permanent]");
       if (lock) lock.disabled = !hasRefs;
-      if (mobile) this.updatePackageAction(bar, view.file);
+      this.updatePackageAction(bar, view.file);
     }
   }
 
@@ -168,7 +169,8 @@ export class NoteActions {
       bar.prepend(button);
     }
     const name = root.split("/").pop() || this.plugin.app.vault.getName();
-    button.lastElementChild?.setText(name);
+    const label = t("editDescription");
+    if (button.lastElementChild?.textContent !== label) button.lastElementChild?.setText(label);
     button.title = t("editDescription") + " · " + (root || name);
     button.setAttribute("aria-label", button.title);
     button.onclick = () => {
@@ -176,29 +178,11 @@ export class NoteActions {
     };
   }
 
-  viewForElement(element: HTMLElement, path: string) {
-    for (const leaf of this.workspace.getLeavesOfType("markdown")) {
-      const view = leaf.view;
-      if (
-        view instanceof MarkdownView &&
-        view.file?.path === path &&
-        view.containerEl.contains(element)
-      )
-        return view;
-    }
-    throw new Error(t("sourceChanged"));
-  }
-
-  async run(view: MarkdownView, action: Action, target?: BlockTarget) {
+  async run(view: MarkdownView, action: Action) {
     const file = view.file;
     if (!file) return;
-    if (action === "actionSettings")
-      return this.plugin.openActionSettings(target ? blockKind(target.language) : undefined);
-    if (action === "view") {
-      if (target) await this.showBlock(target, file.path);
-      else await this.split(view);
-      return;
-    }
+    if (action === "actionSettings") return this.plugin.openActionSettings();
+    if (action === "view") return this.split(view);
 
     const other = this.workspace
       .getLeavesOfType("markdown")
@@ -212,19 +196,37 @@ export class NoteActions {
     const sourceView = view.getMode() === "source" ? view : other;
     const editor = sourceView?.editor;
     const source = editor ? editor.getValue() : await this.plugin.app.vault.read(file);
-    const resolve = this.resolver(file.path, source);
-    const kinds = selectedKinds(this.plugin.settings.blockActionKinds);
-    if (!target) {
-      const expanded = await expandNote(source, resolve, action === "copy" ? kinds : undefined);
-      if (action === "copy") return navigator.clipboard.writeText(expanded);
-      if (expanded === source) return;
-      if (view.file !== file || (editor && editor.getValue() !== source))
-        throw new Error(t("sourceChanged"));
-      const copy = await this.createSnapshot(file, expanded);
-      if (view.file === file) await view.leaf.openFile(copy);
-      return;
-    }
+    await this.runDocument(
+      action,
+      file.path,
+      source,
+      view.leaf,
+      () => view.file === file && (!editor || editor.getValue() === source),
+    );
+  }
 
+  async runDocument(
+    action: "copy" | "permanent",
+    path: string,
+    source: string,
+    leaf: WorkspaceLeaf,
+    isCurrent: () => boolean,
+  ) {
+    const kinds =
+      action === "copy" ? selectedKinds(this.plugin.settings.blockActionKinds) : undefined;
+    const expanded = await expandNote(source, this.resolver(path, source), kinds);
+    if (action === "copy") return navigator.clipboard.writeText(expanded);
+    if (expanded === source) return;
+    if (!isCurrent()) throw new Error(t("sourceChanged"));
+    const copy = await this.createSnapshot(path, expanded);
+    if (isCurrent()) await leaf.openFile(copy);
+  }
+
+  async runBlock(action: Action, path: string, source: string, target: BlockTarget) {
+    if (action === "actionSettings")
+      return this.plugin.openActionSettings(blockKind(target.language));
+    if (action === "view") return this.showBlock(target, path);
+    const kinds = selectedKinds(this.plugin.settings.blockActionKinds);
     const fence = findFences(source).find((candidate) => candidate.line === target.line);
     if (
       !fence ||
@@ -235,16 +237,17 @@ export class NoteActions {
     const body = source.slice(fence.bodyStart, fence.bodyEnd);
     const normalize = (value: string) => value.replace(/\r\n/g, "\n").replace(/\n$/, "");
     if (normalize(body) !== normalize(target.body)) throw new Error(t("sourceChanged"));
-    if (action === "copy") await this.copyBlock(body.replace(/\r?\n$/, ""), file.path, source);
+    if (action === "copy") await this.copyBlock(body.replace(/\r?\n$/, ""), path, source);
   }
 
-  private async createSnapshot(file: TFile, text: string) {
+  private async createSnapshot(sourcePath: string, text: string) {
     const vault = this.plugin.app.vault;
-    const prefix = file.path.slice(0, file.path.length - file.name.length);
+    const prefix = sourcePath.slice(0, sourcePath.lastIndexOf("/") + 1);
+    const basename = sourcePath.slice(prefix.length, -3).replace(/^\./, "");
     const day = new Date();
     for (let version = 1; ; version++) {
       const path =
-        prefix + snapshotName(this.plugin.settings.snapshotTemplate, file.basename, day, version);
+        prefix + snapshotName(this.plugin.settings.snapshotTemplate, basename, day, version);
       if (this.reservedPaths.has(path) || vault.getAbstractFileByPath(path)) continue;
       this.reservedPaths.add(path);
       try {

@@ -183,6 +183,50 @@ test("package-aware Rename changes only references to the old target", async () 
   assert.equal(files.find((f) => f.path === "Q/Start.md")!.body, "![Style:##Tone]");
 });
 
+test("system variables use the entry note and its package across nested fragments", async (t) => {
+  const { plugin } = fixture({
+    "P/_code-embed-root.md": "",
+    "P/Entry.md": "",
+    "P/lib/Fragment.md": "![<<sys:note>>] / ![<sys:package>] / ![<<sys:folder>>]",
+  });
+  plugin.app.vault.getName = () => "Vault";
+  const previous = ctx.navigator;
+  t.after(() => {
+    ctx.navigator = previous;
+  });
+  ctx.navigator = { language: "pl-PL" };
+  assert.equal(await plugin.expand("![lib/Fragment]", "P/Entry.md"), "Entry / P / P");
+  assert.equal(await plugin.resolve("<<sys:locale>>", "P/Entry.md"), "pl-PL");
+  assert.equal(await plugin.resolve("<<sys:package>>", "Outside.md"), "");
+  await assert.rejects(
+    plugin.resolve("<<sys:missing>>", "P/Entry.md", [], false, null, undefined, {
+      failOnError: true,
+    }),
+    /sys:missing/,
+  );
+});
+
+test("renaming a reference in the active editor changes only its range in the unsaved buffer", async () => {
+  const { plugin, files } = fixture({ "Long.md": "stale contents" });
+  const text = "Untouched\nnew text ![Old] after";
+  let transaction: unknown;
+  plugin.app.workspace.getActiveViewOfType = () =>
+    hostFixture({
+      file: files[0],
+      getMode: () => "source",
+      editor: {
+        getValue: () => text,
+        transaction: (tx: unknown) => {
+          transaction = tx;
+        },
+      },
+    });
+  const res = await plugin.rewriteAll((ref) => (ref === "Old" ? "New" : null));
+  assert.equal(res.refs, 1);
+  assert.deepEqual(JSON.parse(JSON.stringify(transaction)), {
+    changes: [{ from: { line: 1, ch: 9 }, to: { line: 1, ch: 15 }, text: "![New]" }],
+  });
+});
 test("source root stays fixed when an unmarked entry imports a marked note", async () => {
   const { plugin } = fixture({
     "Entry.md": "",
@@ -475,6 +519,34 @@ for (const change of ["move across packages", "rename file", "rename heading", "
     assert.deepEqual(warnings, ["Source:" + selector]);
   });
 }
+
+test("a hidden package description resolves local headings and creates a visible snapshot", async () => {
+  const { plugin } = fixture({});
+  const path = "Prompts/.code-embed-root.md";
+  const source = "![##Title]\n\n## Title\nUpdated";
+  const notes = new Map<string, string>();
+  plugin.settings.snapshotTemplate = "[name].v[version].md";
+  Object.assign(plugin.app.vault, {
+    adapter: {
+      exists: async (name: string) => notes.has(name),
+      read: async () => "## Title\nOlder",
+    },
+    create: async (name: string, body: string) => {
+      notes.set(name, body);
+      return { path: name };
+    },
+  });
+  let opened = "";
+  const leaf = hostFixture<import("obsidian").WorkspaceLeaf>({
+    openFile: async (file: TFile) => {
+      opened = file.path;
+    },
+  });
+  await plugin.actions.runDocument("permanent", path, source, leaf, () => true);
+  assert.equal(opened, "Prompts/code-embed-root.v1.md");
+  assert.equal(notes.get(opened), "Updated\n\n## Title\nUpdated");
+  assert.ok(!notes.has(path));
+});
 
 test("the note lock opens distinct sibling snapshots and never overwrites the source", async () => {
   const { plugin, files } = fixture({

@@ -29,6 +29,16 @@ Reply in $1. Tone: ${2:direct}.
 <style>Reply in $1. Tone: ${2:direct}.</style>
 ```
 
+### Variables and inline tags
+
+Tag selectors also expand inside single quotes and inline code. Escape a reference as `\![<<sys:package>>]` to show it literally.
+
+```md
+Package `![<<sys:package>>]`, note `![<<sys:note>>]`
+```
+
+[Variable reference and expansion rules](SYSTEM-VARIABLES.md)
+
 ## Embed a fragment
 
 `![source:selector(arguments)]`
@@ -64,7 +74,7 @@ Reply in English. Tone: direct.
 
 ⧉ copies the expanded text. 👁️ previews the block or opens a linked reading pane for the note. ⚙️ opens settings for the current language or note. Unlabelled, Markdown, XML and CE blocks are selected by default.
 
-At the top of a note, 🔒 creates and opens a sibling note with references expanded in prose and all fenced blocks. Properties and inline code examples are preserved. The original stays editable.
+At the top of a note, 🔒 creates and opens a sibling note with references expanded in prose and all fenced blocks. Properties and escaped examples are preserved. The original stays editable.
 
 Use ⚙️ to remove a format or add one at the bottom of the list. The block toolbar is 20% opaque at rest. Adjust it with ⚙️. Hovering over the block shows it at full opacity. 📝 Edit opens the package description in an editor tab. The Labels setting also controls the Edit button. Existing underscore-prefixed markers are still recognized.
 

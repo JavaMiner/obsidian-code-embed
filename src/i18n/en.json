@@ -169,6 +169,7 @@
   "removeFormat": "Remove",
   "invalidFormat": "Invalid format",
   "packageHeading": "Package {name}",
-  "packagePrompt": "Describe what belongs in this package and how to use its fragments.",
-  "editDescription": "Edit"
+  "packagePrompt": "Describe what belongs in the {name} package and how to use its fragments.",
+  "editDescription": "Edit",
+  "unknownVariable": "Unknown variable {name}"
 }

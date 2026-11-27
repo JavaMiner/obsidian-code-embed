@@ -169,6 +169,7 @@
   "removeFormat": "Rimuovi",
   "invalidFormat": "Formato non valido",
   "packageHeading": "Pacchetto {name}",
-  "packagePrompt": "Descrivi lo scopo del pacchetto e come usare i suoi frammenti.",
-  "editDescription": "Modifica"
+  "packagePrompt": "Descrivi lo scopo del pacchetto {name} e come usare i suoi frammenti.",
+  "editDescription": "Modifica",
+  "unknownVariable": "Variabile sconosciuta {name}"
 }

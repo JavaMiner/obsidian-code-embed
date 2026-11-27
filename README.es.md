@@ -29,6 +29,16 @@ Responde en $1. Tono: ${2:directo}.
 <estilo>Responde en $1. Tono: ${2:directo}.</estilo>
 ```
 
+### Variables y etiquetas en línea
+
+Los selectores de etiquetas también funcionan entre comillas simples y en código en línea. Escribe `\![<<sys:package>>]` para conservar el texto literal.
+
+```md
+Paquete `![<<sys:package>>]`, nota `![<<sys:note>>]`
+```
+
+[Variables y reglas de expansión](SYSTEM-VARIABLES.md)
+
 ## Insertar el fragmento
 
 `![origen:selector(argumentos)]`
@@ -64,7 +74,7 @@ Responde en español. Tono: directo.
 
 ⧉ copia el texto expandido. 👁️ muestra el bloque o abre un panel de lectura vinculado a la nota. ⚙️ abre los ajustes del lenguaje o de la nota. Por defecto se seleccionan los bloques sin lenguaje, Markdown, XML y CE.
 
-En la parte superior de la nota, 🔒 crea y abre una copia en la misma carpeta, con las referencias expandidas en el texto y en todos los bloques. Conserva las propiedades, el código en línea y la nota original.
+En la parte superior de la nota, 🔒 crea y abre una copia en la misma carpeta, con las referencias expandidas en el texto y en todos los bloques. Conserva las propiedades y la nota original.
 
 En ⚙️ puedes eliminar formatos o añadirlos al final de la lista. La barra del bloque tiene una opacidad del 20 % en reposo, ajustable en ⚙️. Al pasar el puntero por el bloque se vuelve opaca. 📝 Editar abre la descripción del paquete en una pestaña del editor. Su etiqueta también se puede ocultar. Los marcadores anteriores con guion bajo siguen funcionando.
 

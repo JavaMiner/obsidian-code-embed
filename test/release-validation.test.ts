@@ -33,6 +33,7 @@ test("release metadata, funding and build output", () => {
   for (const path of ["styles.css", "manifest.json"])
     assert.equal(read("dist/" + path), read(path));
   assert.doesNotMatch(read("dist/styles.css"), /!\s*important\b/i);
+  assert.doesNotMatch(read("dist/styles.css"), /:has\s*\(/i);
   const built = read("dist/main.js");
   assert.ok(built.includes(read("LICENSE")));
   assert.ok(built.includes(read("NOTICE")));
