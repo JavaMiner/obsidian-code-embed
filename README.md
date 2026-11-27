@@ -64,15 +64,15 @@ Reply in English. Tone: direct.
 
 ⧉ copies the expanded text. 👁️ previews the block or opens a linked reading pane for the note. ⚙️ opens settings for the current language or note. Unlabelled, Markdown, XML and CE blocks are selected by default.
 
-Inside a block, 🔒 replaces references such as `![Templates]` with their contents. At the top of a note, 🔒 creates and opens a sibling note with references expanded in prose and all fenced blocks. Properties and inline code examples are preserved. The original stays editable.
+At the top of a note, 🔒 creates and opens a sibling note with references expanded in prose and all fenced blocks. Properties and inline code examples are preserved. The original stays editable.
 
-Use ⚙️ to remove a format or add one at the bottom of the list. Turn off Labels for icon-only buttons in blocks and notes. The folder’s Preview button opens the package description. Existing underscore-prefixed markers are still recognized.
+Use ⚙️ to remove a format or add one at the bottom of the list. The block toolbar is 20% opaque at rest. Adjust it with ⚙️. Hovering over the block shows it at full opacity. 📝 Edit opens the package description in an editor tab. The Labels setting also controls the Edit button. Existing underscore-prefixed markers are still recognized.
 
-⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md` Existing underscore-prefixed markers are still recognized.
 
 ## Limit lookup to a package
 
-Open the folder context menu with a right-click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. A marked folder always shows its color and **🔷 Root**. Enable **Show actions on all folders** to show **+ Root** on unmarked folders as well. The setting is off by default.
+Open the folder context menu with a right-click or long press, or choose a folder from the command palette. Confirm the marker path when removing a root. A marked folder always shows its color and **📝 Edit**. Enable **Show actions on all folders** to show **+ Root** on unmarked folders as well. The setting is off by default.
 
 Code Embed uses the Obsidian interface language. Its settings show the installed version, a link to the English guide, and **Choose package folder**. To mark a folder manually, create a note named `.code-embed-root` inside it (filename `.code-embed-root.md`).
 

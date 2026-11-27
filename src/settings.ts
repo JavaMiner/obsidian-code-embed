@@ -11,6 +11,7 @@ export const DEFAULTS = {
   showAllFolderActions: false,
   packageColor: "#498b78",
   showActionLabels: true,
+  blockOpacity: 20,
   livePreview: true,
   viewTree: true,
   xmlPlain: true,
@@ -63,6 +64,9 @@ export function readSettings(data: unknown): Settings {
     const value = data[key];
     if (typeof value === typeof initial) Object.assign(settings, { [key]: value });
   }
+  settings.blockOpacity = Number.isFinite(settings.blockOpacity)
+    ? Math.min(100, Math.max(0, settings.blockOpacity))
+    : DEFAULTS.blockOpacity;
   if (data.blockActionKinds === undefined && data.buttonsOnPlain === false)
     settings.blockActionKinds = "ce";
   if (isRecord(data.movedReferences)) {

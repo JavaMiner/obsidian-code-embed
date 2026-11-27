@@ -1,9 +1,9 @@
 import {
-  Modal,
   Plugin,
   requireApiVersion,
   MarkdownRenderer,
   MarkdownView,
+  Platform,
   Notice,
   Component,
   MarkdownRenderChild,
@@ -16,10 +16,10 @@ import {
   type MarkdownPostProcessorContext,
   type Menu,
 } from "obsidian";
+import { MARKER_EDITOR, MarkerEditor } from "./marker-editor";
 import { actionBar, NoteActions } from "./note-actions";
 import {
   validationDocument,
-  referencesIn,
   noteReferences,
   blockKind,
   findFences,
@@ -175,6 +175,7 @@ class CodeEmbedPlugin extends Plugin {
         },
       });
 
+    this.registerView(MARKER_EDITOR, (leaf) => new MarkerEditor(leaf));
     this.registerView(VIEW_TYPE, (leaf) => new ReferencePanel(leaf, this));
     this.addRibbonIcon("link", t("panel"), () => this.openPanel());
     this.addCommand({ id: "open-panel", name: t("openPanel"), callback: () => this.openPanel() });
@@ -286,6 +287,22 @@ class CodeEmbedPlugin extends Plugin {
     doc.addEventListener("click", onClick, true);
     const observer = new MutationObserver((records) => {
       if (
+        Platform.isMobile &&
+        records.some(
+          (record) =>
+            [...record.addedNodes].some(
+              (node) =>
+                node.instanceOf(Element) &&
+                (node.matches(".cm-sizer, .mod-header") ||
+                  node.querySelector(".cm-sizer, .mod-header")),
+            ) ||
+            [...record.removedNodes].some(
+              (node) => node.instanceOf(Element) && node.matches(".ce-note-actions"),
+            ),
+        )
+      )
+        this.scheduleInject();
+      if (
         records.some(
           (r) =>
             r.type === "attributes" ||
@@ -323,7 +340,7 @@ class CodeEmbedPlugin extends Plugin {
   private detachDocument(doc: Document) {
     this.documents.get(doc)?.();
     this.documents.delete(doc);
-    doc.querySelectorAll(".ce-folder-action, .ce-marker-preview").forEach((el) => el.remove());
+    doc.querySelectorAll(".ce-folder-action").forEach((el) => el.remove());
     doc
       .querySelectorAll(".ce-package-folder, .ce-folder-with-action")
       .forEach((el) => el.classList.remove("ce-package-folder", "ce-folder-with-action"));
@@ -332,6 +349,7 @@ class CodeEmbedPlugin extends Plugin {
     doc.body.classList.remove("ce-icons-only");
     const st = doc.body.style;
     [
+      "--ce-block-opacity",
       "--ce-panel-max",
       "--ce-package-color",
       "--ce-widget-border",
@@ -357,6 +375,7 @@ class CodeEmbedPlugin extends Plugin {
       if (val) st.setProperty(name, val);
       else st.removeProperty(name);
     };
+    st.setProperty("--ce-block-opacity", String(s.blockOpacity / 100));
     st.setProperty("--ce-panel-max", s.panelMaxVh + "vh");
     setColor("--ce-widget-border", s.cWidgetBorder);
     setColor("--ce-widget-bg", s.cWidgetBg ? rgba(s.cWidgetBg, s.cWidgetBgAlpha) : "");
@@ -611,40 +630,21 @@ class CodeEmbedPlugin extends Plugin {
     return this.app.vault.getAbstractFileByPath(legacy) ? legacy : path;
   }
 
-  async previewMarker(root: string) {
+  async editMarker(root: string) {
     const path = this.packageMarker(root);
     const { vault, workspace } = this.app;
     const file = vault.getAbstractFileByPath(path);
     if (isVaultFile(file)) {
-      await workspace.getLeaf(false).openFile(file);
+      await workspace.getLeaf("tab").openFile(file, { state: { mode: "source" } });
       return;
     }
-    const original = await vault.adapter.read(path);
-    const modal = new Modal(this.app);
-    modal.titleEl.setText(path);
-    modal.open();
-    const content = modal.contentEl.createDiv({ cls: "markdown-rendered" });
-    const owner = this.addChild(new Component());
-    modal.onClose = () => {
-      this.removeChild(owner);
-    };
-    await this.renderMd(original, content, path, owner);
-    const edit = modal.contentEl.createEl("button", { text: t("editDescription") });
-    edit.onclick = () => {
-      content.empty();
-      const field = content.createEl("textarea", { cls: "ce-marker-editor" });
-      field.value = original;
-      field.focus();
-      edit.setText(t("saveDescription"));
-      edit.onclick = () => {
-        const save = async () => {
-          if ((await vault.adapter.read(path)) !== original) throw new Error(t("sourceChanged"));
-          await vault.adapter.write(path, field.value);
-          modal.close();
-        };
-        save().catch((error: unknown) => new Notice(errorMessage(error)));
-      };
-    };
+    const existing = workspace
+      .getLeavesOfType(MARKER_EDITOR)
+      .find((leaf) => leaf.getViewState().state?.path === path);
+    const leaf = existing ?? workspace.getLeaf("tab");
+    if (!existing) await leaf.setViewState({ type: MARKER_EDITOR, state: { path }, active: true });
+    if (requireApiVersion("1.7.2")) await workspace.revealLeaf(leaf);
+    else workspace.setActiveLeaf(leaf, { focus: true });
   }
 
   folderActionLabel(folder: TFolder) {
@@ -723,10 +723,10 @@ class CodeEmbedPlugin extends Plugin {
     if (this.folderUpdateFrame != null) return;
     this.folderUpdateFrame = window.requestAnimationFrame(() => {
       this.folderUpdateFrame = null;
+      const rows = new Map<HTMLElement, TFolder>();
       for (const leaf of this.app.workspace.getLeavesOfType("file-explorer")) {
         const view = leaf.view as ExplorerView;
         // Some explorer versions keep the file on the tree item rather than the title element.
-        const rows = new Map<HTMLElement, TFolder>();
         const items =
           view.fileItems instanceof Map
             ? view.fileItems.values()
@@ -736,7 +736,10 @@ class CodeEmbedPlugin extends Plugin {
           const row = item.selfEl || item.el?.querySelector<HTMLElement>(".nav-folder-title");
           if (row?.isConnected) rows.set(row, item.file);
         }
-        for (const row of view.containerEl.querySelectorAll<HTMLElement>(".nav-folder-title")) {
+      }
+      // A phone drawer can mount its explorer outside the leaf container.
+      for (const doc of this.documents.keys()) {
+        for (const row of doc.querySelectorAll<HTMLElement>(".nav-folder-title")) {
           if (rows.has(row)) continue;
           const path =
             row.dataset.path ??
@@ -745,8 +748,8 @@ class CodeEmbedPlugin extends Plugin {
           const folder = path ? this.app.vault.getAbstractFileByPath(path) : null;
           if (isVaultFolder(folder)) rows.set(row, folder);
         }
-        for (const [row, folder] of rows) this.decorateFolder(row, folder);
       }
+      for (const [row, folder] of rows) this.decorateFolder(row, folder);
     });
   }
 
@@ -756,8 +759,6 @@ class CodeEmbedPlugin extends Plugin {
     const marked = this.packages().roots.has(folderPath);
     row.classList.toggle("ce-package-folder", marked);
     row.classList.toggle("ce-folder-with-action", marked || showAll);
-    let preview = row.querySelector<HTMLButtonElement>(".ce-marker-preview");
-    if (!marked) preview?.remove();
     let button = row.querySelector<HTMLButtonElement>(".ce-folder-action");
     if (!showAll && !marked) {
       button?.remove();
@@ -772,33 +773,26 @@ class CodeEmbedPlugin extends Plugin {
         event.preventDefault();
         event.stopPropagation();
         const current = this.app.vault.getAbstractFileByPath(button?.dataset.folderPath ?? "");
-        if (isVaultFolder(current)) this.toggleFolder(current).catch(console.error);
+        if (!isVaultFolder(current)) return;
+        const operation = this.packages().roots.has(current.path === "/" ? "" : current.path)
+          ? this.editMarker(current.path)
+          : this.toggleFolder(current);
+        operation.catch((error: unknown) => new Notice(errorMessage(error)));
       });
     }
     button.dataset.folderPath = folder.path;
-    const label = marked ? t("rootActive") : t("rootSet");
-    if (button.textContent !== label) button.textContent = label;
-    button.title = marked ? t("unmarkFolder") : t("markFolder");
-    button.setAttribute("aria-label", button.title + " — " + folder.path);
-    if (marked) {
-      if (!preview) {
-        preview = row.createEl("button", {
-          cls: "ce-marker-preview",
-          text: "👁️ " + t("previewLabel"),
-        });
-        preview.type = "button";
-        preview.addEventListener("mousedown", (event) => event.stopPropagation());
-        preview.addEventListener("pointerdown", (event) => event.stopPropagation());
-        preview.addEventListener("click", (event) => {
-          event.stopPropagation();
-          event.preventDefault();
-          this.previewMarker(preview!.dataset.folderPath!).catch(
-            (error: unknown) => new Notice(errorMessage(error)),
-          );
-        });
-      }
-      preview.dataset.folderPath = folder.path;
+    const label = marked ? t("editDescription") : t("rootSet").replace(/^\+\s*/, "");
+    if (button.dataset.label !== label || button.dataset.marked !== String(marked)) {
+      button.replaceChildren();
+      button.createSpan({ text: marked ? "📝" : "+", attr: { "aria-hidden": "true" } });
+      button.createSpan({ cls: "ce-action-label", text: label });
+      button.dataset.label = label;
+      button.dataset.marked = String(marked);
     }
+    button.title = marked
+      ? t("editDescription") + " · " + this.packageMarker(folder.path)
+      : t("markFolder");
+    button.setAttribute("aria-label", button.title + " — " + folder.path);
   }
 
   async toggleFolder(folder: TFolder) {
@@ -1471,7 +1465,7 @@ class CodeEmbedPlugin extends Plugin {
     link.onclick = (event) => {
       event.preventDefault();
       event.stopPropagation();
-      this.previewMarker(root).catch(console.error);
+      this.editMarker(root).catch(console.error);
     };
   }
 
@@ -1773,14 +1767,10 @@ class CodeEmbedPlugin extends Plugin {
       };
       pre.classList.add("ce-pre");
       if (showActions) {
-        const bar = actionBar(pre, "ce-bar", !referencesIn(raw).next().done, async (action) => {
+        const bar = actionBar(pre, "ce-bar", async (action) => {
           if (action === "actionSettings") return this.openActionSettings(kind);
           if (action === "view") return togglePreview();
           if (action === "copy") return this.actions.copyBlock(raw.replace(/\r?\n$/, ""), path);
-          const info = ctx.getSectionInfo(pre);
-          if (!info) throw new Error(t("sourceChanged"));
-          const view = this.actions.viewForElement(pre, path);
-          await this.actions.run(view, action, { line: info.lineStart, language: lang, body: raw });
         });
         pre.prepend(bar);
       }

@@ -64,17 +64,17 @@ Responde en español. Tono: directo.
 
 ⧉ copia el texto expandido. 👁️ muestra el bloque o abre un panel de lectura vinculado a la nota. ⚙️ abre los ajustes del lenguaje o de la nota. Por defecto se seleccionan los bloques sin lenguaje, Markdown, XML y CE.
 
-En un bloque, 🔒 sustituye referencias como `![Plantillas]` por su contenido. En la parte superior de la nota, 🔒 crea y abre una copia en la misma carpeta, con las referencias expandidas en el texto y en todos los bloques. Conserva las propiedades, el código en línea y la nota original.
+En la parte superior de la nota, 🔒 crea y abre una copia en la misma carpeta, con las referencias expandidas en el texto y en todos los bloques. Conserva las propiedades, el código en línea y la nota original.
 
-En ⚙️ puedes eliminar formatos o añadirlos al final de la lista. Desactiva las etiquetas para mostrar solo iconos en bloques y notas. La vista del directorio abre la descripción del paquete. Los marcadores anteriores con guion bajo siguen funcionando.
+En ⚙️ puedes eliminar formatos o añadirlos al final de la lista. La barra del bloque tiene una opacidad del 20 % en reposo, ajustable en ⚙️. Al pasar el puntero por el bloque se vuelve opaca. 📝 Editar abre la descripción del paquete en una pestaña del editor. Su etiqueta también se puede ocultar. Los marcadores anteriores con guion bajo siguen funcionando.
 
-⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md`
+⚙️ → `[name].perm.[date].v[version].md` → `test.perm.20261206.v1.md` Los marcadores anteriores con guion bajo siguen funcionando.
 
 ## Limitar la búsqueda a un paquete
 
-Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta de comandos. Confirma la ruta del marcador al quitarlo. Cada carpeta marcada muestra su color y **🔷 Raíz**. La opción, desactivada por defecto, muestra **+ Raíz** en las demás carpetas.
+Abre el menú de la carpeta con un clic derecho o una pulsación larga, o elige una carpeta en la paleta de comandos. Confirma la ruta del marcador al quitarlo. Cada carpeta marcada muestra su color y **📝 Editar**. La opción, desactivada por defecto, muestra **+ Raíz** en las demás carpetas.
 
-**Mostrar acciones en todas las carpetas** — Muestra «+ Raíz» en las carpetas sin marcador y «🔷 Raíz» en todas las raíces de paquete.
+**Mostrar acciones en todas las carpetas** — Muestra «+ Raíz» en las carpetas sin marcador y «📝 Editar» en todas las raíces de paquete.
 
 Code Embed utiliza el idioma de la interfaz de Obsidian. Sus ajustes muestran la versión instalada, un enlace a la guía en español y **Elegir carpeta del paquete**. Para marcar una carpeta manualmente, crea dentro una nota `.code-embed-root` (archivo `.code-embed-root.md`).
 
