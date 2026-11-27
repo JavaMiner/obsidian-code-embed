@@ -15,6 +15,7 @@ import {
 } from "obsidian";
 import type CodeEmbedPlugin from "./main";
 import type { BrokenReference } from "./model";
+import { systemKeys } from "./system-variables";
 import { selectedKinds } from "./action-markdown";
 import { DEFAULTS, COLOR_FALLBACK, type KeysOfType, type Settings } from "./settings";
 import { formatEmbed, headingsOf, tagsOf } from "./fragments";
@@ -465,6 +466,15 @@ export class EmbedSuggest extends EditorSuggest<string> {
     };
   }
   async getSuggestions({ file, query }: EditorSuggestContext) {
+    if (/^<{1,2}sys:/i.test(query)) {
+      const prefix = query
+        .replace(/^<{1,2}sys:/i, "")
+        .replace(/>+$/, "")
+        .toLowerCase();
+      return systemKeys
+        .filter((key) => key.startsWith(prefix))
+        .map((key) => formatEmbed("<<sys:" + key + ">>"));
+    }
     const index = this.plugin.packages(),
       root = index.root(file.path);
     const pos = query.indexOf(":"),

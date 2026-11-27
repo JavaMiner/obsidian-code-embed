@@ -169,6 +169,7 @@
   "removeFormat": "Verwijderen",
   "invalidFormat": "Ongeldig formaat",
   "packageHeading": "Pakket {name}",
-  "packagePrompt": "Beschrijf het doel van dit pakket en hoe je de fragmenten gebruikt.",
-  "editDescription": "Bewerken"
+  "packagePrompt": "Beschrijf het doel van pakket {name} en hoe je de fragmenten gebruikt.",
+  "editDescription": "Bewerken",
+  "unknownVariable": "Onbekende variabele {name}"
 }

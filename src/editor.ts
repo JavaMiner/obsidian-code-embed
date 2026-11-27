@@ -2,10 +2,12 @@ import {
   caretInsideReference,
   referencesIn,
   findFences,
+  noteReferences,
   selectedKinds,
   type Fence,
   blockKind,
 } from "./action-markdown";
+import { systemKey } from "./system-variables";
 import { actionBar, type BlockTarget } from "./note-actions";
 import { Component, editorInfoField, editorLivePreviewField } from "obsidian";
 import {
@@ -114,11 +116,7 @@ class BlockActionsWidget extends WidgetType {
   }
   toDOM(view: EditorView) {
     const bar = actionBar(createSpan(), "ce-editor-actions", (action) =>
-      this.plugin.actions.run(
-        this.plugin.actions.viewForElement(view.dom, this.path),
-        action,
-        this.target,
-      ),
+      this.plugin.actions.runBlock(action, this.path, view.state.doc.toString(), this.target),
     );
     bar.dataset.fenceStart = String(this.target.line);
     return bar;
@@ -134,7 +132,7 @@ function editingReference(state: EditorState) {
   });
 }
 
-export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
+export function createCodeBlockExtension(plugin: CodeEmbedPlugin, markerPath?: string) {
   return ViewPlugin.fromClass(
     class {
       deco: DecorationSet;
@@ -181,7 +179,7 @@ export function createCodeBlockExtension(plugin: CodeEmbedPlugin) {
         const doc = view.state.doc;
         const source = doc.toString();
         const sel = view.state.selection.ranges;
-        const path = view.state.field(editorInfoField, false)?.file?.path;
+        const path = markerPath ?? view.state.field(editorInfoField, false)?.file?.path;
         if (!path) return b.finish();
         this.ranges = [];
         const kinds = selectedKinds(plugin.settings.blockActionKinds);
@@ -264,6 +262,7 @@ export class MarkdownEmbedWidget extends WidgetType {
     readonly path: string,
     readonly revision: number,
     readonly block: boolean,
+    readonly literal = false,
   ) {
     super();
   }
@@ -274,6 +273,7 @@ export class MarkdownEmbedWidget extends WidgetType {
       other.ref === this.ref &&
       other.path === this.path &&
       other.revision === this.revision &&
+      other.literal === this.literal &&
       other.block === this.block
     );
   }
@@ -290,7 +290,8 @@ export class MarkdownEmbedWidget extends WidgetType {
       .then(async (md) => {
         if (el.ceToken !== token) return;
         el.classList.toggle("ce-has-error", hasErrors(md));
-        await this.plugin.renderEmbedMarkdown(md, el, this.path, owner, this.block);
+        if (this.literal) el.setText(md);
+        else await this.plugin.renderEmbedMarkdown(md, el, this.path, owner, this.block);
         if (el.ceToken === token) view.requestMeasure();
       })
       .catch((error: unknown) => {
@@ -311,69 +312,52 @@ export class MarkdownEmbedWidget extends WidgetType {
   }
 }
 
-export function createMarkdownExtension(plugin: CodeEmbedPlugin) {
+export function createMarkdownExtension(plugin: CodeEmbedPlugin, markerPath?: string) {
   const build = (state: EditorState) => {
-    if (!plugin.settings.livePreview || !state.field(editorLivePreviewField, false))
+    if (
+      !plugin.settings.livePreview ||
+      (!markerPath && !state.field(editorLivePreviewField, false))
+    )
       return Decoration.none;
-    const path = state.field(editorInfoField, false)?.file?.path;
+    const path = markerPath ?? state.field(editorInfoField, false)?.file?.path;
     if (!path) return Decoration.none;
     const ranges = [],
       doc = state.doc;
-    let fence = null,
-      frontmatter = false;
-    for (let n = 1; n <= doc.lines; n++) {
-      const line = doc.line(n),
-        text = line.text;
-      if (n === 1 && text.trim() === "---") {
-        frontmatter = true;
-        continue;
-      }
-      if (frontmatter) {
-        if (/^(---|\.\.\.)\s*$/.test(text)) frontmatter = false;
-        continue;
-      }
-      const fm = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(text);
-      if (fence) {
-        if (fm && fm[1][0] === fence.char && fm[1].length >= fence.length && !fm[2].trim())
-          fence = null;
-        continue;
-      }
-      if (fm) {
-        fence = { char: fm[1][0], length: fm[1].length };
-        continue;
-      }
-      if (/^(?: {4}|\t)/.test(text)) continue;
-      const re = REF_RE();
-      let m;
-      while ((m = re.exec(text)) !== null) {
-        if (m.groups!.esc) continue;
-        // Literal examples inside inline code must remain editable as written.
-        const prefix = text.slice(0, m.index);
-        let tick = null;
-        for (const run of prefix.matchAll(/`+/g)) {
-          if (tick === null) tick = run[0].length;
-          else if (tick === run[0].length) tick = null;
-        }
-        if (tick !== null) continue;
-        if (state.selection.ranges.some((r) => r.from <= line.to && r.to >= line.from)) continue;
-        const from = line.from + m.index,
-          to = from + m[0].length;
-        const block = text.trim() === m[0];
-        ranges.push(
-          Decoration.replace({
-            widget: new MarkdownEmbedWidget(plugin, m.groups!.ref, path, plugin.revision, block),
+    for (const match of noteReferences(doc.toString())) {
+      if (match.local !== null) continue;
+      const line = doc.lineAt(match.from);
+      if (/^(?: {4}|\t)/.test(line.text)) continue;
+      if (state.selection.ranges.some((r) => r.from <= line.to && r.to >= line.from)) continue;
+      const block = line.text.trim() === doc.sliceString(match.from, match.to);
+      ranges.push(
+        Decoration.replace({
+          widget: new MarkdownEmbedWidget(
+            plugin,
+            match.ref,
+            path,
+            plugin.revision,
             block,
-            inclusive: false,
-          }).range(from, to),
-        );
-      }
+            match.inlineCode || !!systemKey(match.ref),
+          ),
+          block,
+          inclusive: false,
+        }).range(match.from, match.to),
+      );
     }
     return Decoration.set(ranges, true);
   };
   return StateField.define<DecorationSet>({
     create: build,
     update(value, tr) {
-      if (tr.docChanged || tr.selection || tr.effects.length) return build(tr.state);
+      if (
+        tr.docChanged ||
+        tr.selection ||
+        tr.reconfigured ||
+        tr.startState.field(editorLivePreviewField, false) !==
+          tr.state.field(editorLivePreviewField, false) ||
+        tr.effects.some((effect) => effect.is(refresh))
+      )
+        return build(tr.state);
       return value;
     },
     provide: (field) => EditorView.decorations.from(field),

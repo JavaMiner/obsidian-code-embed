@@ -277,8 +277,12 @@ export function rewriteText(
   fn: (reference: string, fenced: boolean) => string | null,
 ) {
   const lines = text.split("\n");
-  let inFence = false,
-    count = 0;
+  const changes: {
+    from: { line: number; ch: number };
+    to: { line: number; ch: number };
+    text: string;
+  }[] = [];
+  let inFence = false;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (FENCE_RE.test(line)) {
@@ -288,18 +292,23 @@ export function rewriteText(
     if (!hasEmbed(line)) continue;
     lines[i] = line.replace(
       REF_RE(),
-      (all: string, esc: string | undefined, _all: string, ref: string) => {
+      (all: string, esc: string | undefined, _all: string, ref: string, offset: number) => {
         if (esc) return all;
         const p = parseRef(ref);
         const normalized = p.name + (p.range ? ":" + p.range : "") + argumentSuffix(ref, p);
         const nr = fn(normalized, inFence);
         if (nr == null || nr === normalized) return all;
-        count++;
-        return formatEmbed(nr);
+        const text = formatEmbed(nr);
+        changes.push({
+          from: { line: i, ch: offset },
+          to: { line: i, ch: offset + all.length },
+          text,
+        });
+        return text;
       },
     );
   }
-  return { text: lines.join("\n"), count };
+  return { text: lines.join("\n"), count: changes.length, changes };
 }
 
 export function headingList(text: string) {

@@ -29,6 +29,16 @@ Répondez en $1. Ton : ${2:direct}.
 <style>Répondez en $1. Ton : ${2:direct}.</style>
 ```
 
+### Variables et balises en ligne
+
+Les sélecteurs de balise fonctionnent aussi entre apostrophes et dans le code en ligne. Écrivez `\![<<sys:package>>]` pour conserver le texte littéral.
+
+```md
+Paquet `![<<sys:package>>]`, note `![<<sys:note>>]`
+```
+
+[Liste des variables et règles de substitution](SYSTEM-VARIABLES.md)
+
 ## Insérer un fragment
 
 `![source:sélecteur(arguments)]`
@@ -64,7 +74,7 @@ Répondez en français. Ton : direct.
 
 ⧉ copie le texte développé. 👁️ affiche le bloc ou ouvre un volet de lecture lié à la note. ⚙️ ouvre les réglages du langage ou de la note. Par défaut, les blocs sans langage, Markdown, XML et CE sont sélectionnés.
 
-En haut de la note, 🔒 crée et ouvre une copie dans le même dossier, avec les références développées dans le texte et tous les blocs. Les propriétés, le code en ligne et la note originale sont conservés.
+En haut de la note, 🔒 crée et ouvre une copie dans le même dossier, avec les références développées dans le texte et tous les blocs. Les propriétés et la note originale sont conservés.
 
 Dans ⚙️, supprimez un format ou ajoutez-en un en fin de liste. La barre du bloc a une opacité de 20 % au repos, réglable via ⚙️. Elle devient opaque au survol du bloc. 📝 Modifier ouvre la description du paquet dans un onglet de l’éditeur. Son libellé peut aussi être masqué. Les anciens marqueurs avec un tiret bas restent reconnus.
 

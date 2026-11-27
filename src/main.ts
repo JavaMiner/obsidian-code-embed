@@ -21,6 +21,7 @@ import { actionBar, NoteActions } from "./note-actions";
 import {
   validationDocument,
   noteReferences,
+  isTagReference,
   blockKind,
   findFences,
   selectedKinds,
@@ -55,7 +56,8 @@ import {
   type Lookup,
 } from "./package-index";
 import { markImport, parseTree, hasStructure, type TreeNode } from "./tree";
-import { t } from "./locale";
+import { t, interfaceLanguage } from "./locale";
+import { systemKey, systemValue } from "./system-variables";
 import { renderErrorsInText } from "./render-errors";
 import {
   REF_RE,
@@ -96,7 +98,17 @@ import type {
   ExplorerView,
 } from "./model";
 
+function operatingSystem() {
+  if (Platform.isAndroidApp) return "android";
+  if (Platform.isIosApp) return "ios";
+  if (Platform.isWin) return "windows";
+  if (Platform.isMacOS) return "macos";
+  if (Platform.isLinux) return "linux";
+  return "unknown";
+}
+
 interface ExpansionRules {
+  originPath?: string;
   failOnError?: boolean;
   source?: { path: string; text: string };
   read?: (file: TFile) => Promise<string>;
@@ -175,7 +187,7 @@ class CodeEmbedPlugin extends Plugin {
         },
       });
 
-    this.registerView(MARKER_EDITOR, (leaf) => new MarkerEditor(leaf));
+    this.registerView(MARKER_EDITOR, (leaf) => new MarkerEditor(leaf, this));
     this.registerView(VIEW_TYPE, (leaf) => new ReferencePanel(leaf, this));
     this.addRibbonIcon("link", t("panel"), () => this.openPanel());
     this.addCommand({ id: "open-panel", name: t("openPanel"), callback: () => this.openPanel() });
@@ -408,10 +420,11 @@ class CodeEmbedPlugin extends Plugin {
       this.revision++;
       this.app.workspace.iterateAllLeaves((leaf) => {
         const v = leaf.view;
+        if (v instanceof MarkerEditor) v.refreshActions();
         if (v instanceof MarkdownView) {
           const cm = (v.editor as Editor & { cm?: EditorView })?.cm;
-          if (cm) cm.dispatch({ effects: [refresh.of(null)] });
-          if (v.getMode() === "preview") v.previewMode.rerender(true);
+          if (cm) cm.dispatch({ effects: [cm.scrollSnapshot(), refresh.of(null)] });
+          if (v.getMode() === "preview") v.previewMode.rerender(false);
         }
       });
     }, 500);
@@ -638,9 +651,10 @@ class CodeEmbedPlugin extends Plugin {
       await workspace.getLeaf("tab").openFile(file, { state: { mode: "source" } });
       return;
     }
-    const existing = workspace
-      .getLeavesOfType(MARKER_EDITOR)
-      .find((leaf) => leaf.getViewState().state?.path === path);
+    const existing = workspace.getLeavesOfType(MARKER_EDITOR).find((leaf) => {
+      const state = leaf.getViewState().state;
+      return state?.path === path && state.mode !== "preview";
+    });
     const leaf = existing ?? workspace.getLeaf("tab");
     if (!existing) await leaf.setViewState({ type: MARKER_EDITOR, state: { path }, active: true });
     if (requireApiVersion("1.7.2")) await workspace.revealLeaf(leaf);
@@ -759,6 +773,11 @@ class CodeEmbedPlugin extends Plugin {
     const marked = this.packages().roots.has(folderPath);
     row.classList.toggle("ce-package-folder", marked);
     row.classList.toggle("ce-folder-with-action", marked || showAll);
+    const legacyPreview = row.querySelector(".ce-marker-preview");
+    if (legacyPreview) {
+      legacyPreview.remove();
+      row.querySelector(".ce-folder-action")?.remove();
+    }
     let button = row.querySelector<HTMLButtonElement>(".ce-folder-action");
     if (!showAll && !marked) {
       button?.remove();
@@ -825,10 +844,14 @@ class CodeEmbedPlugin extends Plugin {
           this.hiddenRoots.delete(root);
           new Notice(t("rootRemoved", { path: folder.path }));
         } else {
-          const name = folder.name || this.app.vault.getName();
+          const name = "`![<<sys:package>>]`";
           await this.app.vault.create(
             path,
-            "# " + t("packageHeading", { name }) + "\n\n" + t("packagePrompt") + "\n",
+            "# " +
+              t("packageHeading", { name }) +
+              "\n\n```md\n" +
+              t("packagePrompt", { name }) +
+              "\n```\n",
           );
           this.hiddenRoots.add(root);
           new Notice(t("rootCreated", { path: folder.path }));
@@ -967,6 +990,23 @@ class CodeEmbedPlugin extends Plugin {
       if (rules.failOnError) throw new Error(message);
       return formatError(message);
     };
+    const keyName = systemKey(ref);
+    if (keyName) {
+      const path = rules.originPath ?? sourcePath;
+      const value = systemValue(keyName, {
+        path,
+        root,
+        vault: this.app.vault.getName(),
+        app: "Obsidian",
+        language: interfaceLanguage(),
+        locale: window.navigator.language,
+        get timezone() {
+          return Intl.DateTimeFormat().resolvedOptions().timeZone;
+        },
+        platform: operatingSystem(),
+      });
+      return value ?? unresolved(t("unknownVariable", { name: "sys:" + keyName }));
+    }
     const p = parseRef(ref);
     const range = p.range;
     const { file, error } = this.lookup(p.name, sourcePath, root);
@@ -987,6 +1027,15 @@ class CodeEmbedPlugin extends Plugin {
     if (localText !== undefined) {
       const fragment = localText;
       loadFragment = async () => fragment;
+    } else if (!file && isSelf && isMarker(sourcePath.split("/").pop())) {
+      key = sourcePath + "|" + range;
+      loadFragment = async () =>
+        slice(
+          rules.source?.path === sourcePath
+            ? rules.source.text
+            : await this.app.vault.adapter.read(sourcePath),
+          range,
+        );
     } else if (file) {
       path = file.path;
       key = path + "|" + range;
@@ -1017,7 +1066,7 @@ class CodeEmbedPlugin extends Plugin {
       mark,
       localText === undefined ? null : local,
       root,
-      rules,
+      rules.originPath ? rules : { ...rules, originPath: sourcePath },
     );
     return mark ? markImport(ref, out) : out;
   }
@@ -1050,6 +1099,7 @@ class CodeEmbedPlugin extends Plugin {
   resolveRefs(raw: ScannedReference[], srcPath: string, root = this.packages().root(srcPath)) {
     const out = [];
     for (const r of raw) {
+      if (systemKey(r.ref)) continue;
       const p = parseRef(r.ref);
       if (!p.name) continue;
       const target = this.lookup(p.name, srcPath, root).file;
@@ -1801,7 +1851,8 @@ class CodeEmbedPlugin extends Plugin {
     try {
       const md = await this.resolve(ref, path, [], false, null);
       el.classList.toggle("ce-has-error", hasErrors(md));
-      await this.renderEmbedMarkdown(md, el, path, owner);
+      if (systemKey(ref)) el.setText(md);
+      else await this.renderEmbedMarkdown(md, el, path, owner);
     } catch (error) {
       renderErrorsInText(el, formatError(errorMessage(error)));
     }
@@ -1892,7 +1943,7 @@ class CodeEmbedPlugin extends Plugin {
     const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) =>
         REF_RE().test(node.nodeValue ?? "") &&
-        !node.parentElement?.closest("pre, code, a, .internal-embed, [data-ce-rendered]")
+        !node.parentElement?.closest("pre, a, .internal-embed, [data-ce-rendered]")
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT,
     });
@@ -1906,10 +1957,11 @@ class CodeEmbedPlugin extends Plugin {
         re = REF_RE(),
         frag = createFragment();
       const pending: [HTMLElement, string][] = [];
+      const inlineCode = !!textNode.parentElement?.closest("code");
       let last = 0,
         m;
       while ((m = re.exec(text)) !== null) {
-        if (m.groups!.esc) continue;
+        if (m.groups!.esc || (inlineCode && !isTagReference(m.groups!.ref))) continue;
         frag.append(root.ownerDocument.createTextNode(text.slice(last, m.index)));
         const host = createSpan();
         frag.append(host);
@@ -1919,7 +1971,12 @@ class CodeEmbedPlugin extends Plugin {
       if (!pending.length) continue;
       frag.append(root.ownerDocument.createTextNode(text.slice(last)));
       textNode.replaceWith(frag);
-      for (const [host, ref] of pending) await this.renderMarkdownRef(host, ref, path, ctx);
+      for (const [host, ref] of pending) {
+        if (inlineCode || systemKey(ref)) {
+          host.dataset.ceRendered = "1";
+          host.setText(await this.resolve(ref, path));
+        } else await this.renderMarkdownRef(host, ref, path, ctx);
+      }
     }
   }
 
@@ -2193,15 +2250,23 @@ class CodeEmbedPlugin extends Plugin {
       refs = 0;
     for (const f of this.app.vault.getMarkdownFiles()) {
       if (isMarker(f.name)) continue;
-      const raw = await this.app.vault.cachedRead(f);
-      if (!hasEmbed(raw)) continue;
-      if (rewriteText(raw, (r, inFence) => mapper(r, inFence, f)).count === 0) continue;
+      const map = (ref: string, fenced: boolean) => mapper(ref, fenced, f);
+      const active = this.app.workspace.getActiveViewOfType(MarkdownView);
       let n = 0;
-      await this.app.vault.process(f, (cur) => {
-        const res = rewriteText(cur, (r, inFence) => mapper(r, inFence, f));
-        n = res.count;
-        return res.text;
-      });
+      if (active?.file === f && active.getMode() === "source") {
+        const editor = active.editor;
+        const result = rewriteText(editor.getValue(), map);
+        if (result.count) editor.transaction({ changes: result.changes });
+        n = result.count;
+      } else {
+        const raw = await this.app.vault.cachedRead(f);
+        if (!hasEmbed(raw) || !rewriteText(raw, map).count) continue;
+        await this.app.vault.process(f, (current) => {
+          const result = rewriteText(current, map);
+          n = result.count;
+          return result.text;
+        });
+      }
       if (n) {
         this.cache.delete(f.path);
         this.rawReferences.delete(f.path);

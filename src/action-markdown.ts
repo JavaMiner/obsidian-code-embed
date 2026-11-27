@@ -103,14 +103,25 @@ function inlineCodeSpans(text: string) {
   return spans;
 }
 
+export function isTagReference(ref: string) {
+  return /^(?:[^:#<>]+:)?\s*(?:<<[\w:.-]+>>|<[\w:.-]+>)(?:\([\s\S]*\))?$/.test(ref.trim());
+}
+
 export function* referencesIn(text: string, prose = false) {
   if (!text.includes("![")) return;
   const spans = prose ? inlineCodeSpans(text) : [];
   let span = 0;
   for (const match of text.matchAll(canonicalReferences())) {
     while (span < spans.length && spans[span].end <= match.index) span++;
-    if (match.groups!.esc || (spans[span] && spans[span].start <= match.index)) continue;
-    yield { ref: match.groups!.ref, from: match.index, to: match.index + match[0].length };
+    if (match.groups!.esc) continue;
+    const inlineCode = !!spans[span] && spans[span].start <= match.index;
+    if (inlineCode && !isTagReference(match.groups!.ref)) continue;
+    yield {
+      inlineCode,
+      ref: match.groups!.ref,
+      from: match.index,
+      to: match.index + match[0].length,
+    };
   }
 }
 
@@ -170,6 +181,7 @@ export function* noteReferences(source: string) {
     for (const match of referencesIn(text, !fence))
       yield {
         ref: match.ref,
+        inlineCode: match.inlineCode,
         from: from + match.from,
         to: from + match.to,
         local: fence ? text : null,

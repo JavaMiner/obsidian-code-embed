@@ -131,7 +131,7 @@ function folderButton() {
     createSpan(options: { text: string }) {
       parts.push(options.text);
     },
-    addEventListener() {},
+    addEventListener(_type: string, _listener: EventListener) {},
     remove() {},
   };
 }
@@ -192,6 +192,45 @@ test("the hidden root opens in one editor tab and indexed markers open in source
   plugin.app.vault.getAbstractFileByPath = () => hostFixture({ extension: "md" });
   await plugin.editMarker("Example");
   assert.equal(mode, "source");
+});
+
+test("an explorer row left over from an upgrade opens Edit with a single click", async () => {
+  const { plugin } = loadPlugin("dist/main.js", "pl");
+  const folder = hostFixture<TFolder>({ path: "Prompts", children: [] });
+  const buttons = new Map<string, ReturnType<typeof folderButton>>();
+  const handlers = new Map<string, EventListener>();
+  for (const selector of [".ce-folder-action", ".ce-marker-preview"]) {
+    const old = folderButton();
+    old.remove = () => {
+      buttons.delete(selector);
+    };
+    buttons.set(selector, old);
+  }
+  const row = hostFixture<HTMLElement>({
+    classList: { toggle() {} },
+    querySelector: (selector: string) => buttons.get(selector),
+    createEl(_tag: string, { cls }: { cls: string }) {
+      const button = {
+        ...folderButton(),
+        addEventListener(type: string, listener: EventListener) {
+          handlers.set(type, listener);
+        },
+      };
+      buttons.set("." + cls, button);
+      return button;
+    },
+  });
+  plugin.app.vault.getAbstractFileByPath = () => folder;
+  plugin.packages = () => hostFixture({ roots: new Set([folder.path]) });
+  let opened = "";
+  plugin.editMarker = async (path) => {
+    opened = path;
+  };
+  plugin.decorateFolder(row, folder);
+  assert.deepEqual([...buttons.keys()], [".ce-folder-action"]);
+  assert.equal(buttons.get(".ce-folder-action")?.dataset.label, "Edytuj");
+  handlers.get("click")!(new Event("click"));
+  assert.equal(opened, folder.path);
 });
 
 test("marked folders stay visible across note switches and only unmarked actions depend on settings", () => {
@@ -325,7 +364,10 @@ test("app language determines folder labels for every documented locale", () => 
     const labels = dictionaries[lang];
     const guide = fs.readFileSync(lang === "en" ? "README.md" : "README." + lang + ".md", "utf8");
     const button = folderButton();
-    const row = { classList: { toggle() {} }, querySelector: () => button };
+    const row = {
+      classList: { toggle() {} },
+      querySelector: (selector: string) => (selector === ".ce-folder-action" ? button : null),
+    };
     const folder = { path: "My $& folder" };
     plugin.packages = () => hostFixture({ roots: new Set([folder.path]) });
     plugin.app.vault.getAbstractFileByPath = () => null;
@@ -395,7 +437,9 @@ test("single-folder context menus support both explorer events and add one worki
   events.get("file-menu")(menu, folder);
   assert.deepEqual(titles, ["Ustaw katalog jako korzeń Code Embed"]);
   await menu.click();
-  assert.match(paths.get("Prompts/.code-embed-root.md").content, /^# Pakiet Prompts\n\n.+/);
+  const description = paths.get("Prompts/.code-embed-root.md").content;
+  assert.ok(description.startsWith("# Pakiet `![<<sys:package>>]`\n\n```md\n"));
+  assert.ok(description.includes("pakietu `![<<sys:package>>]`"));
   const markedMenu = { ...menu };
   events.get("file-menu")(markedMenu, folder);
   assert.equal(titles[1], "Usuń oznaczenie korzenia Code Embed");

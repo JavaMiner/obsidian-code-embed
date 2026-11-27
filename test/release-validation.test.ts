@@ -33,6 +33,7 @@ test("release metadata, funding and build output", () => {
   for (const path of ["styles.css", "manifest.json"])
     assert.equal(read("dist/" + path), read(path));
   assert.doesNotMatch(read("dist/styles.css"), /!\s*important\b/i);
+  assert.doesNotMatch(read("dist/styles.css"), /:has\s*\(/i);
   const built = read("dist/main.js");
   assert.ok(built.includes(read("LICENSE")));
   assert.ok(built.includes(read("NOTICE")));
@@ -48,16 +49,16 @@ test("seven guides share examples, using only canonical syntax", () => {
   let expected;
   for (const suffix of ["", ".pl", ".de", ".fr", ".es", ".nl", ".it"]) {
     const guide = read("README" + suffix + ".md");
-    const sections = guide.replace(/```[^\n]*\n[\s\S]*?```/g, "").split(/^## /m);
-    assert.equal(sections.length, 8);
+    const prose = guide.replace(/```[^\n]*\n[\s\S]*?```/g, "");
+    assert.ok(guide.includes("](SYSTEM-VARIABLES.md)"));
+    for (const key of ["package", "note"]) assert.ok(guide.includes("![<<sys:" + key + ">>]"));
     const samples = [...guide.matchAll(/`(!\[[^`]*?\]|\$\[[^`]*?\])`/g)].map((m) =>
       m[1].replace(/[\p{L}\p{M}]+/gu, "word"),
     );
     if (expected) assert.deepEqual(samples, expected);
     expected = samples;
-    const guideText = sections.join("\n");
     assert.ok(guide.includes("https://ko-fi.com/x480447"));
-    assert.doesNotMatch(guideText, /!\[\[|\$\[|!\[\.:|!\[[\p{L}]+#/u);
+    assert.doesNotMatch(prose, /!\[\[|\$\[|!\[\.:|!\[[\p{L}]+#/u);
   }
 });
 

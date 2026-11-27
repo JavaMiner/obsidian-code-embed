@@ -169,6 +169,7 @@
   "removeFormat": "Usuń",
   "invalidFormat": "Niepoprawny format",
   "packageHeading": "Pakiet {name}",
-  "packagePrompt": "Opisz przeznaczenie pakietu i sposób korzystania z jego fragmentów.",
-  "editDescription": "Edytuj"
+  "packagePrompt": "Opisz przeznaczenie pakietu {name} i sposób korzystania z jego fragmentów.",
+  "editDescription": "Edytuj",
+  "unknownVariable": "Nieznana zmienna {name}"
 }

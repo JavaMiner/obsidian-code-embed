@@ -57,6 +57,14 @@ test("An expanded note includes all fences and preserves properties and literal 
   assert.equal(await expandNote(after, echo), after);
 });
 
+test("single quotes and inline code expand tag selectors while escaped examples stay literal", async () => {
+  const input = "'![<x>]' `![<<sys:package>>]` ``named\n![File:<<x>>]`` `![File]` `\\\\![<x>]`";
+  const value = await expandNote(input, async (ref) =>
+    ref.startsWith("<<sys:") ? "Pack" : "value",
+  );
+  assert.equal(value, "'value' `Pack` ``named\nvalue`` `![File]` `\\\\![<x>]`");
+});
+
 test("Copy+ expands canonical references and preserves literal Markdown", async () => {
   const input = "![A] $[B] ![alt](url) ![label][id] ![[Wiki]] \\![C] \\$[D]";
   assert.equal(

@@ -29,6 +29,16 @@ Antworte auf $1. Ton: ${2:sachlich}.
 <stil>Antworte auf $1. Ton: ${2:sachlich}.</stil>
 ```
 
+### Variablen und Inline-Tags
+
+Tag-Selektoren funktionieren auch in einfachen Anführungszeichen und Inline-Code. Mit `\![<<sys:package>>]` bleibt der Ausdruck wörtlich erhalten.
+
+```md
+Paket `![<<sys:package>>]`, Notiz `![<<sys:note>>]`
+```
+
+[Variablen und Auswertungsregeln](SYSTEM-VARIABLES.md)
+
 ## Fragment einbetten
 
 `![Quelle:Selektor(Argumente)]`
@@ -64,7 +74,7 @@ Antworte auf Deutsch. Ton: sachlich.
 
 ⧉ kopiert den aufgelösten Text. 👁️ zeigt den Block oder öffnet eine verknüpfte Leseansicht der Notiz. ⚙️ öffnet die Einstellungen der Blocksprache oder der Notiz. Standardmäßig sind Blöcke ohne Sprache, Markdown, XML und CE ausgewählt.
 
-Oben in der Notiz erstellt und öffnet 🔒 eine neue Notiz im selben Ordner. Sie enthält aufgelöste Verweise im Text und in allen Codeblöcken. Eigenschaften, Inline-Code und Original bleiben erhalten.
+Oben in der Notiz erstellt und öffnet 🔒 eine neue Notiz im selben Ordner. Sie enthält aufgelöste Verweise im Text und in allen Codeblöcken. Eigenschaften und Original bleiben erhalten.
 
 Unter ⚙️ kannst du Formate entfernen oder am Listenende hinzufügen. Die Blockleiste hat standardmäßig 20 % Deckkraft. Über ⚙️ lässt sie sich anpassen. Beim Überfahren des Blocks wird sie vollständig sichtbar. 📝 Bearbeiten öffnet die Paketbeschreibung in einem Editor-Tab. Die Beschriftung lässt sich ebenfalls ausblenden. Bisherige Marker mit Unterstrich werden weiterhin erkannt.
 

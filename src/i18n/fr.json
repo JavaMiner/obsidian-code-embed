@@ -169,6 +169,7 @@
   "removeFormat": "Supprimer",
   "invalidFormat": "Format invalide",
   "packageHeading": "Paquet {name}",
-  "packagePrompt": "Décrivez le but de ce paquet et comment utiliser ses fragments.",
-  "editDescription": "Modifier"
+  "packagePrompt": "Décrivez le but du paquet {name} et comment utiliser ses fragments.",
+  "editDescription": "Modifier",
+  "unknownVariable": "Variable inconnue {name}"
 }

@@ -29,6 +29,16 @@ Rispondi in $1. Tono: ${2:diretto}.
 <stile>Rispondi in $1. Tono: ${2:diretto}.</stile>
 ```
 
+### Variabili e tag in linea
+
+I selettori di tag funzionano anche tra apici e nel codice in linea. Usa `\![<<sys:package>>]` per mantenere il testo letterale.
+
+```md
+Pacchetto `![<<sys:package>>]`, nota `![<<sys:note>>]`
+```
+
+[Variabili e regole di espansione](SYSTEM-VARIABLES.md)
+
 ## Incorporare il frammento
 
 `![sorgente:selettore(argomenti)]`
@@ -64,7 +74,7 @@ Rispondi in italiano. Tono: diretto.
 
 ⧉ copia il testo espanso. 👁️ mostra il blocco o apre un pannello di lettura collegato alla nota. ⚙️ apre le impostazioni del linguaggio o della nota. Per impostazione predefinita sono selezionati i blocchi senza linguaggio, Markdown, XML e CE.
 
-In cima alla nota, 🔒 crea e apre una copia nella stessa cartella con i riferimenti espansi nel testo e in tutti i blocchi. Conserva le proprietà, il codice in linea e la nota originale.
+In cima alla nota, 🔒 crea e apre una copia nella stessa cartella con i riferimenti espansi nel testo e in tutti i blocchi. Conserva le proprietà e la nota originale.
 
 In ⚙️ puoi eliminare un formato o aggiungerne uno in fondo alla lista. La barra del blocco ha un’opacità iniziale del 20 %, regolabile da ⚙️. Diventa opaca al passaggio del puntatore sul blocco. 📝 Modifica apre la descrizione del pacchetto in una scheda dell’editor. Anche questa etichetta può essere nascosta. I marcatori precedenti con trattino basso restano validi.
 

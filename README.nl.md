@@ -29,6 +29,16 @@ Antwoord in het $1. Toon: ${2:direct}.
 <stijl>Antwoord in het $1. Toon: ${2:direct}.</stijl>
 ```
 
+### Variabelen en inline-tags
+
+Tagselectoren werken ook tussen enkele aanhalingstekens en in inline-code. Met `\![<<sys:package>>]` blijft de tekst letterlijk staan.
+
+```md
+Pakket `![<<sys:package>>]`, notitie `![<<sys:note>>]`
+```
+
+[Variabelen en expansieregels](SYSTEM-VARIABLES.md)
+
 ## Het fragment invoegen
 
 `![bron:selector(argumenten)]`
@@ -64,7 +74,7 @@ Antwoord in het Nederlands. Toon: direct.
 
 ⧉ kopieert de uitgewerkte tekst. 👁️ toont het blok of opent een gekoppeld leesvenster voor de notitie. ⚙️ opent de instellingen voor de bloktaal of de notitie. Standaard zijn blokken zonder taal, Markdown, XML en CE geselecteerd.
 
-Bovenaan de notitie maakt en opent 🔒 een kopie in dezelfde map met uitgewerkte verwijzingen in de tekst en alle blokken. Eigenschappen, inlinecode en de oorspronkelijke notitie blijven behouden.
+Bovenaan de notitie maakt en opent 🔒 een kopie in dezelfde map met uitgewerkte verwijzingen in de tekst en alle blokken. Eigenschappen en de oorspronkelijke notitie blijven behouden.
 
 In ⚙️ kun je een formaat verwijderen of onderaan toevoegen. De blokwerkbalk is standaard 20% dekkend. Pas dit aan via ⚙️. Binnen het blok wordt de balk volledig zichtbaar onder de aanwijzer. 📝 Bewerken opent de pakketbeschrijving in een editortabblad. Ook dit label kan worden verborgen. Bestaande markeringen met een onderstrepingsteken blijven werken.
 

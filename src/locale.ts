@@ -9,13 +9,17 @@ import it from "./i18n/it.json";
 export const CE_LOCALES = { en, pl, de, fr, es, nl, it };
 export type Language = keyof typeof CE_LOCALES;
 
-function activeLanguage(): Language {
-  const locale =
+export function interfaceLanguage() {
+  return (
     (requireApiVersion("1.8.7") ? getLanguage() : undefined) ||
     (window as { moment?: { locale(): string } }).moment?.locale?.() ||
     window.navigator?.language ||
-    "en";
-  const language = locale.toLowerCase().split(/[-_]/)[0];
+    "en"
+  );
+}
+
+function activeLanguage(): Language {
+  const language = interfaceLanguage().toLowerCase().split(/[-_]/)[0];
   return Object.prototype.hasOwnProperty.call(CE_LOCALES, language) ? (language as Language) : "en";
 }
 
