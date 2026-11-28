@@ -389,13 +389,33 @@ export class CodeEmbedSettings extends PluginSettingTab {
     ];
   }
 
-  private pxSlider(
+  private pxField(
     key: KeysOfType<number>,
     name: string,
     max: number,
-    step: number,
-  ): SettingsRow {
-    return this.slider(key, name, t("zeroDefaultHelp"), 0, max, step);
+    min = 0,
+): SettingsRow {
+  return {
+    name,
+    desc: (min < 0 ? t("signedOffsetHelp") + " " : "") + t("zeroDefaultHelp") + " (" + min + "…" + max + " px)",
+    render: (row) => row.addText((field) => {
+const input = field.inputEl;
+input.type = "number";
+input.min = String(min);
+input.max = String(max);
+input.step = "1";
+input.setAttribute("aria-label", name);
+field.setValue(String(this.plugin.settings[key]));
+input.addEventListener("change", () => {
+  const parsed = input.value === "" ? 0 : input.valueAsNumber;
+  const value = Number.isFinite(parsed)
+    ? Math.max(min, Math.min(max, Math.round(parsed)))
+    : this.plugin.settings[key];
+  field.setValue(String(value));
+  void this.set(key, value);
+});
+    }),
+  };
   }
 
   private advancedGroup(refresh: () => void = () => this.refreshSettings()): SettingsGroup {
@@ -417,13 +437,14 @@ export class CodeEmbedSettings extends PluginSettingTab {
     ];
     if (this.plugin.settings.showAdvancedAppearance) {
       items.push(
-        this.pxSlider("copyGutter", t("copyGutter"), 120, 4),
-        this.pxSlider("actionFont", t("actionFont"), 24, 1),
-        this.pxSlider("actionGap", t("actionGap"), 24, 1),
-        this.pxSlider("childIndent", t("childIndent"), 48, 2),
-        this.pxSlider("mobileTouch", t("mobileTouch"), 72, 4),
-        this.pxSlider("mobileGap", t("mobileGap"), 24, 1),
-        this.pxSlider("mobileTop", t("mobileTop"), 64, 4),
+        this.pxField("copyGutter", t("copyGutter"), 120),
+        this.pxField("actionFont", t("actionFont"), 24),
+        this.pxField("actionGap", t("actionGap"), 24),
+        this.pxField("childIndent", t("childIndent"), 48),
+        this.pxField("mobileTouch", t("mobileTouch"), 72),
+        this.pxField("mobileGap", t("mobileGap"), 24),
+        this.pxField("mobileTop", t("mobileTop"), 64, -64),
+        this.pxField("mobileBlockTop", t("mobileBlockTop"), 64, -64),
         {
           name: t("resetAppearance"),
           desc: t("resetAppearanceHelp"),
@@ -438,6 +459,7 @@ export class CodeEmbedSettings extends PluginSettingTab {
                   mobileTouch: 0,
                   mobileGap: 0,
                   mobileTop: 0,
+                  mobileBlockTop: 0,
                 });
                 await this.plugin.saveData(this.plugin.settings);
                 this.plugin.applyColors();

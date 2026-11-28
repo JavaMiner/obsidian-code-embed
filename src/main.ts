@@ -379,6 +379,7 @@ class CodeEmbedPlugin extends Plugin {
       "--ce-touch",
       "--ce-mobile-gap",
       "--ce-mobile-top",
+      "--ce-mobile-block-top",
     ].forEach((p) => st.removeProperty(p));
   }
 
@@ -415,7 +416,8 @@ class CodeEmbedPlugin extends Plugin {
     setPx("--ce-indent", s.childIndent);
     setPx("--ce-touch", s.mobileTouch);
     setPx("--ce-mobile-gap", s.mobileGap);
-    setPx("--ce-mobile-top", s.mobileTop);
+    setColor("--ce-mobile-top", s.mobileTop ? s.mobileTop + "px" : null);
+    setColor("--ce-mobile-block-top", s.mobileBlockTop ? s.mobileBlockTop + "px" : null);
   }
 
   applySettings(key: keyof Settings | "all") {

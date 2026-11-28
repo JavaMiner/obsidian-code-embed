@@ -181,8 +181,10 @@
   "childIndent": "Einzug verschachtelter Inhalte (px)",
   "mobileTouch": "Touch-Zielgröße auf Smartphones (px)",
   "mobileGap": "Abstand zwischen Schaltflächen auf Smartphones (px)",
-  "mobileTop": "Zusätzlicher oberer Abstand auf Smartphones (px)",
+  "mobileTop": "Vertikaler Versatz der Notizleiste auf Mobilgeräten (px)",
   "zeroDefaultHelp": "0 verwendet den Standardwert.",
   "resetAppearance": "Erweitertes Erscheinungsbild zurücksetzen",
-  "resetAppearanceHelp": "Setzt alle Optionen des erweiterten Erscheinungsbilds auf ihre Standardwerte zurück."
+  "resetAppearanceHelp": "Setzt alle Optionen des erweiterten Erscheinungsbilds auf ihre Standardwerte zurück.",
+  "mobileBlockTop": "Vertikaler Versatz der Codeblockleiste auf Mobilgeräten (px)",
+  "signedOffsetHelp": "Negativ verschiebt nach oben, positiv nach unten."
 }

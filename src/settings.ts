@@ -47,6 +47,7 @@ export const DEFAULTS = {
   mobileTouch: 0,
   mobileGap: 0,
   mobileTop: 0,
+  mobileBlockTop: 0,
 };
 
 export const COLOR_FALLBACK = {
@@ -75,6 +76,10 @@ export function readSettings(data: unknown): Settings {
   settings.blockOpacity = Number.isFinite(settings.blockOpacity)
     ? Math.min(100, Math.max(0, settings.blockOpacity))
     : DEFAULTS.blockOpacity;
+  for (const key of ["mobileTop", "mobileBlockTop"] as const) {
+    const value = settings[key];
+    settings[key] = Number.isFinite(value) ? Math.max(-64, Math.min(64, Math.round(value))) : 0;
+  }
   if (data.blockActionKinds === undefined && data.buttonsOnPlain === false)
     settings.blockActionKinds = "ce";
   if (isRecord(data.movedReferences)) {

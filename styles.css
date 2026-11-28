@@ -106,6 +106,10 @@ pre.ce-pre code.ce-hidden,
   white-space: normal;
   gap: var(--ce-mobile-gap, var(--size-2-2));
 }
+.is-mobile .ce-pre > .ce-bar, .is-mobile .cm-line .ce-editor-actions {
+  position: relative;
+  inset-block-start: var(--ce-mobile-block-top, 0px);
+}
 .is-mobile .ce-note-actions {
   /* Edge-to-edge Android themes can position the note beneath the floating view header. */
   padding-block: calc(max(24px, env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)) + var(--view-header-height, 48px) + var(--ce-mobile-top, 0px)) var(--size-4-2);
