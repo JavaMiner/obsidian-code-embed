@@ -1,55 +1,56 @@
-name: Remove duplicated modal block
+name: Publish 0.3.5 with provenance
 on:
   push:
     branches: ['fix/release-0.3.2-assets']
+    paths: ['.github/workflows/fix-release-assets.yml']
 permissions:
   contents: read
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feat/advanced-appearance
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Deduplicate
+      - name: Check release base
         run: |
-          python3 - <<'PY'
-          v = 'src/views.ts'
-          s = open(v, encoding='utf-8').read()
-          blk = '      new Setting(modal.contentEl).setName(t("advancedAppearance")).setHeading();\n      for (const control of this.advancedGroup(render).items) {\n        const row = new Setting(modal.contentEl).setName(control.name);\n        if (control.desc) row.setDesc(control.desc);\n        control.render(row);\n      }\n'
-          assert s.count(blk + blk) == 1 and s.count(blk) == 2
-          open(v, 'w', encoding='utf-8', newline='').write(s.replace(blk + blk, blk))
-          PY
-      - run: git diff --stat
-      - name: Lint, build and test
-        id: check
+          test "$(git rev-parse HEAD)" = 55c8afc69693d321daf730c78a9d33d5570db169
+          test -z "$(git ls-remote --tags origin refs/tags/0.3.5)"
+      - run: npm ci
+      - run: npm version 0.3.5 --no-git-tag-version && npm run version:sync
+      - run: npm run lint && npm run build && npm test && node --check dist/main.js
+      - name: Commit tested release
         run: |
-          set +e
-          (npm ci && npm run lint && npm run build && npm test) > /tmp/ci.log 2>&1
-          echo "status=$?" >> "$GITHUB_OUTPUT"
-          tail -n 60 /tmp/ci.log
-      - name: Commit and push when green
-        if: steps.check.outputs.status == '0'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json package-lock.json manifest.json versions.json
+          git commit -m 'chore: release 0.3.5'
+          git push origin HEAD:main
+      - uses: actions/attest@v4
+        with:
+          subject-path: |
+            dist/main.js
+            dist/manifest.json
+            dist/styles.css
+      - name: Verify provenance and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src
-          git commit -m "fix: show the advanced appearance block once in the settings modal"
-          git push origin HEAD:feat/advanced-appearance
-      - name: Publish log
-        if: always()
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          cp /tmp/ci.log "$RUNNER_TEMP/ci.log" 2>/dev/null || echo "no log" > "$RUNNER_TEMP/ci.log"
-          git checkout --orphan ci-log
-          git rm -rf -q .
-          cp "$RUNNER_TEMP/ci.log" ci.log
-          git add ci.log
-          git commit -m "ci log"
-          git push -f origin ci-log
+          for file in main.js manifest.json styles.css; do
+            gh attestation verify "dist/$file" -R "$GITHUB_REPOSITORY"
+          done
+          gh release create 0.3.5 dist/main.js dist/manifest.json dist/styles.css --target "$(git rev-parse HEAD)" --title 0.3.5 --generate-notes --draft
+          gh release download 0.3.5 --dir "$RUNNER_TEMP/release-assets"
+          for file in main.js manifest.json styles.css; do
+            cmp "dist/$file" "$RUNNER_TEMP/release-assets/$file"
+          done
+          gh release edit 0.3.5 --draft=false --latest
