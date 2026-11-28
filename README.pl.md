@@ -100,14 +100,29 @@ Prompts/
 
 Najbliższy znacznik wyznacza granicę całego rozwinięcia. Krótka nazwa musi być jednoznaczna. Przy duplikacie wybierz ścieżkę podaną w błędzie. Ścieżki z ukośnikiem zaczynają się w korzeniu. Zagnieżdżone pakiety są odrębne. Przenieś katalog razem ze znacznikiem, aby zachować odwołania.
 
-## Instalacja wersji rozwojowej
+## Instalacja
+
+Pobierz `main.js`, `manifest.json` i `styles.css` z [najnowszego wydania](../../releases/latest) i skopiuj je do `.obsidian/plugins/code-embed/` w swoim vaulcie. Następnie włącz **Code Embed** w Ustawienia → Wtyczki społeczności. Te same trzy pliki działają w systemach Windows, macOS, Linux, iOS i Android; wtyczka nie jest ograniczona do komputerów. Na telefonie skopiuj folder przez usługę synchronizacji lub aplikację Pliki.
+
+Pliki wydań od wersji 0.3.5 mają atesty kompilacji GitHub. Aby je zweryfikować, uruchom:
 
 ```sh
+gh attestation verify main.js -R JavaMiner/obsidian-code-embed
+```
+
+Budowanie ze źródeł:
+
+```sh
+npm ci
 npm run build
 npm test
 ```
 
-`dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
+Następnie skopiuj `dist/{main.js,manifest.json,styles.css}` do tego samego folderu.
+
+## Prywatność
+
+Code Embed działa lokalnie. Odczytuje ścieżki plików w vaulcie, żeby znaleźć znaczniki pakietów, a notatki czyta tylko po to, by rozwinąć odwołania. Do schowka zapisuje wyłącznie po uruchomieniu Copy+ i nigdy go nie odczytuje. Szczegóły: [PRIVACY.md](PRIVACY.md).
 
 
 > ⚠️ **Wczesny etap rozwoju.** Code Embed jest w trakcie budowy, a jego interfejs może się jeszcze zmieniać. Składnia powinna pozostać w większości bez zmian, ale możliwe są jeszcze drobne poprawki. Każda taka zmiana zostanie wyraźnie opisana w dokumentacji.

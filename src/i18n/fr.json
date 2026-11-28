@@ -171,5 +171,18 @@
   "packageHeading": "Paquet {name}",
   "packagePrompt": "Décrivez le but du paquet {name} et comment utiliser ses fragments.",
   "editDescription": "Modifier",
-  "unknownVariable": "Variable inconnue {name}"
+  "unknownVariable": "Variable inconnue {name}",
+  "advancedAppearance": "Apparence avancée",
+  "showAdvancedAppearance": "Afficher l’apparence avancée",
+  "showAdvancedAppearanceHelp": "Variables CSS de la barre d’outils, de l’imbrication et de la disposition sur téléphone. Masqué par défaut.",
+  "copyGutter": "Espace avant le bouton de copie (px)",
+  "actionFont": "Taille de police des boutons de la barre (px)",
+  "actionGap": "Espace entre les boutons de la barre (px)",
+  "childIndent": "Retrait des éléments imbriqués (px)",
+  "mobileTouch": "Taille des cibles tactiles sur téléphone (px)",
+  "mobileGap": "Espace entre les boutons sur téléphone (px)",
+  "mobileTop": "Décalage supplémentaire en haut sur téléphone (px)",
+  "zeroDefaultHelp": "0 utilise la valeur par défaut.",
+  "resetAppearance": "Réinitialiser l’apparence avancée",
+  "resetAppearanceHelp": "Rétablit la valeur par défaut de toutes les options d’apparence avancée."
 }

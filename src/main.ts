@@ -372,6 +372,13 @@ class CodeEmbedPlugin extends Plugin {
       "--ce-tag",
       "--ce-import",
       "--ce-chip",
+      "--ce-gutter",
+      "--ce-action-font",
+      "--ce-action-gap",
+      "--ce-indent",
+      "--ce-touch",
+      "--ce-mobile-gap",
+      "--ce-mobile-top",
     ].forEach((p) => st.removeProperty(p));
   }
 
@@ -398,6 +405,17 @@ class CodeEmbedPlugin extends Plugin {
     setColor("--ce-tag", s.cTreeTag);
     setColor("--ce-import", s.cTreeImport);
     setColor("--ce-chip", s.cChip);
+    const setPx = (name: string, value: number) => {
+      if (Number.isFinite(value) && value > 0) st.setProperty(name, Math.min(value, 400) + "px");
+      else st.removeProperty(name);
+    };
+    setPx("--ce-gutter", s.copyGutter);
+    setPx("--ce-action-font", s.actionFont);
+    setPx("--ce-action-gap", s.actionGap);
+    setPx("--ce-indent", s.childIndent);
+    setPx("--ce-touch", s.mobileTouch);
+    setPx("--ce-mobile-gap", s.mobileGap);
+    setPx("--ce-mobile-top", s.mobileTop);
   }
 
   applySettings(key: keyof Settings | "all") {

@@ -171,5 +171,18 @@
   "packageHeading": "Pakket {name}",
   "packagePrompt": "Beschrijf het doel van pakket {name} en hoe je de fragmenten gebruikt.",
   "editDescription": "Bewerken",
-  "unknownVariable": "Onbekende variabele {name}"
+  "unknownVariable": "Onbekende variabele {name}",
+  "advancedAppearance": "Geavanceerd uiterlijk",
+  "showAdvancedAppearance": "Geavanceerd uiterlijk tonen",
+  "showAdvancedAppearanceHelp": "CSS-variabelen voor de werkbalk, nesting en de indeling op telefoons. Standaard verborgen.",
+  "copyGutter": "Ruimte vóór de kopieerknop (px)",
+  "actionFont": "Lettergrootte van werkbalkknoppen (px)",
+  "actionGap": "Ruimte tussen werkbalkknoppen (px)",
+  "childIndent": "Inspringing van geneste inhoud (px)",
+  "mobileTouch": "Grootte van aanraakdoelen op telefoons (px)",
+  "mobileGap": "Ruimte tussen knoppen op telefoons (px)",
+  "mobileTop": "Extra bovenmarge op telefoons (px)",
+  "zeroDefaultHelp": "0 gebruikt de standaardwaarde.",
+  "resetAppearance": "Geavanceerd uiterlijk herstellen",
+  "resetAppearanceHelp": "Zet alle opties voor geavanceerd uiterlijk terug op de standaardwaarden."
 }

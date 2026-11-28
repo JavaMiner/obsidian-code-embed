@@ -39,6 +39,14 @@ export const DEFAULTS = {
   cTreeTag: "",
   cTreeImport: "",
   cChip: "",
+  showAdvancedAppearance: false,
+  copyGutter: 0,
+  actionFont: 0,
+  actionGap: 0,
+  childIndent: 0,
+  mobileTouch: 0,
+  mobileGap: 0,
+  mobileTop: 0,
 };
 
 export const COLOR_FALLBACK = {
