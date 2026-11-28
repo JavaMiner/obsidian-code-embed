@@ -1,13 +1,21 @@
-name: Prepare mobile toolbar offsets
+name: Publish 0.3.6 with verified assets
 on:
   push:
     branches: ['fix/release-0.3.2-assets']
     paths: ['.github/workflows/fix-release-assets.yml']
 permissions:
-  contents: write
+  contents: read
+concurrency:
+  group: code-embed-release-0.3.6
+  cancel-in-progress: false
 jobs:
-  patch:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -15,73 +23,40 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Patch appearance controls
+      - name: Check release base and tag
         run: |
-          node <<'JS'
-          const fs = require('node:fs');
-          function edit(path, old, next) {
-            const s = fs.readFileSync(path, 'utf8');
-            if (s.split(old).length !== 2) throw Error(path + ': ' + old);
-            fs.writeFileSync(path, s.replace(old, () => next));
-          }
-          edit('src/settings.ts', '  mobileTop: 0,', '  mobileTop: 0,\n  mobileBlockTop: 0,');
-          edit('src/settings.ts', '  if (data.blockActionKinds', '  for (const key of ["mobileTop", "mobileBlockTop"] as const) {\n    const value = settings[key];\n    settings[key] = Number.isFinite(value) ? Math.max(-64, Math.min(64, Math.round(value))) : 0;\n  }\n  if (data.blockActionKinds');
-          edit('src/main.ts', '      "--ce-mobile-top",', '      "--ce-mobile-top",\n      "--ce-mobile-block-top",');
-          edit('src/main.ts', '    setPx("--ce-mobile-top", s.mobileTop);', '    setColor("--ce-mobile-top", s.mobileTop ? s.mobileTop + "px" : null);\n    setColor("--ce-mobile-block-top", s.mobileBlockTop ? s.mobileBlockTop + "px" : null);');
-          edit('styles.css', '.is-mobile .ce-note-actions {\n', '.is-mobile .ce-pre > .ce-bar, .is-mobile .cm-line .ce-editor-actions {\n  position: relative;\n  inset-block-start: var(--ce-mobile-block-top, 0px);\n}\n.is-mobile .ce-note-actions {\n');
-          const v = 'src/views.ts';
-          edit(v, '  private pxSlider(', '  private pxField(');
-          edit(v, '    step: number,\n  ): SettingsRow {\n    return this.slider(key, name, t("zeroDefaultHelp"), 0, max, step);', `    min = 0,
-          ): SettingsRow {
-            return {
-              name,
-              desc: t("zeroDefaultHelp") + " (" + min + "…" + max + " px)",
-              render: (row) => row.addText((field) => {
-                const input = field.inputEl;
-                input.type = "number";
-                input.min = String(min);
-                input.max = String(max);
-                input.step = "1";
-                input.setAttribute("aria-label", name);
-                field.setValue(String(this.plugin.settings[key]));
-                input.addEventListener("change", () => {
-                  const parsed = input.value === "" ? 0 : input.valueAsNumber;
-                  const value = Number.isFinite(parsed)
-                    ? Math.max(min, Math.min(max, Math.round(parsed)))
-                    : this.plugin.settings[key];
-                  field.setValue(String(value));
-                  void this.set(key, value);
-                });
-              }),
-            };` .split('\n').map((line, i) => i ? line.replace(/^      /, '') : line).join('\n'));
-          for (const [key, max, step] of [['copyGutter',120,4],['actionFont',24,1],['actionGap',24,1],['childIndent',48,2],['mobileTouch',72,4],['mobileGap',24,1]]) {
-            edit(v, `this.pxSlider("${key}", t("${key}"), ${max}, ${step})`, `this.pxField("${key}", t("${key}"), ${max})`);
-          }
-          edit(v, 'this.pxSlider("mobileTop", t("mobileTop"), 64, 4),', 'this.pxField("mobileTop", t("mobileTop"), 64, -64),\n        this.pxField("mobileBlockTop", t("mobileBlockTop"), 64, -64),');
-          edit(v, '                  mobileTop: 0,', '                  mobileTop: 0,\n                  mobileBlockTop: 0,');
-          const locale = {
-            en: ['Mobile note toolbar offset (px)', 'Mobile code-block toolbar offset (px)', 'Negative moves it up; positive moves it down.'],
-            pl: ['Pionowe przesunięcie paska notatki na telefonie (px)', 'Pionowe przesunięcie paska bloku kodu na telefonie (px)', 'Wartość ujemna przesuwa pasek w górę, dodatnia w dół.'],
-            de: ['Vertikaler Versatz der Notizleiste auf Mobilgeräten (px)', 'Vertikaler Versatz der Codeblockleiste auf Mobilgeräten (px)', 'Negativ verschiebt nach oben, positiv nach unten.'],
-            fr: ['Décalage vertical de la barre de note sur mobile (px)', 'Décalage vertical de la barre du bloc de code sur mobile (px)', 'Une valeur négative décale vers le haut, une valeur positive vers le bas.'],
-            es: ['Desplazamiento vertical de la barra de nota en el móvil (px)', 'Desplazamiento vertical de la barra del bloque de código en el móvil (px)', 'Un valor negativo desplaza hacia arriba y uno positivo hacia abajo.'],
-            nl: ['Verticale verschuiving van de notitiebalk op mobiel (px)', 'Verticale verschuiving van de codeblokbalk op mobiel (px)', 'Negatief verplaatst omhoog, positief omlaag.'],
-            it: ['Spostamento verticale della barra della nota su mobile (px)', 'Spostamento verticale della barra del blocco di codice su mobile (px)', 'Un valore negativo sposta verso l’alto, uno positivo verso il basso.'],
-          };
-          edit(v, 'desc: t("zeroDefaultHelp") + " ("', 'desc: (min < 0 ? t("signedOffsetHelp") + " " : "") + t("zeroDefaultHelp") + " ("');
-          for (const [lang, [mobileTop, mobileBlockTop, signedOffsetHelp]] of Object.entries(locale)) {
-            const p = `src/i18n/${lang}.json`;
-            const data = JSON.parse(fs.readFileSync(p, 'utf8'));
-            fs.writeFileSync(p, JSON.stringify({...data, mobileTop, mobileBlockTop, signedOffsetHelp}, null, 2) + '\n');
-          }
-          fs.appendFileSync('CSS-VARIABLES.md', '\n## Pionowe przesunięcie pasków na urządzeniach mobilnych / Mobile toolbar offsets\n\n`--ce-mobile-top` — górny pasek notatki / note toolbar. `--ce-mobile-block-top` — pasek bloku kodu w edytorze i widoku czytania / code-block toolbar in editor and reading view. Zakres / range: −64…64 px; −16 przesuwa w górę / moves up, +16 w dół / moves down, 0 przywraca domyślne położenie / restores default.\n');
-          fs.appendFileSync('test/appearance.test.ts', '\ntest("mobile offsets accept signed integers and clamp saved values", () => {\n  const settings = readSettings({ mobileTop: -16, mobileBlockTop: 100 });\n  assert.equal(settings.mobileTop, -16);\n  assert.equal(settings.mobileBlockTop, 64);\n  assert.equal(readSettings({ mobileBlockTop: -100 }).mobileBlockTop, -64);\n  assert.equal(readSettings({ mobileTop: NaN }).mobileTop, 0);\n});\n');
-          JS
-      - run: git diff --check && npm ci && npm run lint && npm run build && npm test
-      - name: Push tested feature branch
+          test "$(git rev-parse HEAD)" = 1c4394b26b00ab296107766e5e5c4e20607a16fc
+          existing_tag="$(git ls-remote --tags origin refs/tags/0.3.6)"
+          test -z "$existing_tag"
+      - run: npm ci
+      - run: npm version 0.3.6 --no-git-tag-version && npm run version:sync
+      - name: Commit version and validate build
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src styles.css CSS-VARIABLES.md test/appearance.test.ts
-          git commit -m 'fix: add signed mobile toolbar offsets and numeric appearance inputs'
-          git push origin HEAD:refs/heads/fix/mobile-toolbar-offsets
+          git add package.json package-lock.json manifest.json versions.json
+          git commit -m 'chore: release 0.3.6'
+          npm run lint && npm run build && npm test && node --check dist/main.js
+          node -e 'for (const file of ["./package.json", "./manifest.json", "./dist/manifest.json"]) if (require(file).version !== "0.3.6") throw Error(file)'
+      - uses: actions/attest@v4
+        with:
+          subject-path: |
+            dist/main.js
+            dist/manifest.json
+            dist/styles.css
+      - name: Verify provenance and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          for file in main.js manifest.json styles.css; do
+            gh attestation verify "dist/$file" -R "$GITHUB_REPOSITORY"
+          done
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = 1c4394b26b00ab296107766e5e5c4e20607a16fc
+          git push origin HEAD:main
+          gh release create 0.3.6 dist/main.js dist/manifest.json dist/styles.css --target "$(git rev-parse HEAD)" --title 0.3.6 --generate-notes --draft
+          gh release download 0.3.6 --dir "$RUNNER_TEMP/release-assets"
+          for file in main.js manifest.json styles.css; do
+            cmp "dist/$file" "$RUNNER_TEMP/release-assets/$file"
+          done
+          gh release edit 0.3.6 --draft=false --latest
