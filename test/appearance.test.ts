@@ -20,3 +20,11 @@ test("advanced appearance overrides default to the stylesheet values", () => {
   ])
     assert.ok(css.includes("var(" + name + ","), name);
 });
+
+test("mobile offsets accept signed integers and clamp saved values", () => {
+  const settings = readSettings({ mobileTop: -16, mobileBlockTop: 100 });
+  assert.equal(settings.mobileTop, -16);
+  assert.equal(settings.mobileBlockTop, 64);
+  assert.equal(readSettings({ mobileBlockTop: -100 }).mobileBlockTop, -64);
+  assert.equal(readSettings({ mobileTop: NaN }).mobileTop, 0);
+});

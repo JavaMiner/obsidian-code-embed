@@ -181,8 +181,10 @@
   "childIndent": "Wcięcie zagnieżdżeń (px)",
   "mobileTouch": "Rozmiar celu dotyku na telefonie (px)",
   "mobileGap": "Odstęp między przyciskami na telefonie (px)",
-  "mobileTop": "Dodatkowe odsunięcie od góry na telefonie (px)",
+  "mobileTop": "Pionowe przesunięcie paska notatki na telefonie (px)",
   "zeroDefaultHelp": "0 oznacza wartość domyślną.",
   "resetAppearance": "Przywróć zaawansowany wygląd",
-  "resetAppearanceHelp": "Przywraca wartości domyślne wszystkich opcji zaawansowanego wyglądu."
+  "resetAppearanceHelp": "Przywraca wartości domyślne wszystkich opcji zaawansowanego wyglądu.",
+  "mobileBlockTop": "Pionowe przesunięcie paska bloku kodu na telefonie (px)",
+  "signedOffsetHelp": "Wartość ujemna przesuwa pasek w górę, dodatnia w dół."
 }

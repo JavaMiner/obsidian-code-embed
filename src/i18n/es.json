@@ -181,8 +181,10 @@
   "childIndent": "Sangría de los elementos anidados (px)",
   "mobileTouch": "Tamaño del objetivo táctil en el móvil (px)",
   "mobileGap": "Espacio entre botones en el móvil (px)",
-  "mobileTop": "Desplazamiento superior adicional en el móvil (px)",
+  "mobileTop": "Desplazamiento vertical de la barra de nota en el móvil (px)",
   "zeroDefaultHelp": "0 usa el valor predeterminado.",
   "resetAppearance": "Restablecer apariencia avanzada",
-  "resetAppearanceHelp": "Restaura el valor predeterminado de todas las opciones de apariencia avanzada."
+  "resetAppearanceHelp": "Restaura el valor predeterminado de todas las opciones de apariencia avanzada.",
+  "mobileBlockTop": "Desplazamiento vertical de la barra del bloque de código en el móvil (px)",
+  "signedOffsetHelp": "Un valor negativo desplaza hacia arriba y uno positivo hacia abajo."
 }

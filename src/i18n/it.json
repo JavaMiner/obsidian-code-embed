@@ -181,8 +181,10 @@
   "childIndent": "Rientro dei contenuti annidati (px)",
   "mobileTouch": "Dimensione dell’area di tocco su telefono (px)",
   "mobileGap": "Spazio tra i pulsanti su telefono (px)",
-  "mobileTop": "Margine superiore aggiuntivo su telefono (px)",
+  "mobileTop": "Spostamento verticale della barra della nota su mobile (px)",
   "zeroDefaultHelp": "0 usa il valore predefinito.",
   "resetAppearance": "Ripristina aspetto avanzato",
-  "resetAppearanceHelp": "Ripristina il valore predefinito di tutte le opzioni di aspetto avanzato."
+  "resetAppearanceHelp": "Ripristina il valore predefinito di tutte le opzioni di aspetto avanzato.",
+  "mobileBlockTop": "Spostamento verticale della barra del blocco di codice su mobile (px)",
+  "signedOffsetHelp": "Un valore negativo sposta verso l’alto, uno positivo verso il basso."
 }

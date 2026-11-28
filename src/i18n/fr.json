@@ -181,8 +181,10 @@
   "childIndent": "Retrait des éléments imbriqués (px)",
   "mobileTouch": "Taille des cibles tactiles sur téléphone (px)",
   "mobileGap": "Espace entre les boutons sur téléphone (px)",
-  "mobileTop": "Décalage supplémentaire en haut sur téléphone (px)",
+  "mobileTop": "Décalage vertical de la barre de note sur mobile (px)",
   "zeroDefaultHelp": "0 utilise la valeur par défaut.",
   "resetAppearance": "Réinitialiser l’apparence avancée",
-  "resetAppearanceHelp": "Rétablit la valeur par défaut de toutes les options d’apparence avancée."
+  "resetAppearanceHelp": "Rétablit la valeur par défaut de toutes les options d’apparence avancée.",
+  "mobileBlockTop": "Décalage vertical de la barre du bloc de code sur mobile (px)",
+  "signedOffsetHelp": "Une valeur négative décale vers le haut, une valeur positive vers le bas."
 }

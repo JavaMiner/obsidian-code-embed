@@ -181,8 +181,10 @@
   "childIndent": "Inspringing van geneste inhoud (px)",
   "mobileTouch": "Grootte van aanraakdoelen op telefoons (px)",
   "mobileGap": "Ruimte tussen knoppen op telefoons (px)",
-  "mobileTop": "Extra bovenmarge op telefoons (px)",
+  "mobileTop": "Verticale verschuiving van de notitiebalk op mobiel (px)",
   "zeroDefaultHelp": "0 gebruikt de standaardwaarde.",
   "resetAppearance": "Geavanceerd uiterlijk herstellen",
-  "resetAppearanceHelp": "Zet alle opties voor geavanceerd uiterlijk terug op de standaardwaarden."
+  "resetAppearanceHelp": "Zet alle opties voor geavanceerd uiterlijk terug op de standaardwaarden.",
+  "mobileBlockTop": "Verticale verschuiving van de codeblokbalk op mobiel (px)",
+  "signedOffsetHelp": "Negatief verplaatst omhoog, positief omlaag."
 }

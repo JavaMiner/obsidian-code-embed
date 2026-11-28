@@ -53,3 +53,7 @@ Code Embed stylizuje się w `styles.css`. Poniższe zmienne można nadpisać w s
 | `--ce-touch` | Minimalny cel dotyku przycisku akcji przy folderze na telefonie | `44px` |
 | `--ce-mobile-gap` | Odstęp między przyciskami na telefonie | `--size-2-2` |
 | `--ce-mobile-top` | Dodatkowe odsunięcie od góry paska akcji notatki na telefonie, ponad bezpieczny obszar i nagłówek | `0px` |
+
+## Pionowe przesunięcie pasków na urządzeniach mobilnych / Mobile toolbar offsets
+
+`--ce-mobile-top` — górny pasek notatki / note toolbar. `--ce-mobile-block-top` — pasek bloku kodu w edytorze i widoku czytania / code-block toolbar in editor and reading view. Zakres / range: −64…64 px; −16 przesuwa w górę / moves up, +16 w dół / moves down, 0 przywraca domyślne położenie / restores default.

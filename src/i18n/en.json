@@ -181,8 +181,10 @@
   "childIndent": "Nesting indent (px)",
   "mobileTouch": "Touch target size on phones (px)",
   "mobileGap": "Gap between buttons on phones (px)",
-  "mobileTop": "Extra top offset on phones (px)",
+  "mobileTop": "Mobile note toolbar offset (px)",
   "zeroDefaultHelp": "0 uses the default value.",
   "resetAppearance": "Reset advanced appearance",
-  "resetAppearanceHelp": "Restores the default value of every advanced appearance setting."
+  "resetAppearanceHelp": "Restores the default value of every advanced appearance setting.",
+  "mobileBlockTop": "Mobile code-block toolbar offset (px)",
+  "signedOffsetHelp": "Negative moves it up; positive moves it down."
 }
