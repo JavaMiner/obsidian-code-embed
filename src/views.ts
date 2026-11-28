@@ -245,12 +245,6 @@ export class CodeEmbedSettings extends PluginSettingTab {
         if (control.desc) row.setDesc(control.desc);
         control.render(row);
       }
-      new Setting(modal.contentEl).setName(t("advancedAppearance")).setHeading();
-      for (const control of this.advancedGroup(render).items) {
-        const row = new Setting(modal.contentEl).setName(control.name);
-        if (control.desc) row.setDesc(control.desc);
-        control.render(row);
-      }
       new Setting(modal.contentEl).addButton((btn) =>
         btn.setButtonText("+ " + t("addFormat")).onClick(async () => {
           const value = await askText(this.app, t("addFormat"), "", (value) =>
