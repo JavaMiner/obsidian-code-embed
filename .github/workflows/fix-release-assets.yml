@@ -1,11 +1,11 @@
-name: Bump and publish 0.3.3
+name: Add early-stage notice
 on:
   push:
     branches: ['fix/release-0.3.2-assets']
 permissions:
   contents: read
 jobs:
-  release:
+  notice:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,27 +16,36 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Insert notice before the footer line
+        run: |
+          python3 - <<'PY'
+          N = {
+            "README.md": "> ⚠️ **Early stage of development.** Code Embed is still under construction, and its interface may change. The syntax should stay largely the same, but minor adjustments are still possible. Any such change will be clearly noted in the documentation.",
+            "README.pl.md": "> ⚠️ **Wczesny etap rozwoju.** Code Embed jest w trakcie budowy, a jego interfejs może się jeszcze zmieniać. Składnia powinna pozostać w większości bez zmian, ale możliwe są jeszcze drobne poprawki. Każda taka zmiana zostanie wyraźnie opisana w dokumentacji.",
+            "README.de.md": "> ⚠️ **Frühe Entwicklungsphase.** Code Embed befindet sich noch im Aufbau, und die Oberfläche kann sich noch ändern. Die Syntax soll weitgehend gleich bleiben, kleinere Anpassungen sind aber weiterhin möglich. Jede solche Änderung wird in der Dokumentation deutlich vermerkt.",
+            "README.fr.md": "> ⚠️ **Phase de développement précoce.** Code Embed est encore en construction et son interface peut encore évoluer. La syntaxe devrait rester globalement la même, mais de petits ajustements restent possibles. Toute modification de ce type sera clairement signalée dans la documentation.",
+            "README.es.md": "> ⚠️ **Fase inicial de desarrollo.** Code Embed aún está en construcción y su interfaz puede seguir cambiando. La sintaxis debería mantenerse en gran medida, pero aún son posibles pequeños ajustes. Cualquier cambio de este tipo se indicará claramente en la documentación.",
+            "README.nl.md": "> ⚠️ **Vroege ontwikkelfase.** Code Embed is nog in aanbouw en de interface kan nog veranderen. De syntaxis zou grotendeels hetzelfde moeten blijven, maar kleine aanpassingen zijn nog mogelijk. Elke wijziging van dit soort wordt duidelijk vermeld in de documentatie.",
+            "README.it.md": "> ⚠️ **Fase iniziale di sviluppo.** Code Embed è ancora in costruzione e l’interfaccia può ancora cambiare. La sintassi dovrebbe restare in gran parte invariata, ma sono ancora possibili piccoli aggiustamenti. Ogni modifica di questo tipo sarà indicata chiaramente nella documentazione.",
+          }
+          for f, t in N.items():
+              s = open(f, encoding="utf-8").read()
+              if t in s:
+                  continue
+              lines = s.split("\n")
+              idx = [i for i, l in enumerate(lines) if "(LICENSE) · Jakub Wajda" in l]
+              assert len(idx) == 1, (f, idx)
+              lines[idx[0]:idx[0]] = [t, ""]
+              open(f, "w", encoding="utf-8", newline="").write("\n".join(lines))
+          PY
+      - run: git diff --stat
       - run: npm ci
-      - run: npm version 0.3.3 --no-git-tag-version
-      - run: npm run version:sync
-      - run: npm run lint
-      - run: npm run build && npm test && node --check dist/main.js
-      - name: Commit version bump to main
+      - run: npm run build && npm test
+      - name: Push branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json manifest.json versions.json
-          git commit -m "chore: release 0.3.3"
-          git push origin HEAD:main
-      - name: Create release with assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          SHA=$(git rev-parse HEAD)
-          gh release create 0.3.3 dist/main.js dist/manifest.json dist/styles.css --target "$SHA" --title 0.3.3 --generate-notes --draft
-          gh release download 0.3.3 --dir "$RUNNER_TEMP/release-assets"
-          for file in main.js manifest.json styles.css; do
-            cmp "dist/$file" "$RUNNER_TEMP/release-assets/$file"
-          done
-          gh release edit 0.3.3 --draft=false --latest
-          gh release view 0.3.3 --json assets -q '.assets[].name'
+          git checkout -b docs/early-stage-notice
+          git add README*.md
+          git commit -m "docs: add early-stage development notice to all READMEs"
+          git push origin docs/early-stage-notice
