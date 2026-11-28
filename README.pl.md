@@ -110,5 +110,7 @@ npm test
 `dist/{main.js,manifest.json,styles.css}` → `.obsidian/plugins/code-embed/`
 
 
+> ⚠️ **Wczesny etap rozwoju.** Code Embed jest w trakcie budowy, a jego interfejs może się jeszcze zmieniać. Składnia powinna pozostać w większości bez zmian, ale możliwe są jeszcze drobne poprawki. Każda taka zmiana zostanie wyraźnie opisana w dokumentacji.
+
 [Support](https://github.com/JavaMiner/obsidian-code-embed/issues/new) · [Releases](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6) · [Ko-fi](https://ko-fi.com/x480447)
 

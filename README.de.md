@@ -109,4 +109,6 @@ Kopiere `dist/{main.js,manifest.json,styles.css}` nach `.obsidian/plugins/code-e
 
 Kommerzielle Nutzung ist erlaubt. Wenn du eine bearbeitete Fassung weitergibst, lege die Lizenz bei, behalte den zutreffenden Urheberhinweis auf Jakub Wajda (JavaMiner) aus NOTICE bei und kennzeichne geänderte Dateien.
 
+> ⚠️ **Frühe Entwicklungsphase.** Code Embed befindet sich noch im Aufbau, und die Oberfläche kann sich noch ändern. Die Syntax soll weitgehend gleich bleiben, kleinere Anpassungen sind aber weiterhin möglich. Jede solche Änderung wird in der Dokumentation deutlich vermerkt.
+
 [Versionen](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6) · [Ko-fi](https://ko-fi.com/x480447)

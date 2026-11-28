@@ -111,4 +111,6 @@ Copia `dist/{main.js,manifest.json,styles.css}` in `.obsidian/plugins/code-embed
 
 L’uso commerciale è consentito. Se distribuisci una versione modificata, includi la licenza, conserva l’attribuzione a Jakub Wajda (JavaMiner) riportata in NOTICE per il codice riutilizzato e indica i file modificati.
 
+> ⚠️ **Fase iniziale di sviluppo.** Code Embed è ancora in costruzione e l’interfaccia può ancora cambiare. La sintassi dovrebbe restare in gran parte invariata, ma sono ancora possibili piccoli aggiustamenti. Ogni modifica di questo tipo sarà indicata chiaramente nella documentazione.
+
 [Versioni](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6) · [Ko-fi](https://ko-fi.com/x480447)
