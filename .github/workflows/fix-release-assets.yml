@@ -19,15 +19,82 @@ jobs:
       - name: Patch views.ts
         run: |
           python3 - <<'PY'
-          def sub(path, old, new):
-              s = open(path, encoding='utf-8').read()
-              assert s.count(old) == 1, (path, old)
-              open(path, 'w', encoding='utf-8', newline='').write(s.replace(old, new))
+          import textwrap
           v = 'src/views.ts'
-          sub(v, '  private advancedGroup(): SettingsGroup {', '  private advancedGroup(refresh: () => void = () => this.refreshSettings()): SettingsGroup {')
-          sub(v, '                      await this.set("showAdvancedAppearance", value);\n                      this.refreshSettings();', '                      await this.set("showAdvancedAppearance", value);\n                      refresh();')
-          sub(v, '                        this.plugin.applyColors();\n                        this.refreshSettings();', '                        this.plugin.applyColors();\n                        refresh();')
-          sub(v, '      new Setting(modal.contentEl).addButton((btn) =>\n        btn.setButtonText("+ " + t("addFormat"))', '      new Setting(modal.contentEl).setName(t("advancedAppearance")).setHeading();\n      for (const control of this.advancedGroup(render).items) {\n        const row = new Setting(modal.contentEl).setName(control.name);\n        if (control.desc) row.setDesc(control.desc);\n        control.render(row);\n      }\n      new Setting(modal.contentEl).addButton((btn) =>\n        btn.setButtonText("+ " + t("addFormat"))')
+          s = open(v, encoding='utf-8').read()
+          a = s.index('  private pxSlider(')
+          b = s.index('  getSettingDefinitions(): SettingsGroup[] {')
+          BLOCK = textwrap.dedent('''\
+          private pxSlider(
+            key: KeysOfType<number>,
+            name: string,
+            max: number,
+            step: number,
+          ): SettingsRow {
+            return this.slider(key, name, t("zeroDefaultHelp"), 0, max, step);
+          }
+
+          private advancedGroup(refresh: () => void = () => this.refreshSettings()): SettingsGroup {
+            const items: SettingsRow[] = [
+              {
+                name: t("showAdvancedAppearance"),
+                desc: t("showAdvancedAppearanceHelp"),
+                render: (row) => {
+                  row.addToggle((toggle) =>
+                    toggle
+                      .setValue(this.plugin.settings.showAdvancedAppearance)
+                      .onChange(async (value) => {
+                        await this.set("showAdvancedAppearance", value);
+                        refresh();
+                      }),
+                  );
+                },
+              },
+            ];
+            if (this.plugin.settings.showAdvancedAppearance) {
+              items.push(
+                this.pxSlider("copyGutter", t("copyGutter"), 120, 4),
+                this.pxSlider("actionFont", t("actionFont"), 24, 1),
+                this.pxSlider("actionGap", t("actionGap"), 24, 1),
+                this.pxSlider("childIndent", t("childIndent"), 48, 2),
+                this.pxSlider("mobileTouch", t("mobileTouch"), 72, 4),
+                this.pxSlider("mobileGap", t("mobileGap"), 24, 1),
+                this.pxSlider("mobileTop", t("mobileTop"), 64, 4),
+                {
+                  name: t("resetAppearance"),
+                  desc: t("resetAppearanceHelp"),
+                  render: (row) => {
+                    row.addButton((button) =>
+                      button.setButtonText(t("reset")).onClick(async () => {
+                        Object.assign(this.plugin.settings, {
+                          copyGutter: 0,
+                          actionFont: 0,
+                          actionGap: 0,
+                          childIndent: 0,
+                          mobileTouch: 0,
+                          mobileGap: 0,
+                          mobileTop: 0,
+                        });
+                        await this.plugin.saveData(this.plugin.settings);
+                        this.plugin.applyColors();
+                        refresh();
+                      }),
+                    );
+                  },
+                },
+              );
+            }
+            return { type: "group", heading: t("advancedAppearance"), items };
+          }
+
+          ''')
+          BLOCK = ''.join(('  ' + l if l.strip() else l) for l in BLOCK.splitlines(True))
+          s = s[:a] + BLOCK + s[b:]
+          old = '      new Setting(modal.contentEl).addButton((btn) =>\n        btn.setButtonText("+ " + t("addFormat"))'
+          assert s.count(old) == 1
+          modal = '      new Setting(modal.contentEl).setName(t("advancedAppearance")).setHeading();\n      for (const control of this.advancedGroup(render).items) {\n        const row = new Setting(modal.contentEl).setName(control.name);\n        if (control.desc) row.setDesc(control.desc);\n        control.render(row);\n      }\n'
+          s = s.replace(old, modal + old)
+          open(v, 'w', encoding='utf-8', newline='').write(s)
           PY
       - run: git diff --stat
       - name: Lint, build and test
