@@ -107,4 +107,6 @@ npm test
 
 Copy `dist/{main.js,manifest.json,styles.css}` to `.obsidian/plugins/code-embed/`.
 
+> ⚠️ **Early stage of development.** Code Embed is still under construction, and its interface may change. The syntax should stay largely the same, but minor adjustments are still possible. Any such change will be clearly noted in the documentation.
+
 [Support](https://github.com/JavaMiner/obsidian-code-embed/issues/new) · [Releases](../../releases) · [Apache 2.0](LICENSE) · Jakub Wajda · [Buy me a coffee](https://buymeacoffee.com/javaminer) · [PayPal](https://www.paypal.me/JakubWajda363) · [Wise](https://wise.com/pay/me/jakubw238) · [Revolut](https://revolut.me/jakubwt6) · [Ko-fi](https://ko-fi.com/x480447)
