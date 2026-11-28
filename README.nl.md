@@ -100,14 +100,29 @@ Prompts/
 
 De dichtstbijzijnde markering begrenst de volledige uitwerking. Een korte naam moet uniek zijn. Kies bij dubbele namen een pad uit de foutmelding. Paden met een schuine streep beginnen bij de hoofdmap van het pakket. Geneste pakketten staan op zichzelf. Verplaats de map samen met de markering om verwijzingen te behouden.
 
-## De ontwikkelversie installeren
+## Installatie
+
+Download `main.js`, `manifest.json` en `styles.css` van de [nieuwste release](../../releases/latest) en kopieer ze naar `.obsidian/plugins/code-embed/` in je vault. Schakel daarna **Code Embed** in via Instellingen → Community-plug-ins. Dezelfde drie bestanden werken op Windows, macOS, Linux, iOS en Android; de plug-in is niet beperkt tot desktop. Kopieer de map op een telefoon via je synchronisatiedienst of de Bestanden-app.
+
+Releasebestanden vanaf versie 0.3.5 hebben GitHub-buildattesten. Controleer ze met:
 
 ```sh
+gh attestation verify main.js -R JavaMiner/obsidian-code-embed
+```
+
+Vanuit de broncode bouwen:
+
+```sh
+npm ci
 npm run build
 npm test
 ```
 
-Kopieer `dist/{main.js,manifest.json,styles.css}` naar `.obsidian/plugins/code-embed/`.
+Kopieer daarna `dist/{main.js,manifest.json,styles.css}` naar dezelfde map.
+
+## Privacy
+
+Code Embed werkt lokaal. De plug-in leest bestandspaden in de vault om pakketmarkeringen te vinden en leest notities alleen om verwijzingen uit te werken. Het schrijft alleen naar het klembord wanneer je Copy+ uitvoert en leest het nooit. Details: [PRIVACY.md](PRIVACY.md).
 
 Commercieel gebruik is toegestaan. Als je een aangepaste versie verspreidt, voeg dan de licentie toe, behoud de naamsvermelding van Jakub Wajda (JavaMiner) uit NOTICE voor de overgenomen code en markeer gewijzigde bestanden.
 

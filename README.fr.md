@@ -98,14 +98,29 @@ Prompts/
 
 Le marqueur le plus proche délimite toute la résolution. Un nom court doit être unique. En cas d’ambiguïté, choisissez un chemin proposé dans le message d’erreur. Un chemin contenant une barre oblique part de la racine du paquet. Les paquets imbriqués sont distincts. Déplacez le dossier avec son marqueur pour conserver les références.
 
-## Installer la version de développement
+## Installation
+
+Téléchargez `main.js`, `manifest.json` et `styles.css` depuis la [dernière version](../../releases/latest), puis copiez-les dans `.obsidian/plugins/code-embed/` de votre coffre. Activez ensuite **Code Embed** dans Paramètres → Modules communautaires. Les mêmes trois fichiers fonctionnent sous Windows, macOS, Linux, iOS et Android ; le module n’est pas limité au bureau. Sur mobile, copiez le dossier avec votre service de synchronisation ou l’application Fichiers.
+
+Les fichiers des versions à partir de 0.3.5 portent des attestations de build GitHub. Pour les vérifier :
 
 ```sh
+gh attestation verify main.js -R JavaMiner/obsidian-code-embed
+```
+
+Pour compiler depuis les sources :
+
+```sh
+npm ci
 npm run build
 npm test
 ```
 
-Copiez `dist/{main.js,manifest.json,styles.css}` dans `.obsidian/plugins/code-embed/`.
+Copiez ensuite `dist/{main.js,manifest.json,styles.css}` dans le même dossier.
+
+## Confidentialité
+
+Code Embed fonctionne en local. Il lit les chemins de fichiers du coffre pour trouver les marqueurs de paquet et lit les notes uniquement pour résoudre les références. Il n’écrit dans le presse-papiers que lorsque vous lancez Copy+ et ne le lit jamais. Détails : [PRIVACY.md](PRIVACY.md).
 
 L’utilisation commerciale est autorisée. Si vous distribuez une version modifiée, joignez la licence, conservez la mention de Jakub Wajda (JavaMiner) figurant dans NOTICE pour le code repris et signalez les fichiers modifiés.
 

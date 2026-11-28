@@ -256,6 +256,10 @@ export class CodeEmbedSettings extends PluginSettingTab {
   }
 
   private groups(): SettingsGroup[] {
+    return [...this.baseGroups(), this.advancedGroup()];
+  }
+
+  private baseGroups(): SettingsGroup[] {
     return [
       {
         type: "group",
@@ -378,6 +382,61 @@ export class CodeEmbedSettings extends PluginSettingTab {
       },
     ];
   }
+
+  private pxSlider(key: KeysOfType<number>, name: string, max: number, step: number): SettingsRow {
+  return this.slider(key, name, t("zeroDefaultHelp"), 0, max, step);
+}
+
+private advancedGroup(): SettingsGroup {
+  const items: SettingsRow[] = [
+    {
+      name: t("showAdvancedAppearance"),
+      desc: t("showAdvancedAppearanceHelp"),
+      render: (row) => {
+        row.addToggle((toggle) =>
+  toggle.setValue(this.plugin.settings.showAdvancedAppearance).onChange(async (value) => {
+    await this.set("showAdvancedAppearance", value);
+    this.refreshSettings();
+  }),
+        );
+      },
+    },
+  ];
+  if (this.plugin.settings.showAdvancedAppearance) {
+    items.push(
+      this.pxSlider("copyGutter", t("copyGutter"), 120, 4),
+      this.pxSlider("actionFont", t("actionFont"), 24, 1),
+      this.pxSlider("actionGap", t("actionGap"), 24, 1),
+      this.pxSlider("childIndent", t("childIndent"), 48, 2),
+      this.pxSlider("mobileTouch", t("mobileTouch"), 72, 4),
+      this.pxSlider("mobileGap", t("mobileGap"), 24, 1),
+      this.pxSlider("mobileTop", t("mobileTop"), 64, 4),
+      {
+        name: t("resetAppearance"),
+        desc: t("resetAppearanceHelp"),
+        render: (row) => {
+  row.addButton((button) =>
+    button.setButtonText(t("reset")).onClick(async () => {
+      Object.assign(this.plugin.settings, {
+        copyGutter: 0,
+        actionFont: 0,
+        actionGap: 0,
+        childIndent: 0,
+        mobileTouch: 0,
+        mobileGap: 0,
+        mobileTop: 0,
+      });
+      await this.plugin.saveData(this.plugin.settings);
+      this.plugin.applyColors();
+      this.refreshSettings();
+    }),
+  );
+        },
+      },
+    );
+  }
+  return { type: "group", heading: t("advancedAppearance"), items };
+}
 
   getSettingDefinitions(): SettingsGroup[] {
     return this.groups();

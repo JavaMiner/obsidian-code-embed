@@ -171,5 +171,18 @@
   "packageHeading": "Paquete {name}",
   "packagePrompt": "Describe el propósito del paquete {name} y cómo utilizar sus fragmentos.",
   "editDescription": "Editar",
-  "unknownVariable": "Variable desconocida {name}"
+  "unknownVariable": "Variable desconocida {name}",
+  "advancedAppearance": "Apariencia avanzada",
+  "showAdvancedAppearance": "Mostrar apariencia avanzada",
+  "showAdvancedAppearanceHelp": "Variables CSS de la barra de herramientas, el anidado y el diseño en el móvil. Oculto por defecto.",
+  "copyGutter": "Espacio antes del botón de copiar (px)",
+  "actionFont": "Tamaño de fuente de los botones de la barra (px)",
+  "actionGap": "Espacio entre los botones de la barra (px)",
+  "childIndent": "Sangría de los elementos anidados (px)",
+  "mobileTouch": "Tamaño del objetivo táctil en el móvil (px)",
+  "mobileGap": "Espacio entre botones en el móvil (px)",
+  "mobileTop": "Desplazamiento superior adicional en el móvil (px)",
+  "zeroDefaultHelp": "0 usa el valor predeterminado.",
+  "resetAppearance": "Restablecer apariencia avanzada",
+  "resetAppearanceHelp": "Restaura el valor predeterminado de todas las opciones de apariencia avanzada."
 }

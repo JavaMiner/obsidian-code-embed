@@ -98,14 +98,29 @@ Prompts/
 
 Die nächstgelegene Markierungsdatei begrenzt die gesamte Auflösung. Kurznamen müssen eindeutig sein. Wähle bei Mehrdeutigkeit einen Pfad aus der Fehlermeldung. Pfade mit Schrägstrich beginnen an der Paketwurzel. Verschachtelte Pakete sind eigenständig. Verschiebe den Ordner zusammen mit seiner Markierung, damit Verweise erhalten bleiben.
 
-## Entwicklungsversion installieren
+## Installation
+
+Lade `main.js`, `manifest.json` und `styles.css` aus dem [neuesten Release](../../releases/latest) herunter und kopiere sie nach `.obsidian/plugins/code-embed/` in deinem Vault. Aktiviere danach **Code Embed** unter Einstellungen → Community-Plugins. Dieselben drei Dateien funktionieren unter Windows, macOS, Linux, iOS und Android; das Plugin ist nicht auf den Desktop beschränkt. Kopiere den Ordner auf dem Smartphone über deinen Synchronisierungsdienst oder die Dateien-App.
+
+Release-Dateien ab Version 0.3.5 tragen GitHub-Build-Attestierungen. Zur Prüfung:
 
 ```sh
+gh attestation verify main.js -R JavaMiner/obsidian-code-embed
+```
+
+Aus dem Quellcode bauen:
+
+```sh
+npm ci
 npm run build
 npm test
 ```
 
-Kopiere `dist/{main.js,manifest.json,styles.css}` nach `.obsidian/plugins/code-embed/`.
+Kopiere anschließend `dist/{main.js,manifest.json,styles.css}` in denselben Ordner.
+
+## Datenschutz
+
+Code Embed arbeitet lokal. Das Plugin liest Dateipfade im Vault, um Paketmarker zu finden, und liest Notizen nur, um Verweise aufzulösen. In die Zwischenablage schreibt es nur, wenn du Copy+ ausführst, und liest sie nie. Details: [PRIVACY.md](PRIVACY.md).
 
 Kommerzielle Nutzung ist erlaubt. Wenn du eine bearbeitete Fassung weitergibst, lege die Lizenz bei, behalte den zutreffenden Urheberhinweis auf Jakub Wajda (JavaMiner) aus NOTICE bei und kennzeichne geänderte Dateien.
 

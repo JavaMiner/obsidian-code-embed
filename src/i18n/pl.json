@@ -171,5 +171,18 @@
   "packageHeading": "Pakiet {name}",
   "packagePrompt": "Opisz przeznaczenie pakietu {name} i sposób korzystania z jego fragmentów.",
   "editDescription": "Edytuj",
-  "unknownVariable": "Nieznana zmienna {name}"
+  "unknownVariable": "Nieznana zmienna {name}",
+  "advancedAppearance": "Zaawansowany wygląd",
+  "showAdvancedAppearance": "Pokaż zaawansowany wygląd",
+  "showAdvancedAppearanceHelp": "Zmienne CSS paska narzędzi, zagnieżdżeń i układu na telefonie. Domyślnie ukryte.",
+  "copyGutter": "Odstęp przed przyciskiem kopiowania (px)",
+  "actionFont": "Rozmiar czcionki przycisków paska (px)",
+  "actionGap": "Odstęp między przyciskami paska (px)",
+  "childIndent": "Wcięcie zagnieżdżeń (px)",
+  "mobileTouch": "Rozmiar celu dotyku na telefonie (px)",
+  "mobileGap": "Odstęp między przyciskami na telefonie (px)",
+  "mobileTop": "Dodatkowe odsunięcie od góry na telefonie (px)",
+  "zeroDefaultHelp": "0 oznacza wartość domyślną.",
+  "resetAppearance": "Przywróć zaawansowany wygląd",
+  "resetAppearanceHelp": "Przywraca wartości domyślne wszystkich opcji zaawansowanego wyglądu."
 }

@@ -100,14 +100,29 @@ Prompts/
 
 El marcador más cercano delimita toda la expansión. Los nombres cortos deben ser únicos. Si hay duplicados, utiliza una ruta indicada en el mensaje de error. Las rutas con barra parten de la raíz del paquete. Los paquetes anidados son independientes. Mueve la carpeta con su marcador para conservar las referencias.
 
-## Instalar la versión de desarrollo
+## Instalación
+
+Descarga `main.js`, `manifest.json` y `styles.css` de la [última versión](../../releases/latest) y cópialos en `.obsidian/plugins/code-embed/` dentro de tu bóveda. Después activa **Code Embed** en Ajustes → Complementos de la comunidad. Los mismos tres archivos funcionan en Windows, macOS, Linux, iOS y Android; el complemento no está limitado al escritorio. En el móvil, copia la carpeta con tu servicio de sincronización o con la aplicación Archivos.
+
+Los archivos de las versiones desde la 0.3.5 incluyen atestaciones de compilación de GitHub. Para verificarlas:
 
 ```sh
+gh attestation verify main.js -R JavaMiner/obsidian-code-embed
+```
+
+Para compilar desde el código fuente:
+
+```sh
+npm ci
 npm run build
 npm test
 ```
 
-Copia `dist/{main.js,manifest.json,styles.css}` a `.obsidian/plugins/code-embed/`.
+Después copia `dist/{main.js,manifest.json,styles.css}` en la misma carpeta.
+
+## Privacidad
+
+Code Embed funciona de forma local. Lee las rutas de archivo de la bóveda para encontrar marcadores de paquete y lee notas solo para resolver referencias. Escribe en el portapapeles únicamente cuando ejecutas Copy+ y nunca lo lee. Detalles: [PRIVACY.md](PRIVACY.md).
 
 Se permite el uso comercial. Al distribuir una versión modificada, incluye la licencia, conserva la atribución a Jakub Wajda (JavaMiner) de NOTICE para el código reutilizado e identifica los archivos modificados.
 

@@ -171,5 +171,18 @@
   "packageHeading": "Package {name}",
   "packagePrompt": "Describe what belongs in the {name} package and how to use its fragments.",
   "editDescription": "Edit",
-  "unknownVariable": "Unknown variable {name}"
+  "unknownVariable": "Unknown variable {name}",
+  "advancedAppearance": "Advanced appearance",
+  "showAdvancedAppearance": "Show advanced appearance",
+  "showAdvancedAppearanceHelp": "CSS variables for the toolbar, nesting and phone layout. Hidden by default.",
+  "copyGutter": "Gap before the copy button (px)",
+  "actionFont": "Toolbar button font size (px)",
+  "actionGap": "Gap between toolbar buttons (px)",
+  "childIndent": "Nesting indent (px)",
+  "mobileTouch": "Touch target size on phones (px)",
+  "mobileGap": "Gap between buttons on phones (px)",
+  "mobileTop": "Extra top offset on phones (px)",
+  "zeroDefaultHelp": "0 uses the default value.",
+  "resetAppearance": "Reset advanced appearance",
+  "resetAppearanceHelp": "Restores the default value of every advanced appearance setting."
 }

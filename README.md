@@ -98,14 +98,29 @@ Prompts/
 
 The nearest marker bounds the entire expansion. Short names must be unique. If a name is ambiguous, choose a path from the error message. Paths with a slash start at the package root. Nested packages are separate. Move the folder with its marker to preserve references.
 
-## Install the development build
+## Install
+
+Download `main.js`, `manifest.json` and `styles.css` from the [latest release](../../releases/latest) and copy them to `.obsidian/plugins/code-embed/` inside your vault. Then enable **Code Embed** under Settings → Community plugins. The same three files work on Windows, macOS, Linux, iOS and Android; the plugin is not limited to the desktop. On mobile, copy the folder with your sync service or the Files app.
+
+Release files from version 0.3.5 onward carry GitHub build attestations. To verify them, run:
 
 ```sh
+gh attestation verify main.js -R JavaMiner/obsidian-code-embed
+```
+
+To build from source:
+
+```sh
+npm ci
 npm run build
 npm test
 ```
 
-Copy `dist/{main.js,manifest.json,styles.css}` to `.obsidian/plugins/code-embed/`.
+Then copy `dist/{main.js,manifest.json,styles.css}` to the same folder.
+
+## Privacy
+
+Code Embed works locally. It reads vault file paths to find package markers and reads notes only to resolve references. It writes to the clipboard only when you run Copy+ and never reads it. Details: [PRIVACY.md](PRIVACY.md).
 
 > ⚠️ **Early stage of development.** Code Embed is still under construction, and its interface may change. The syntax should stay largely the same, but minor adjustments are still possible. Any such change will be clearly noted in the documentation.
 

@@ -171,5 +171,18 @@
   "packageHeading": "Paket {name}",
   "packagePrompt": "Beschreibe den Zweck des Pakets {name} und die Verwendung seiner Fragmente.",
   "editDescription": "Bearbeiten",
-  "unknownVariable": "Unbekannte Variable {name}"
+  "unknownVariable": "Unbekannte Variable {name}",
+  "advancedAppearance": "Erweitertes Erscheinungsbild",
+  "showAdvancedAppearance": "Erweitertes Erscheinungsbild anzeigen",
+  "showAdvancedAppearanceHelp": "CSS-Variablen für Werkzeugleiste, Verschachtelung und Smartphone-Layout. Standardmäßig ausgeblendet.",
+  "copyGutter": "Abstand vor der Kopieren-Schaltfläche (px)",
+  "actionFont": "Schriftgröße der Leistenschaltflächen (px)",
+  "actionGap": "Abstand zwischen Leistenschaltflächen (px)",
+  "childIndent": "Einzug verschachtelter Inhalte (px)",
+  "mobileTouch": "Touch-Zielgröße auf Smartphones (px)",
+  "mobileGap": "Abstand zwischen Schaltflächen auf Smartphones (px)",
+  "mobileTop": "Zusätzlicher oberer Abstand auf Smartphones (px)",
+  "zeroDefaultHelp": "0 verwendet den Standardwert.",
+  "resetAppearance": "Erweitertes Erscheinungsbild zurücksetzen",
+  "resetAppearanceHelp": "Setzt alle Optionen des erweiterten Erscheinungsbilds auf ihre Standardwerte zurück."
 }

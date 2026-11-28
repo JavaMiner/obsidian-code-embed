@@ -171,5 +171,18 @@
   "packageHeading": "Pacchetto {name}",
   "packagePrompt": "Descrivi lo scopo del pacchetto {name} e come usare i suoi frammenti.",
   "editDescription": "Modifica",
-  "unknownVariable": "Variabile sconosciuta {name}"
+  "unknownVariable": "Variabile sconosciuta {name}",
+  "advancedAppearance": "Aspetto avanzato",
+  "showAdvancedAppearance": "Mostra aspetto avanzato",
+  "showAdvancedAppearanceHelp": "Variabili CSS per barra degli strumenti, annidamento e layout su telefono. Nascosto per impostazione predefinita.",
+  "copyGutter": "Spazio prima del pulsante di copia (px)",
+  "actionFont": "Dimensione del carattere dei pulsanti della barra (px)",
+  "actionGap": "Spazio tra i pulsanti della barra (px)",
+  "childIndent": "Rientro dei contenuti annidati (px)",
+  "mobileTouch": "Dimensione dell’area di tocco su telefono (px)",
+  "mobileGap": "Spazio tra i pulsanti su telefono (px)",
+  "mobileTop": "Margine superiore aggiuntivo su telefono (px)",
+  "zeroDefaultHelp": "0 usa il valore predefinito.",
+  "resetAppearance": "Ripristina aspetto avanzato",
+  "resetAppearanceHelp": "Ripristina il valore predefinito di tutte le opzioni di aspetto avanzato."
 }
