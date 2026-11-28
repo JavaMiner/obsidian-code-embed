@@ -1,0 +1,381 @@
+npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 295 packages, and audited 296 packages in 2s
+
+131 packages are looking for funding
+  run `npm fund` for details
+
+4 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+> obsidian-code-embed@0.3.4 lint
+> eslint "src/**/*.ts" manifest.json package.json LICENSE --max-warnings 0
+
+
+> obsidian-code-embed@0.3.4 build
+> npm run typecheck && tsx scripts/build.ts
+
+
+> obsidian-code-embed@0.3.4 typecheck
+> tsc --noEmit
+
+
+> obsidian-code-embed@0.3.4 test
+> tsx --test test/*.test.ts
+
+TAP version 13
+# Subtest: block actions recognize backtick and tilde fences by delimiter and language
+ok 1 - block actions recognize backtick and tilde fences by delimiter and language
+  ---
+  duration_ms: 3.771964
+  type: 'test'
+  ...
+# Subtest: An expanded note includes all fences and preserves properties and literal examples
+ok 2 - An expanded note includes all fences and preserves properties and literal examples
+  ---
+  duration_ms: 1.155583
+  type: 'test'
+  ...
+# Subtest: single quotes and inline code expand tag selectors while escaped examples stay literal
+ok 3 - single quotes and inline code expand tag selectors while escaped examples stay literal
+  ---
+  duration_ms: 0.215952
+  type: 'test'
+  ...
+# Subtest: Copy+ expands canonical references and preserves literal Markdown
+ok 4 - Copy+ expands canonical references and preserves literal Markdown
+  ---
+  duration_ms: 0.207229
+  type: 'test'
+  ...
+# Subtest: expansion preserves line endings and widens fences around inserted delimiters
+ok 5 - expansion preserves line endings and widens fences around inserted delimiters
+  ---
+  duration_ms: 0.148812
+  type: 'test'
+  ...
+# Subtest: note expansion rejects an unresolved reference before exposing a partial edit
+ok 6 - note expansion rejects an unresolved reference before exposing a partial edit
+  ---
+  duration_ms: 0.593495
+  type: 'test'
+  ...
+# Subtest: the note lock ignores properties, literal examples, images and escaped references
+ok 7 - the note lock ignores properties, literal examples, images and escaped references
+  ---
+  duration_ms: 0.23488
+  type: 'test'
+  ...
+# Subtest: snapshot names use local dates, custom patterns and distinct fallback versions
+ok 8 - snapshot names use local dates, custom patterns and distinct fallback versions
+  ---
+  duration_ms: 1.722638
+  type: 'test'
+  ...
+# Subtest: advanced appearance overrides default to the stylesheet values
+ok 9 - advanced appearance overrides default to the stylesheet values
+  ---
+  duration_ms: 0.880663
+  type: 'test'
+  ...
+# Subtest: single brackets and local shorthand
+ok 10 - single brackets and local shorthand
+  ---
+  duration_ms: 1.127411
+  type: 'test'
+  ...
+# Subtest: canonical forms, legacy input and native embeds
+ok 11 - canonical forms, legacy input and native embeds
+  ---
+  duration_ms: 1.5692
+  type: 'test'
+  ...
+# Subtest: Markdown and XML expand identically with explicit forwarding
+ok 12 - Markdown and XML expand identically with explicit forwarding
+  ---
+  duration_ms: 2.93808
+  type: 'test'
+  ...
+# Subtest: package scope, ambiguity, traversal, nested roots and local import context
+ok 13 - package scope, ambiguity, traversal, nested roots and local import context
+  ---
+  duration_ms: 1.700365
+  type: 'test'
+  ...
+# Subtest: moving a package preserves root-relative paths; unmarking restores vault lookup
+ok 14 - moving a package preserves root-relative paths; unmarking restores vault lookup
+  ---
+  duration_ms: 0.625443
+  type: 'test'
+  ...
+# Subtest: moving a source out of a package reports a lost binding
+ok 15 - moving a source out of a package reports a lost binding
+  ---
+  duration_ms: 0.712772
+  type: 'test'
+  ...
+# Subtest: numbered and joined arguments are shared by XML and Markdown
+ok 16 - numbered and joined arguments are shared by XML and Markdown
+  ---
+  duration_ms: 0.380707
+  type: 'test'
+  ...
+# Subtest: package-aware Rename changes only references to the old target
+ok 17 - package-aware Rename changes only references to the old target
+  ---
+  duration_ms: 0.967392
+  type: 'test'
+  ...
+# Subtest: system variables use the entry note and its package across nested fragments
+ok 18 - system variables use the entry note and its package across nested fragments
+  ---
+  duration_ms: 1.418575
+  type: 'test'
+  ...
+# Subtest: renaming a reference in the active editor changes only its range in the unsaved buffer
+ok 19 - renaming a reference in the active editor changes only its range in the unsaved buffer
+  ---
+  duration_ms: 0.994062
+  type: 'test'
+  ...
+# Subtest: source root stays fixed when an unmarked entry imports a marked note
+ok 20 - source root stays fixed when an unmarked entry imports a marked note
+  ---
+  duration_ms: 0.44962
+  type: 'test'
+  ...
+# Subtest: marked folders resolve existing includes throughout the package
+ok 21 - marked folders resolve existing includes throughout the package
+  ---
+  duration_ms: 2.836139
+  type: 'test'
+  ...
+# Subtest: shortened paths report duplicates and package-relative paths take priority
+ok 22 - shortened paths report duplicates and package-relative paths take priority
+  ---
+  duration_ms: 0.451088
+  type: 'test'
+  ...
+# Subtest: same-note list items expand XML selectors in prose and bash blocks
+ok 23 - same-note list items expand XML selectors in prose and bash blocks
+  ---
+  duration_ms: 0.60393
+  type: 'test'
+  ...
+# Subtest: reading view restores two XML selectors split by Markdown HTML processing
+ok 24 - reading view restores two XML selectors split by Markdown HTML processing
+  ---
+  duration_ms: 2.491324
+  type: 'test'
+  ...
+# Subtest: reading view unwraps a single paragraph without losing inline markup
+ok 25 - reading view unwraps a single paragraph without losing inline markup
+  ---
+  duration_ms: 0.940092
+  type: 'test'
+  ...
+# Subtest: Live Preview unwraps inline embeds before measuring the widget
+ok 26 - Live Preview unwraps inline embeds before measuring the widget
+  ---
+  duration_ms: 11.678125
+  type: 'test'
+  ...
+# Subtest: block actions resolve nested references and use the unsaved note snapshot
+ok 27 - block actions resolve nested references and use the unsaved note snapshot
+  ---
+  duration_ms: 0.447567
+  type: 'test'
+  ...
+# Subtest: Permanent distinguishes errors in source text from unresolved references
+ok 28 - Permanent distinguishes errors in source text from unresolved references
+  ---
+  duration_ms: 0.418113
+  type: 'test'
+  ...
+# Subtest: new broken references wait for the caret to leave, including through imports
+ok 29 - new broken references wait for the caret to leave, including through imports
+  ---
+  duration_ms: 1.707696
+  type: 'test'
+  ...
+# Subtest: validation reports a broken reference after move across packages
+ok 30 - validation reports a broken reference after move across packages
+  ---
+  duration_ms: 0.826232
+  type: 'test'
+  ...
+# Subtest: validation reports a broken reference after rename file
+ok 31 - validation reports a broken reference after rename file
+  ---
+  duration_ms: 0.416992
+  type: 'test'
+  ...
+# Subtest: validation reports a broken reference after rename heading
+ok 32 - validation reports a broken reference after rename heading
+  ---
+  duration_ms: 2.906282
+  type: 'test'
+  ...
+# Subtest: validation reports a broken reference after rename tag
+ok 33 - validation reports a broken reference after rename tag
+  ---
+  duration_ms: 0.420657
+  type: 'test'
+  ...
+# Subtest: a hidden package description resolves local headings and creates a visible snapshot
+ok 34 - a hidden package description resolves local headings and creates a visible snapshot
+  ---
+  duration_ms: 1.097296
+  type: 'test'
+  ...
+# Subtest: the note lock opens distinct sibling snapshots and never overwrites the source
+ok 35 - the note lock opens distinct sibling snapshots and never overwrites the source
+  ---
+  duration_ms: 1.295691
+  type: 'test'
+  ...
+# Subtest: a chain can cross many fragments within a package and still reports a cycle
+ok 36 - a chain can cross many fragments within a package and still reports a cycle
+  ---
+  duration_ms: 4.731454
+  type: 'test'
+  ...
+# Subtest: parameterized XML reference
+ok 37 - parameterized XML reference
+  ---
+  duration_ms: 0.908014
+  type: 'test'
+  ...
+# Subtest: default English
+ok 38 - default English
+  ---
+  duration_ms: 0.264274
+  type: 'test'
+  ...
+# Subtest: Polish locale
+ok 39 - Polish locale
+  ---
+  duration_ms: 0.169863
+  type: 'test'
+  ...
+# Subtest: release versions match
+ok 40 - release versions match
+  ---
+  duration_ms: 0.08019
+  type: 'test'
+  ...
+# Subtest: release metadata, funding and build output
+ok 41 - release metadata, funding and build output
+  ---
+  duration_ms: 8.488285
+  type: 'test'
+  ...
+# Subtest: seven guides share examples, using only canonical syntax
+ok 42 - seven guides share examples, using only canonical syntax
+  ---
+  duration_ms: 2.709119
+  type: 'test'
+  ...
+# Subtest: clipboard access remains write-only
+ok 43 - clipboard access remains write-only
+  ---
+  duration_ms: 0.522609
+  type: 'test'
+  ...
+# Subtest: the build embeds dictionaries for both LF and Windows CRLF checkouts
+ok 44 - the build embeds dictionaries for both LF and Windows CRLF checkouts
+  ---
+  duration_ms: 414.809525
+  type: 'test'
+  ...
+# Subtest: dist/main.js registers translated commands on startup for pl-PL
+ok 45 - dist/main.js registers translated commands on startup for pl-PL
+  ---
+  duration_ms: 6.058792
+  type: 'test'
+  ...
+# Subtest: dist/main.js registers translated commands on startup for fr-FR
+ok 46 - dist/main.js registers translated commands on startup for fr-FR
+  ---
+  duration_ms: 1.223424
+  type: 'test'
+  ...
+# Subtest: dist/main.js registers translated commands on startup for sv-SE
+ok 47 - dist/main.js registers translated commands on startup for sv-SE
+  ---
+  duration_ms: 1.058518
+  type: 'test'
+  ...
+# Subtest: all bundled languages define the English translation keys
+ok 48 - all bundled languages define the English translation keys
+  ---
+  duration_ms: 1.666715
+  type: 'test'
+  ...
+# Subtest: only note actions offer a snapshot, enabled when references exist
+ok 49 - only note actions offer a snapshot, enabled when references exist
+  ---
+  duration_ms: 1.280529
+  type: 'test'
+  ...
+# Subtest: the hidden root opens in one editor tab and indexed markers open in source mode
+ok 50 - the hidden root opens in one editor tab and indexed markers open in source mode
+  ---
+  duration_ms: 1.28112
+  type: 'test'
+  ...
+# Subtest: an explorer row left over from an upgrade opens Edit with a single click
+ok 51 - an explorer row left over from an upgrade opens Edit with a single click
+  ---
+  duration_ms: 1.458094
+  type: 'test'
+  ...
+# Subtest: marked folders stay visible across note switches and only unmarked actions depend on settings
+ok 52 - marked folders stay visible across note switches and only unmarked actions depend on settings
+  ---
+  duration_ms: 2.040812
+  type: 'test'
+  ...
+# Subtest: app language determines folder labels for every documented locale
+ok 53 - app language determines folder labels for every documented locale
+  ---
+  duration_ms: 8.037303
+  type: 'test'
+  ...
+# Subtest: single-folder context menus support both explorer events and add one working action
+ok 54 - single-folder context menus support both explorer events and add one working action
+  ---
+  duration_ms: 1.663781
+  type: 'test'
+  ...
+# Subtest: documentation follows the app language including unsupported-language fallback
+ok 55 - documentation follows the app language including unsupported-language fallback
+  ---
+  duration_ms: 9.195529
+  type: 'test'
+  ...
+# Subtest: older hosts use the legacy locale, panel activation and native deletion prompt
+ok 56 - older hosts use the legacy locale, panel activation and native deletion prompt
+  ---
+  duration_ms: 3.045651
+  type: 'test'
+  ...
+# Subtest: a replaced package marker survives a pending confirmation
+ok 57 - a replaced package marker survives a pending confirmation
+  ---
+  duration_ms: 1.095433
+  type: 'test'
+  ...
+1..57
+# tests 57
+# suites 0
+# pass 57
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 970.485361
