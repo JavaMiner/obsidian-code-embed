@@ -1,11 +1,11 @@
-name: Bump and publish 0.3.4
+name: Advanced appearance and docs
 on:
   push:
     branches: ['fix/release-0.3.2-assets']
 permissions:
   contents: read
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -16,27 +16,253 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm ci
-      - run: npm version 0.3.4 --no-git-tag-version
-      - run: npm run version:sync
-      - run: npm run lint
-      - run: npm run build && npm test && node --check dist/main.js
-      - name: Commit version bump to main
+      - name: Patch READMEs
+        run: |
+          python3 - <<'PY'
+          OLD = {
+            'README.md': '## Install the development build',
+            'README.pl.md': '## Instalacja wersji rozwojowej',
+            'README.de.md': '## Entwicklungsversion installieren',
+            'README.fr.md': '## Installer la version de développement',
+            'README.es.md': '## Instalar la versión de desarrollo',
+            'README.nl.md': '## De ontwikkelversie installeren',
+            'README.it.md': '## Installare la versione di sviluppo',
+          }
+          S = {
+            'README.md': [
+              '## Install',
+              'Download `main.js`, `manifest.json` and `styles.css` from the [latest release](../../releases/latest) and copy them to `.obsidian/plugins/code-embed/` inside your vault. Then enable **Code Embed** under Settings → Community plugins. The same three files work on Windows, macOS, Linux, iOS and Android; the plugin is not limited to the desktop. On mobile, copy the folder with your sync service or the Files app.',
+              'Release files from version 0.3.5 onward carry GitHub build attestations. To verify them, run:',
+              'To build from source:',
+              'Then copy `dist/{main.js,manifest.json,styles.css}` to the same folder.',
+              '## Privacy',
+              'Code Embed works locally. It reads vault file paths to find package markers and reads notes only to resolve references. It writes to the clipboard only when you run Copy+ and never reads it. Details: [PRIVACY.md](PRIVACY.md).',
+            ],
+            'README.pl.md': [
+              '## Instalacja',
+              'Pobierz `main.js`, `manifest.json` i `styles.css` z [najnowszego wydania](../../releases/latest) i skopiuj je do `.obsidian/plugins/code-embed/` w swoim vaulcie. Następnie włącz **Code Embed** w Ustawienia → Wtyczki społeczności. Te same trzy pliki działają w systemach Windows, macOS, Linux, iOS i Android; wtyczka nie jest ograniczona do komputerów. Na telefonie skopiuj folder przez usługę synchronizacji lub aplikację Pliki.',
+              'Pliki wydań od wersji 0.3.5 mają atesty kompilacji GitHub. Aby je zweryfikować, uruchom:',
+              'Budowanie ze źródeł:',
+              'Następnie skopiuj `dist/{main.js,manifest.json,styles.css}` do tego samego folderu.',
+              '## Prywatność',
+              'Code Embed działa lokalnie. Odczytuje ścieżki plików w vaulcie, żeby znaleźć znaczniki pakietów, a notatki czyta tylko po to, by rozwinąć odwołania. Do schowka zapisuje wyłącznie po uruchomieniu Copy+ i nigdy go nie odczytuje. Szczegóły: [PRIVACY.md](PRIVACY.md).',
+            ],
+            'README.de.md': [
+              '## Installation',
+              'Lade `main.js`, `manifest.json` und `styles.css` aus dem [neuesten Release](../../releases/latest) herunter und kopiere sie nach `.obsidian/plugins/code-embed/` in deinem Vault. Aktiviere danach **Code Embed** unter Einstellungen → Community-Plugins. Dieselben drei Dateien funktionieren unter Windows, macOS, Linux, iOS und Android; das Plugin ist nicht auf den Desktop beschränkt. Kopiere den Ordner auf dem Smartphone über deinen Synchronisierungsdienst oder die Dateien-App.',
+              'Release-Dateien ab Version 0.3.5 tragen GitHub-Build-Attestierungen. Zur Prüfung:',
+              'Aus dem Quellcode bauen:',
+              'Kopiere anschließend `dist/{main.js,manifest.json,styles.css}` in denselben Ordner.',
+              '## Datenschutz',
+              'Code Embed arbeitet lokal. Das Plugin liest Dateipfade im Vault, um Paketmarker zu finden, und liest Notizen nur, um Verweise aufzulösen. In die Zwischenablage schreibt es nur, wenn du Copy+ ausführst, und liest sie nie. Details: [PRIVACY.md](PRIVACY.md).',
+            ],
+            'README.fr.md': [
+              '## Installation',
+              'Téléchargez `main.js`, `manifest.json` et `styles.css` depuis la [dernière version](../../releases/latest), puis copiez-les dans `.obsidian/plugins/code-embed/` de votre coffre. Activez ensuite **Code Embed** dans Paramètres → Modules communautaires. Les mêmes trois fichiers fonctionnent sous Windows, macOS, Linux, iOS et Android ; le module n’est pas limité au bureau. Sur mobile, copiez le dossier avec votre service de synchronisation ou l’application Fichiers.',
+              'Les fichiers des versions à partir de 0.3.5 portent des attestations de build GitHub. Pour les vérifier :',
+              'Pour compiler depuis les sources :',
+              'Copiez ensuite `dist/{main.js,manifest.json,styles.css}` dans le même dossier.',
+              '## Confidentialité',
+              'Code Embed fonctionne en local. Il lit les chemins de fichiers du coffre pour trouver les marqueurs de paquet et lit les notes uniquement pour résoudre les références. Il n’écrit dans le presse-papiers que lorsque vous lancez Copy+ et ne le lit jamais. Détails : [PRIVACY.md](PRIVACY.md).',
+            ],
+            'README.es.md': [
+              '## Instalación',
+              'Descarga `main.js`, `manifest.json` y `styles.css` de la [última versión](../../releases/latest) y cópialos en `.obsidian/plugins/code-embed/` dentro de tu bóveda. Después activa **Code Embed** en Ajustes → Complementos de la comunidad. Los mismos tres archivos funcionan en Windows, macOS, Linux, iOS y Android; el complemento no está limitado al escritorio. En el móvil, copia la carpeta con tu servicio de sincronización o con la aplicación Archivos.',
+              'Los archivos de las versiones desde la 0.3.5 incluyen atestaciones de compilación de GitHub. Para verificarlas:',
+              'Para compilar desde el código fuente:',
+              'Después copia `dist/{main.js,manifest.json,styles.css}` en la misma carpeta.',
+              '## Privacidad',
+              'Code Embed funciona de forma local. Lee las rutas de archivo de la bóveda para encontrar marcadores de paquete y lee notas solo para resolver referencias. Escribe en el portapapeles únicamente cuando ejecutas Copy+ y nunca lo lee. Detalles: [PRIVACY.md](PRIVACY.md).',
+            ],
+            'README.nl.md': [
+              '## Installatie',
+              'Download `main.js`, `manifest.json` en `styles.css` van de [nieuwste release](../../releases/latest) en kopieer ze naar `.obsidian/plugins/code-embed/` in je vault. Schakel daarna **Code Embed** in via Instellingen → Community-plug-ins. Dezelfde drie bestanden werken op Windows, macOS, Linux, iOS en Android; de plug-in is niet beperkt tot desktop. Kopieer de map op een telefoon via je synchronisatiedienst of de Bestanden-app.',
+              'Releasebestanden vanaf versie 0.3.5 hebben GitHub-buildattesten. Controleer ze met:',
+              'Vanuit de broncode bouwen:',
+              'Kopieer daarna `dist/{main.js,manifest.json,styles.css}` naar dezelfde map.',
+              '## Privacy',
+              'Code Embed werkt lokaal. De plug-in leest bestandspaden in de vault om pakketmarkeringen te vinden en leest notities alleen om verwijzingen uit te werken. Het schrijft alleen naar het klembord wanneer je Copy+ uitvoert en leest het nooit. Details: [PRIVACY.md](PRIVACY.md).',
+            ],
+            'README.it.md': [
+              '## Installazione',
+              'Scarica `main.js`, `manifest.json` e `styles.css` dalla [versione più recente](../../releases/latest) e copiali in `.obsidian/plugins/code-embed/` nel tuo vault. Poi attiva **Code Embed** in Impostazioni → Plugin della community. Gli stessi tre file funzionano su Windows, macOS, Linux, iOS e Android; il plugin non è limitato al desktop. Su mobile, copia la cartella con il servizio di sincronizzazione o con l’app File.',
+              'I file delle versioni dalla 0.3.5 in poi hanno attestazioni di build GitHub. Per verificarle:',
+              'Per compilare dai sorgenti:',
+              'Poi copia `dist/{main.js,manifest.json,styles.css}` nella stessa cartella.',
+              '## Privacy',
+              'Code Embed funziona in locale. Legge i percorsi dei file del vault per trovare i marcatori di pacchetto e legge le note solo per risolvere i riferimenti. Scrive negli appunti solo quando esegui Copy+ e non li legge mai. Dettagli: [PRIVACY.md](PRIVACY.md).',
+            ],
+          }
+          def section(v):
+              h, p1, p2, p3, p4, hp, pp = v
+              return [h, '', p1, '', p2, '', '```sh', 'gh attestation verify main.js -R JavaMiner/obsidian-code-embed', '```', '', p3, '', '```sh', 'npm ci', 'npm run build', 'npm test', '```', '', p4, '', hp, '', pp]
+          for f, v in S.items():
+              lines = open(f, encoding='utf-8').read().split('\n')
+              h = lines.index(OLD[f])
+              c = next(i for i in range(h, len(lines)) if '.obsidian/plugins/code-embed/' in lines[i])
+              lines[h:c + 1] = section(v)
+              open(f, 'w', encoding='utf-8', newline='').write('\n'.join(lines))
+          PY
+      - name: Patch settings, styles, locales and tests
+        run: |
+          python3 - <<'PY'
+          import json
+          def sub(path, old, new):
+              s = open(path, encoding='utf-8').read()
+              assert s.count(old) == 1, (path, old)
+              open(path, 'w', encoding='utf-8', newline='').write(s.replace(old, new))
+          css = 'styles.css'
+          sub(css, '.ce-bar, .ce-editor-actions { --ce-copy-gutter: max(44px, 3em); }', '.ce-bar, .ce-editor-actions { --ce-copy-gutter: var(--ce-gutter, max(44px, 3em)); }')
+          sub(css, 'gap: .3em;', 'gap: var(--ce-action-gap, .3em);')
+          sub(css, 'gap: .35em; }', 'gap: var(--ce-action-gap, .35em); }')
+          sub(css, '.ce-bar button { font-size: var(--font-ui-smaller); }', '.ce-bar button { font-size: var(--ce-action-font, var(--font-ui-smaller)); }')
+          sub(css, '.ce-children { padding-inline-start: 1em; }', '.ce-children { padding-inline-start: var(--ce-indent, 1em); }')
+          sub(css, 'min-height: 44px; min-width: 44px;', 'min-height: var(--ce-touch, 44px); min-width: var(--ce-touch, 44px);')
+          sub(css, 'gap: var(--size-2-2);', 'gap: var(--ce-mobile-gap, var(--size-2-2));')
+          sub(css, 'var(--view-header-height, 48px)) var(--size-4-2);', 'var(--view-header-height, 48px) + var(--ce-mobile-top, 0px)) var(--size-4-2);')
+          sub('src/settings.ts', '  cChip: "",\n};', '  cChip: "",\n  showAdvancedAppearance: false,\n  copyGutter: 0,\n  actionFont: 0,\n  actionGap: 0,\n  childIndent: 0,\n  mobileTouch: 0,\n  mobileGap: 0,\n  mobileTop: 0,\n};')
+          PX = '''    const setPx = (name: string, value: number) => {
+            if (Number.isFinite(value) && value > 0) st.setProperty(name, Math.min(value, 400) + "px");
+            else st.removeProperty(name);
+          };
+          setPx("--ce-gutter", s.copyGutter);
+          setPx("--ce-action-font", s.actionFont);
+          setPx("--ce-action-gap", s.actionGap);
+          setPx("--ce-indent", s.childIndent);
+          setPx("--ce-touch", s.mobileTouch);
+          setPx("--ce-mobile-gap", s.mobileGap);
+          setPx("--ce-mobile-top", s.mobileTop);
+          '''
+          PX = '\n'.join(('    ' + l.strip() if i == 0 else '    ' + l[10:] if l.startswith('          ') else '    ' + l) for i, l in enumerate(PX.split('\n'))).rstrip() + '\n'
+          sub('src/main.ts', '    setColor("--ce-chip", s.cChip);\n', '    setColor("--ce-chip", s.cChip);\n' + PX)
+          sub('src/main.ts', '      "--ce-chip",\n    ].forEach((p) => st.removeProperty(p));', '      "--ce-chip",\n      "--ce-gutter",\n      "--ce-action-font",\n      "--ce-action-gap",\n      "--ce-indent",\n      "--ce-touch",\n      "--ce-mobile-gap",\n      "--ce-mobile-top",\n    ].forEach((p) => st.removeProperty(p));')
+          METHODS = '''  private pxSlider(key: KeysOfType<number>, name: string, max: number, step: number): SettingsRow {
+            return this.slider(key, name, t("zeroDefaultHelp"), 0, max, step);
+          }
+
+          private advancedGroup(): SettingsGroup {
+            const items: SettingsRow[] = [
+              {
+                name: t("showAdvancedAppearance"),
+                desc: t("showAdvancedAppearanceHelp"),
+                render: (row) => {
+                  row.addToggle((toggle) =>
+                    toggle.setValue(this.plugin.settings.showAdvancedAppearance).onChange(async (value) => {
+                      await this.set("showAdvancedAppearance", value);
+                      this.refreshSettings();
+                    }),
+                  );
+                },
+              },
+            ];
+            if (this.plugin.settings.showAdvancedAppearance) {
+              items.push(
+                this.pxSlider("copyGutter", t("copyGutter"), 120, 4),
+                this.pxSlider("actionFont", t("actionFont"), 24, 1),
+                this.pxSlider("actionGap", t("actionGap"), 24, 1),
+                this.pxSlider("childIndent", t("childIndent"), 48, 2),
+                this.pxSlider("mobileTouch", t("mobileTouch"), 72, 4),
+                this.pxSlider("mobileGap", t("mobileGap"), 24, 1),
+                this.pxSlider("mobileTop", t("mobileTop"), 64, 4),
+                {
+                  name: t("resetAppearance"),
+                  desc: t("resetAppearanceHelp"),
+                  render: (row) => {
+                    row.addButton((button) =>
+                      button.setButtonText(t("reset")).onClick(async () => {
+                        Object.assign(this.plugin.settings, {
+                          copyGutter: 0,
+                          actionFont: 0,
+                          actionGap: 0,
+                          childIndent: 0,
+                          mobileTouch: 0,
+                          mobileGap: 0,
+                          mobileTop: 0,
+                        });
+                        await this.plugin.saveData(this.plugin.settings);
+                        this.plugin.applyColors();
+                        this.refreshSettings();
+                      }),
+                    );
+                  },
+                },
+              );
+            }
+            return { type: "group", heading: t("advancedAppearance"), items };
+          }
+
+          '''
+          METHODS = '\n'.join(('  ' + l[10:] if l.startswith('          ') else l) for l in METHODS.split('\n'))
+          sub('src/views.ts', '  private groups(): SettingsGroup[] {\n    return [\n', '  private groups(): SettingsGroup[] {\n    return [...this.baseGroups(), this.advancedGroup()];\n  }\n\n  private baseGroups(): SettingsGroup[] {\n    return [\n')
+          sub('src/views.ts', '  getSettingDefinitions(): SettingsGroup[] {', METHODS.rstrip() + '\n\n  getSettingDefinitions(): SettingsGroup[] {')
+          KEYS = ['advancedAppearance', 'showAdvancedAppearance', 'showAdvancedAppearanceHelp', 'copyGutter', 'actionFont', 'actionGap', 'childIndent', 'mobileTouch', 'mobileGap', 'mobileTop', 'zeroDefaultHelp', 'resetAppearance', 'resetAppearanceHelp']
+          NEW = {
+            'en': ['Advanced appearance', 'Show advanced appearance', 'CSS variables for the toolbar, nesting and phone layout. Hidden by default.', 'Gap before the copy button (px)', 'Toolbar button font size (px)', 'Gap between toolbar buttons (px)', 'Nesting indent (px)', 'Touch target size on phones (px)', 'Gap between buttons on phones (px)', 'Extra top offset on phones (px)', '0 uses the default value.', 'Reset advanced appearance', 'Restores the default value of every advanced appearance setting.'],
+            'pl': ['Zaawansowany wygląd', 'Pokaż zaawansowany wygląd', 'Zmienne CSS paska narzędzi, zagnieżdżeń i układu na telefonie. Domyślnie ukryte.', 'Odstęp przed przyciskiem kopiowania (px)', 'Rozmiar czcionki przycisków paska (px)', 'Odstęp między przyciskami paska (px)', 'Wcięcie zagnieżdżeń (px)', 'Rozmiar celu dotyku na telefonie (px)', 'Odstęp między przyciskami na telefonie (px)', 'Dodatkowe odsunięcie od góry na telefonie (px)', '0 oznacza wartość domyślną.', 'Przywróć zaawansowany wygląd', 'Przywraca wartości domyślne wszystkich opcji zaawansowanego wyglądu.'],
+            'de': ['Erweitertes Erscheinungsbild', 'Erweitertes Erscheinungsbild anzeigen', 'CSS-Variablen für Werkzeugleiste, Verschachtelung und Smartphone-Layout. Standardmäßig ausgeblendet.', 'Abstand vor der Kopieren-Schaltfläche (px)', 'Schriftgröße der Leistenschaltflächen (px)', 'Abstand zwischen Leistenschaltflächen (px)', 'Einzug verschachtelter Inhalte (px)', 'Touch-Zielgröße auf Smartphones (px)', 'Abstand zwischen Schaltflächen auf Smartphones (px)', 'Zusätzlicher oberer Abstand auf Smartphones (px)', '0 verwendet den Standardwert.', 'Erweitertes Erscheinungsbild zurücksetzen', 'Setzt alle Optionen des erweiterten Erscheinungsbilds auf ihre Standardwerte zurück.'],
+            'fr': ['Apparence avancée', 'Afficher l’apparence avancée', 'Variables CSS de la barre d’outils, de l’imbrication et de la disposition sur téléphone. Masqué par défaut.', 'Espace avant le bouton de copie (px)', 'Taille de police des boutons de la barre (px)', 'Espace entre les boutons de la barre (px)', 'Retrait des éléments imbriqués (px)', 'Taille des cibles tactiles sur téléphone (px)', 'Espace entre les boutons sur téléphone (px)', 'Décalage supplémentaire en haut sur téléphone (px)', '0 utilise la valeur par défaut.', 'Réinitialiser l’apparence avancée', 'Rétablit la valeur par défaut de toutes les options d’apparence avancée.'],
+            'es': ['Apariencia avanzada', 'Mostrar apariencia avanzada', 'Variables CSS de la barra de herramientas, el anidado y el diseño en el móvil. Oculto por defecto.', 'Espacio antes del botón de copiar (px)', 'Tamaño de fuente de los botones de la barra (px)', 'Espacio entre los botones de la barra (px)', 'Sangría de los elementos anidados (px)', 'Tamaño del objetivo táctil en el móvil (px)', 'Espacio entre botones en el móvil (px)', 'Desplazamiento superior adicional en el móvil (px)', '0 usa el valor predeterminado.', 'Restablecer apariencia avanzada', 'Restaura el valor predeterminado de todas las opciones de apariencia avanzada.'],
+            'nl': ['Geavanceerd uiterlijk', 'Geavanceerd uiterlijk tonen', 'CSS-variabelen voor de werkbalk, nesting en de indeling op telefoons. Standaard verborgen.', 'Ruimte vóór de kopieerknop (px)', 'Lettergrootte van werkbalkknoppen (px)', 'Ruimte tussen werkbalkknoppen (px)', 'Inspringing van geneste inhoud (px)', 'Grootte van aanraakdoelen op telefoons (px)', 'Ruimte tussen knoppen op telefoons (px)', 'Extra bovenmarge op telefoons (px)', '0 gebruikt de standaardwaarde.', 'Geavanceerd uiterlijk herstellen', 'Zet alle opties voor geavanceerd uiterlijk terug op de standaardwaarden.'],
+            'it': ['Aspetto avanzato', 'Mostra aspetto avanzato', 'Variabili CSS per barra degli strumenti, annidamento e layout su telefono. Nascosto per impostazione predefinita.', 'Spazio prima del pulsante di copia (px)', 'Dimensione del carattere dei pulsanti della barra (px)', 'Spazio tra i pulsanti della barra (px)', 'Rientro dei contenuti annidati (px)', 'Dimensione dell’area di tocco su telefono (px)', 'Spazio tra i pulsanti su telefono (px)', 'Margine superiore aggiuntivo su telefono (px)', '0 usa il valore predefinito.', 'Ripristina aspetto avanzato', 'Ripristina il valore predefinito di tutte le opzioni di aspetto avanzato.'],
+          }
+          for lang, values in NEW.items():
+              path = 'src/i18n/' + lang + '.json'
+              data = json.load(open(path, encoding='utf-8'))
+              for key, value in zip(KEYS, values):
+                  data[key] = value
+              open(path, 'w', encoding='utf-8', newline='').write(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+          TEST = '''import { test } from "node:test";
+          import assert from "node:assert/strict";
+          import fs from "node:fs";
+          import { DEFAULTS, readSettings } from "../src/settings";
+
+          test("advanced appearance overrides default to the stylesheet values", () => {
+            const settings = readSettings({ copyGutter: 12, mobileTop: "x" });
+            assert.equal(settings.copyGutter, 12);
+            assert.equal(settings.mobileTop, 0);
+            assert.equal(DEFAULTS.showAdvancedAppearance, false);
+            const css = fs.readFileSync("styles.css", "utf8");
+            for (const name of [
+              "--ce-gutter",
+              "--ce-action-font",
+              "--ce-action-gap",
+              "--ce-indent",
+              "--ce-touch",
+              "--ce-mobile-gap",
+              "--ce-mobile-top",
+            ])
+              assert.ok(css.includes("var(" + name + ","), name);
+          });
+          '''
+          TEST = '\n'.join((l[10:] if l.startswith('          ') else l) for l in TEST.split('\n'))
+          open('test/appearance.test.ts', 'w', encoding='utf-8', newline='').write(TEST)
+          PY
+      - run: git diff --stat
+      - name: Lint, build and test
+        id: check
+        run: |
+          set +e
+          (npm ci && npm run lint && npm run build && npm test) > /tmp/ci.log 2>&1
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+          tail -n 60 /tmp/ci.log
+      - name: Publish branch when green
+        if: steps.check.outputs.status == '0'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json manifest.json versions.json
-          git commit -m "chore: release 0.3.4"
-          git push origin HEAD:main
-      - name: Create release with assets
-        env:
-          GH_TOKEN: ${{ github.token }}
+          git checkout -b feat/advanced-appearance
+          git add README*.md src styles.css test
+          git commit -m "feat: advanced appearance settings, install and privacy docs"
+          git push origin feat/advanced-appearance
+      - name: Publish log
+        if: always()
         run: |
-          SHA=$(git rev-parse HEAD)
-          gh release create 0.3.4 dist/main.js dist/manifest.json dist/styles.css --target "$SHA" --title 0.3.4 --generate-notes --draft
-          gh release download 0.3.4 --dir "$RUNNER_TEMP/release-assets"
-          for file in main.js manifest.json styles.css; do
-            cmp "dist/$file" "$RUNNER_TEMP/release-assets/$file"
-          done
-          gh release edit 0.3.4 --draft=false --latest
-          gh release view 0.3.4 --json assets -q '.assets[].name'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp /tmp/ci.log "$RUNNER_TEMP/ci.log" 2>/dev/null || echo "no log" > "$RUNNER_TEMP/ci.log"
+          git checkout --orphan ci-log
+          git rm -rf -q .
+          cp "$RUNNER_TEMP/ci.log" ci.log
+          git add ci.log
+          git commit -m "ci log"
+          git push -f origin ci-log
